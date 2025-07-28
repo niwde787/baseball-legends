@@ -59,7 +59,6 @@
                 <!-- Main Menu -->
                 <div class="flex flex-col items-center justify-center gap-4">
                     <button id="start-game-btn" class="bg-teal-500 text-gray-900 font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64">PLAY NOW</button>
-                    <a href="http://dingersdepartment.com/" target="_blank" class="inline-block bg-teal-500 text-gray-900 font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 text-center">STORE</a>
                     <button class="bg-gray-700 text-gray-400 font-bold text-xl py-3 px-8 rounded-lg shadow-lg w-64 cursor-not-allowed opacity-50" disabled>RANKINGS🏆</button>
                 </div>
             </div>
@@ -68,7 +67,10 @@
         <!-- Team 1 Builder Screen -->
         <section id="team-1-builder-screen" class="screen">
             <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-4xl mx-auto">
-                <h2 class="text-4xl font-bold text-center mb-6 text-teal-400">BUILD TEAM 1</h2>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-4xl font-bold text-teal-400">BUILD TEAM 1</h2>
+                    <button id="randomize-team-1-btn" class="bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform hover:scale-105">RANDOMIZE TEAM</button>
+                </div>
                 <div id="team-1-builder" class="team-builder"></div>
                 <div class="text-center mt-8">
                     <button id="to-team-2-builder-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed" disabled>BUILD TEAM 2</button>
@@ -79,7 +81,10 @@
         <!-- Team 2 Builder Screen -->
         <section id="team-2-builder-screen" class="screen">
             <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-4xl mx-auto">
-                <h2 class="text-4xl font-bold text-center mb-6 text-teal-400">BUILD TEAM 2</h2>
+                 <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-4xl font-bold text-teal-400">BUILD TEAM 2</h2>
+                    <button id="randomize-team-2-btn" class="bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform hover:scale-105">RANDOMIZE TEAM</button>
+                </div>
                 <div id="team-2-builder" class="team-builder"></div>
                 <div class="text-center mt-8">
                     <button id="to-stadium-select-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed" disabled>SELECT STADIUM</button>
@@ -117,10 +122,9 @@
             <div id="mvp-section" class="text-center mb-6 bg-gray-800 p-4 rounded-lg shadow-xl"></div>
             <div id="inning-box-score" class="bg-gray-800 p-4 rounded-lg shadow-xl overflow-x-auto mb-6"></div>
             <div id="box-score" class="bg-gray-800 p-4 rounded-lg shadow-xl overflow-x-auto"></div>
-             <div id="hit-breakdown" class="bg-gray-800 p-4 rounded-lg shadow-xl mt-6"></div>
             <div class="text-center mt-8 flex justify-center gap-4">
                 <button id="rematch-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105">REMATCH</button>
-                <button id="to-home-btn" class="bg-gray-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105">HOME SCREEN</button>
+                <button id="to-home-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105">HOME SCREEN</button>
             </div>
         </section>
 
@@ -540,6 +544,14 @@
         function selectPlayer(playerId) {
             const player = players.find(p => p.id === playerId);
             const { teamId, position } = modalContext;
+            
+            // Call a helper to avoid duplicating code
+            addPlayerToSlot(teamId, position, player);
+
+            modal.classList.add('hidden');
+        }
+        
+        function addPlayerToSlot(teamId, position, player) {
             gameState.teams[teamId].roster[position] = player;
             
             const slot = document.getElementById(`pos-${teamId}-${position}`);
@@ -553,12 +565,13 @@
                  addPlayerToBattingOrder(teamId, player);
             }
 
-            modal.classList.add('hidden');
             checkTeamReady(teamId);
         }
-        
+
         function removePlayer(teamId, position) {
             const playerToRemove = gameState.teams[teamId].roster[position];
+            if (!playerToRemove) return;
+
             delete gameState.teams[teamId].roster[position];
             
             const slot = document.getElementById(`pos-${teamId}-${position}`);
@@ -566,7 +579,6 @@
             slot.innerHTML = `<span class="font-bold text-lg">${positionTitle || position}</span>
                               <button class="add-player-btn mt-2 bg-teal-600 px-3 py-1 rounded text-sm hover:bg-teal-500">+</button>`;
 
-            // If a player is removed, clear the batting order
             const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
             const playerCard = battingOrderContainer.querySelector(`[data-player-id="${playerToRemove.id}"]`);
             if(playerCard) playerCard.remove();
@@ -1027,13 +1039,16 @@
                 const winningTeam = this.score.away > this.score.home ? this.teams.away.name : this.teams.home.name;
                 const losingTeam = this.score.away > this.score.home ? this.teams.home.name : this.teams.away.name;
                 const finalScore = `${this.teams.away.name} ${this.score.away} - ${this.teams.home.name} ${this.score.home}`;
-                
+                const scoreDiff = Math.abs(this.score.away - this.score.home);
+
                 const summaryOpeners = [
                     `It was a hard-fought contest at ${this.stadium.name}, but the ${winningTeam} emerged victorious over the ${losingTeam} with a final score of ${finalScore}.`,
                     `In a stunning display of skill, the ${winningTeam} defeated the ${losingTeam} today, finishing with a score of ${finalScore}.`,
                     `What a game! The ${winningTeam} pulled ahead to clinch the win against the ${losingTeam}, final score ${finalScore}.`,
                     `The crowd is on its feet as the ${winningTeam} celebrate their ${this.score.away > this.score.home ? this.score.away + '-' + this.score.home : this.score.home + '-' + this.score.away} victory over the ${losingTeam}.`,
-                    `That's all she wrote from ${this.stadium.name}, where the ${winningTeam} took down the ${losingTeam} in a fantastic ballgame.`
+                    `That's all she wrote from ${this.stadium.name}, where the ${winningTeam} took down the ${losingTeam} in a fantastic ballgame.`,
+                    scoreDiff > 5 ? `The ${winningTeam} dominated today's game, cruising to a ${finalScore} win over the ${losingTeam}.` : `It was a nail-biter at ${this.stadium.name}, with the ${winningTeam} just edging out the ${losingTeam} by a score of ${finalScore}.`,
+                    `A stellar performance from the ${winningTeam} secures them the W against the ${losingTeam}. Final score: ${this.score.away > this.score.home ? this.score.away + ' to ' + this.score.home : this.score.home + ' to ' + this.score.away}.`
                 ];
 
                 let summary = summaryOpeners[Math.floor(Math.random() * summaryOpeners.length)];
@@ -1041,16 +1056,19 @@
                 const bigPlays = this.events.filter(e => e.rbi >= 2).sort((a,b) => b.rbi - a.rbi);
                 if (bigPlays.length > 0) {
                     const biggestPlay = bigPlays[0];
-                    summary += ` The turning point came in the ${biggestPlay.inning}th inning when ${biggestPlay.batter} hit a ${biggestPlay.rbi}-run homer, shifting the momentum. `;
+                    const playType = biggestPlay.result === 'HR' ? `${biggestPlay.rbi}-run homer` : `clutch hit`;
+                    summary += ` A key moment came in the ${biggestPlay.inning}th inning when ${biggestPlay.batter} delivered a ${playType}, shifting the momentum. `;
                 }
 
                 const mvp = getMvp(this);
                 const mvpStats = this.stats.players[mvp.id];
                 if (mvpStats.ip > 0) {
                     const ipString = `${Math.floor(mvpStats.ip)}.${Math.round((mvpStats.ip % 1) * 3)}`;
-                    summary += `${mvp.name} was dominant on the mound, pitching ${ipString} innings and striking out ${mvpStats.so_p}.`;
+                    const dominanceLine = mvpStats.so_p > 7 ? `was dominant on the mound, fanning ${mvpStats.so_p}` : `pitched a gem`;
+                    summary += `${mvp.name} ${dominanceLine}, going ${ipString} innings to secure the win.`;
                 } else {
-                    summary += `${mvp.name} led the offense, going ${mvpStats.h}-for-${mvpStats.ab} with ${mvpStats.rbi} RBI.`;
+                    const offenseLine = mvpStats.hr > 1 ? `led the offensive charge with ${mvpStats.hr} home runs` : `was a force at the plate`;
+                    summary += `${mvp.name} ${offenseLine}, going ${mvpStats.h}-for-${mvpStats.ab} with ${mvpStats.rbi} RBI.`;
                 }
                 
                 return summary;
@@ -1137,8 +1155,6 @@
                 </div>
             `;
             document.getElementById('box-score').innerHTML = boxScoreHtml;
-
-            document.getElementById('hit-breakdown').innerHTML = generateHitBreakdown(sim);
         }
 
         function generateInningBoxScore(sim) {
@@ -1218,25 +1234,33 @@
                 }
             });
             pitchingHtml += `</tbody></table>`;
+            
+            const hitBreakdownHtml = `<div class="mt-4">${generateHitBreakdown(sim, teamKey)}</div>`;
 
-            return battingHtml + pitchingHtml;
+            return battingHtml + pitchingHtml + hitBreakdownHtml;
         }
 
-        function generateHitBreakdown(sim) {
-            let breakdownHtml = `<h4 class="text-2xl font-bold text-teal-300 mb-2">Hit Breakdown</h4>`;
-            const hits = { '2B': [], '3B': [], HR: [] };
+        function generateHitBreakdown(sim, teamKey) {
+            let breakdownHtml = `<h4 class="text-xl font-bold text-teal-300 mb-2">Hit Breakdown</h4>`;
+            const hits = { '2B': [], '3B': [], HR: [], RBI: [] };
             
-            [...sim.teams.away.battingOrder, ...sim.teams.home.battingOrder].forEach(p => {
+            sim.teams[teamKey].battingOrder.forEach(p => {
                 const s = sim.stats.players[p.id];
                 if (s['2b'] > 0) hits['2B'].push(`${p.name} (${s['2b']})`);
                 if (s['3b'] > 0) hits['3B'].push(`${p.name} (${s['3b']})`);
                 if (s.hr > 0) hits.HR.push(`${p.name} (${s.hr})`);
+                if (s.rbi > 0) hits.RBI.push(`${p.name} (${s.rbi})`);
             });
 
-            if (hits['2B'].length > 0) breakdownHtml += `<p><span class="font-bold">2B:</span> ${hits['2B'].join(', ')}</p>`;
-            if (hits['3B'].length > 0) breakdownHtml += `<p><span class="font-bold">3B:</span> ${hits['3B'].join(', ')}</p>`;
-            if (hits.HR.length > 0) breakdownHtml += `<p><span class="font-bold">HR:</span> ${hits.HR.join(', ')}</p>`;
+            if (hits['2B'].length > 0) breakdownHtml += `<p class="text-sm"><span class="font-semibold">2B:</span> ${hits['2B'].join(', ')}</p>`;
+            if (hits['3B'].length > 0) breakdownHtml += `<p class="text-sm"><span class="font-semibold">3B:</span> ${hits['3B'].join(', ')}</p>`;
+            if (hits.HR.length > 0) breakdownHtml += `<p class="text-sm"><span class="font-semibold">HR:</span> ${hits.HR.join(', ')}</p>`;
+            if (hits.RBI.length > 0) breakdownHtml += `<p class="text-sm"><span class="font-semibold">RBI:</span> ${hits.RBI.join(', ')}</p>`;
             
+            if (Object.values(hits).every(arr => arr.length === 0)) {
+                return ''; // Return nothing if there's no data to show
+            }
+
             return breakdownHtml;
         }
         
@@ -1283,6 +1307,54 @@
             summaryContainer.innerHTML = `<h4 class="text-2xl font-bold text-teal-300 mb-2">GAME SUMMARY</h4><p>${gameState.gameSim.generateGameSummary()}</p>`;
             summaryContainer.classList.remove('hidden');
         }
+        
+        function randomizeTeam(teamId) {
+            // Clear existing roster and batting order for the team
+            const allPositions = ["C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "DH", "SP", "MR1", "MR2", "CL"];
+            allPositions.forEach(pos => {
+                if (gameState.teams[teamId].roster[pos]) {
+                    removePlayer(teamId, pos);
+                }
+            });
+            gameState.teams[teamId].roster = {};
+            gameState.teams[teamId].battingOrder = [];
+            const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
+            battingOrderContainer.innerHTML = '';
+
+            const otherTeamId = teamId == 1 ? 2 : 1;
+            const usedPlayerIds = new Set(Object.values(gameState.teams[otherTeamId].roster).map(p => p.id));
+
+            const positionMap = {
+                "C": ["C"], "1B": ["1B"], "2B": ["2B"], "3B": ["3B"], "SS": ["SS"],
+                "LF": ["OF"], "CF": ["OF"], "RF": ["OF"], "DH": ["C", "1B", "2B", "3B", "SS", "OF", "DH"],
+                "SP": ["P"], "MR1": ["P"], "MR2": ["P"], "CL": ["P"]
+            };
+
+            allPositions.forEach(pos => {
+                const eligiblePositions = positionMap[pos];
+                let availablePlayers = players.filter(p => 
+                    !usedPlayerIds.has(p.id) && p.positions.some(pp => eligiblePositions.includes(pp))
+                );
+                
+                if (availablePlayers.length > 0) {
+                    const randomPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+                    usedPlayerIds.add(randomPlayer.id);
+                    addPlayerToSlot(teamId, pos, randomPlayer);
+                }
+            });
+            
+            // Shuffle batting order for some variety
+            let order = gameState.teams[teamId].battingOrder;
+            for (let i = order.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [order[i], order[j]] = [order[j], order[i]];
+            }
+            battingOrderContainer.innerHTML = ''; // Clear visual order
+            order.forEach(playerId => {
+                const player = players.find(p => p.id === playerId);
+                addPlayerToBattingOrder(teamId, player); // Re-add in shuffled order
+            });
+        }
 
         // --- EVENT LISTENERS ---
         document.addEventListener('click', (e) => {
@@ -1306,6 +1378,12 @@
             if (e.target.id === 'rematch-btn') {
                 navigateTo('game-simulation-screen');
                 startNewGame();
+            }
+            if (e.target.id === 'randomize-team-1-btn') {
+                randomizeTeam(1);
+            }
+            if (e.target.id === 'randomize-team-2-btn') {
+                randomizeTeam(2);
             }
 
             if (e.target.classList.contains('add-player-btn')) {
