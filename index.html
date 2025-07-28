@@ -58,7 +58,7 @@
                 
                 <!-- Main Menu -->
                 <div class="flex flex-col items-center justify-center gap-4">
-                    <button id="start-game-btn" class="bg-teal-500 text-gray-900 font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">PLAY NOW</button>
+                    <button id="start-game-btn" class="bg-indigo-500 text-gray-900 font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">PLAY NOW</button>
                     <button class="bg-gray-700 text-gray-400 font-bold text-xl py-3 px-8 rounded-lg shadow-lg w-64 cursor-not-allowed opacity-50 uppercase" disabled>RANKINGS🏆</button>
                 </div>
             </div>
@@ -96,7 +96,7 @@
         <section id="stadium-selector-screen" class="screen">
             <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-6xl mx-auto">
                 <h2 class="text-4xl font-bold text-center mb-6 text-teal-400">SELECT A STADIUM</h2>
-                <div id="stadium-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div id="stadium-list" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
             </div>
             <div class="text-center mt-8">
                  <button id="to-game-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed uppercase" disabled>PLAY BALL!</button>
@@ -124,7 +124,7 @@
             <div id="box-score" class="bg-gray-800 p-4 rounded-lg shadow-xl overflow-x-auto"></div>
             <div class="text-center mt-8 flex justify-center gap-4">
                 <button id="rematch-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">REMATCH</button>
-                <button id="to-home-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">Home</button>
+                <button id="to-home-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">HOME</button>
             </div>
         </section>
 
@@ -629,18 +629,25 @@
         function initializeStadiums() {
             const list = document.getElementById('stadium-list');
             list.innerHTML = stadiums.map(s => `
-                <div class="stadium-card bg-gray-700 p-4 rounded-lg shadow-lg cursor-pointer border-2 border-gray-700 hover:border-teal-400 transition flex flex-col justify-between" data-stadium-name="${s.name}">
-                    <h3 class="text-xl font-bold text-center mb-2">${s.name}</h3>
-                    ${s.thumbnail 
-                        ? `<img src="${s.thumbnail}" alt="${s.name}" class="w-full h-32 object-cover rounded-md">` 
-                        : `<div class="h-32 flex flex-col justify-center items-center text-gray-400">
-                               <ul>
-                                   <li>HR Factor: ${s.factors.hr}</li>
-                                   <li>Triple Factor: ${s.factors.triple}</li>
-                                   <li>Double Factor: ${s.factors.double}</li>
-                               </ul>
-                           </div>`
-                    }
+                <div class="stadium-card bg-gray-700 p-4 rounded-lg shadow-lg cursor-pointer border-2 border-gray-700 hover:border-teal-400 transition" data-stadium-name="${s.name}">
+                    <h3 class="text-2xl font-bold text-center mb-4 col-span-2">${s.name}</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <img src="${s.thumbnail || 'https://placehold.co/300x200/1f2937/ffffff?text=Stadium'}" alt="${s.name}" class="w-full h-40 object-cover rounded-md">
+                        </div>
+                        <div class="text-sm">
+                            <p>LEFT FIELD – ${s.dimensions?.lf || 'N/A'}</p>
+                            <p>LEFT CENTER – ${s.dimensions?.lcf || 'N/A'}</p>
+                            <p>CENTER FIELD – ${s.dimensions?.cf || 'N/A'}</p>
+                            <p>RIGHT CENTER – ${s.dimensions?.rcf || 'N/A'}</p>
+                            <p>RIGHT FIELD – ${s.dimensions?.rf || 'N/A'}</p>
+                            <div class="mt-4 pt-2 border-t border-gray-600">
+                                <p>HR Factor: ${s.factors.hr}</p>
+                                <p>Triple Factor: ${s.factors.triple}</p>
+                                <p>Double Factor: ${s.factors.double}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `).join('');
         }
