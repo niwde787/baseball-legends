@@ -391,7 +391,7 @@
             { name: "Tropicana Field", factors: { hr: 1.0, triple: 1.2, double: 1.1, single: 1.0 } },
             { name: "Truist Park", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 } },
             { name: "Wrigley Field", factors: { hr: 1.1, triple: 1.2, double: 1.2, single: 1.0 } },
-            { name: "Yankee Stadium", factors: { hr: 1.2, triple: 0.7, double: 0.9, single: 1.0 } },
+            { name: "Yankee Stadium", factors: { hr: 1.2, triple: 0.7, double: 0.9, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/refs/heads/stadiums/Yankee_Stadium_overhead_2010.jpg" },
             // Historical & Fictional
             { name: "Polo Grounds", factors: { hr: 0.8, triple: 1.5, double: 1.2, single: 1.0 } },
             { name: "Hiram Bithorn Stadium", factors: { hr: 0.9, triple: 1.0, double: 1.0, single: 1.0 } },
@@ -612,13 +612,18 @@
         function initializeStadiums() {
             const list = document.getElementById('stadium-list');
             list.innerHTML = stadiums.map(s => `
-                <div class="stadium-card bg-gray-700 p-4 rounded-lg shadow-lg cursor-pointer border-2 border-gray-700 hover:border-teal-400 transition" data-stadium-name="${s.name}">
-                    <h3 class="text-2xl font-bold text-center">${s.name}</h3>
-                    <ul class="text-center text-gray-400 mt-2">
-                        <li>HR Factor: ${s.factors.hr}</li>
-                        <li>Triple Factor: ${s.factors.triple}</li>
-                        <li>Double Factor: ${s.factors.double}</li>
-                    </ul>
+                <div class="stadium-card bg-gray-700 p-4 rounded-lg shadow-lg cursor-pointer border-2 border-gray-700 hover:border-teal-400 transition flex flex-col justify-between" data-stadium-name="${s.name}">
+                    <h3 class="text-xl font-bold text-center mb-2">${s.name}</h3>
+                    ${s.thumbnail 
+                        ? `<img src="${s.thumbnail}" alt="${s.name}" class="w-full h-32 object-cover rounded-md">` 
+                        : `<div class="h-32 flex flex-col justify-center items-center text-gray-400">
+                               <ul>
+                                   <li>HR Factor: ${s.factors.hr}</li>
+                                   <li>Triple Factor: ${s.factors.triple}</li>
+                                   <li>Double Factor: ${s.factors.double}</li>
+                               </ul>
+                           </div>`
+                    }
                 </div>
             `).join('');
         }
