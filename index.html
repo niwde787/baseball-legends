@@ -58,8 +58,8 @@
                 
                 <!-- Main Menu -->
                 <div class="flex flex-col items-center justify-center gap-4">
-                    <button id="start-game-btn" class="bg-indigo-500 text-gray-900 font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">PLAY NOW</button>
-                    <button class="bg-gray-700 text-gray-400 font-bold text-xl py-3 px-8 rounded-lg shadow-lg w-64 cursor-not-allowed opacity-50 uppercase" disabled>RANKINGS🏆</button>
+                    <button id="start-game-btn" class="bg-teal-500 text-gray-900 font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">PLAY NOW</button>
+                    <button id="rivalry-btn" class="bg-teal-500 text-gray-900 font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">🇵🇷 RIVALRY 🇺🇸</button>
                 </div>
             </div>
         </section>
@@ -141,6 +141,23 @@
             <div id="modal-player-list" class="p-4 overflow-y-auto"></div>
             <div class="p-4 border-t border-gray-700 text-right">
                 <button id="modal-close-btn" class="bg-gray-600 text-white font-bold py-2 px-6 rounded-lg uppercase">CLOSE</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PIN Modal -->
+    <div id="pin-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-800 rounded-lg shadow-2xl w-full max-w-sm">
+            <div class="p-4 border-b border-gray-700">
+                <h3 class="text-2xl font-bold text-teal-400">ENTER PIN</h3>
+            </div>
+            <div class="p-4">
+                <input type="password" id="pin-input" class="w-full bg-gray-700 p-2 rounded text-center text-2xl" maxlength="10">
+                <p id="pin-error" class="text-red-500 text-center mt-2 h-4"></p>
+            </div>
+            <div class="p-4 border-t border-gray-700 flex justify-end gap-4">
+                <button id="pin-close-btn" class="bg-gray-600 text-white font-bold py-2 px-6 rounded-lg uppercase">CANCEL</button>
+                <button id="pin-submit-btn" class="bg-teal-500 text-gray-900 font-bold py-2 px-6 rounded-lg uppercase">SUBMIT</button>
             </div>
         </div>
     </div>
@@ -1472,6 +1489,25 @@
             }
             if (e.target.id === 'ai-lineup-btn-2') {
                 generateAiLineup(2);
+            }
+            if (e.target.id === 'rivalry-btn') {
+                document.getElementById('pin-modal').classList.remove('hidden');
+                document.getElementById('pin-input').value = '';
+                document.getElementById('pin-error').textContent = '';
+                document.getElementById('pin-input').focus();
+            }
+            if(e.target.id === 'pin-close-btn') {
+                document.getElementById('pin-modal').classList.add('hidden');
+            }
+            if (e.target.id === 'pin-submit-btn') {
+                const pinInput = document.getElementById('pin-input');
+                if (pinInput.value.toUpperCase() === 'FUCKYOU') {
+                    window.open('https://niwde787.github.io/baseball-legends/rivalry.html', '_blank');
+                    document.getElementById('pin-modal').classList.add('hidden');
+                } else {
+                    document.getElementById('pin-error').textContent = 'Incorrect PIN';
+                    pinInput.value = '';
+                }
             }
 
             if (e.target.classList.contains('add-player-btn')) {
