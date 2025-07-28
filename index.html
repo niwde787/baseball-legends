@@ -1,1 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baseball Legends</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+            color: #f3f4f6; /* text-gray-100 */
+        }
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+        .draggable {
+            cursor: move;
+        }
+        .dragging {
+            opacity: 0.5;
+            background: #374151; /* bg-gray-700 */
+        }
+        .drop-zone {
+            border: 2px dashed #4b5563; /* border-gray-600 */
+            min-height: 50px;
+        }
+        .player-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(30, 255, 255, 0.2);
+        }
+        #home-screen {
+             background: radial-gradient(ellipse at center, #1f2937, #111827);
+        }
+        .stadium-card.selected {
+            border-color: #2dd4bf; /* teal-400 */
+            box-shadow: 0 0 15px rgba(45, 212, 191, 0.5);
+        }
+    </style>
+</head>
+<body class="antialiased">
 
+    <!-- App Container -->
+    <div id="app" class="container mx-auto p-4 max-w-7xl">
+
+        <!-- Home Screen -->
+        <section id="home-screen" class="screen active py-12">
+            <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-4xl mx-auto flex flex-col items-center justify-center space-y-10">
+                <!-- SVG Logo -->
+                <img src="https://i.imgur.com/HJwkfv9.png" alt="Baseball Legends Logo" class="w-full max-w-md mx-auto">
+                <h1 class="text-4xl font-bold text-teal-300 text-center">Simulate your dream baseball matchups.</h1>
+                
+                <!-- Main Menu -->
+                <div class="flex flex-col items-center justify-center gap-4">
+                    <button id="start-game-btn" class="bg-teal-500 text-gray-900 font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">PLAY NOW</button>
+                    <button class="bg-gray-700 text-gray-400 font-bold text-xl py-3 px-8 rounded-lg shadow-lg w-64 cursor-not-allowed opacity-50 uppercase" disabled>RANKINGS🏆</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team 1 Builder Screen -->
+        <section id="team-1-builder-screen" class="screen">
+            <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-4xl mx-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-4xl font-bold text-teal-400">BUILD TEAM 1</h2>
+                    <button id="randomize-team-1-btn" class="bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase text-sm">RANDOMIZE TEAM</button>
+                </div>
+                <div id="team-1-builder" class="team-builder"></div>
+                <div class="text-center mt-8">
+                    <button id="to-team-2-builder-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed uppercase" disabled>BUILD TEAM 2</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team 2 Builder Screen -->
+        <section id="team-2-builder-screen" class="screen">
+            <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-4xl mx-auto">
+                 <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-4xl font-bold text-teal-400">BUILD TEAM 2</h2>
+                    <button id="randomize-team-2-btn" class="bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase text-sm">RANDOMIZE TEAM</button>
+                </div>
+                <div id="team-2-builder" class="team-builder"></div>
+                <div class="text-center mt-8">
+                    <button id="to-stadium-select-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed uppercase" disabled>SELECT STADIUM</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stadium Selector Screen -->
+        <section id="stadium-selector-screen" class="screen">
+            <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-6xl mx-auto">
+                <h2 class="text-4xl font-bold text-center mb-6 text-teal-400">SELECT A STADIUM</h2>
+                <div id="stadium-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+            <div class="text-center mt-8">
+                 <button id="to-game-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed uppercase" disabled>PLAY BALL!</button>
+            </div>
+        </section>
+
+        <!-- Game Simulation Screen -->
+        <section id="game-simulation-screen" class="screen">
+            <div class="bg-gray-800 p-4 rounded-lg shadow-xl">
+                <div id="scoreboard" class="text-center mb-4"></div>
+                <div id="game-inning-box-score" class="mb-4 overflow-x-auto hidden"></div>
+                <div id="play-by-play" class="h-96 overflow-y-auto bg-gray-900 p-4 rounded font-mono border border-gray-700"></div>
+            </div>
+             <div id="game-summary" class="bg-gray-800 p-4 rounded-lg shadow-xl mt-4 hidden"></div>
+             <div class="text-center mt-4">
+                <button id="to-recap-btn" class="bg-teal-500 text-gray-900 font-bold text-xl py-2 px-8 rounded-lg shadow-lg hidden uppercase">VIEW FULL RECAP</button>
+            </div>
+        </section>
+
+        <!-- Recap Screen -->
+        <section id="recap-screen" class="screen">
+            <h2 class="text-5xl font-bold text-center mb-6 text-teal-400">GAME RECAP</h2>
+            <div id="mvp-section" class="text-center mb-6 bg-gray-800 p-4 rounded-lg shadow-xl"></div>
+            <div id="inning-box-score" class="bg-gray-800 p-4 rounded-lg shadow-xl overflow-x-auto mb-6"></div>
+            <div id="box-score" class="bg-gray-800 p-4 rounded-lg shadow-xl overflow-x-auto"></div>
+            <div class="text-center mt-8 flex justify-center gap-4">
+                <button id="rematch-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">REMATCH</button>
+                <button id="to-home-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">Home</button>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Player Selection Modal -->
+    <div id="player-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-gray-800 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div class="p-4 border-b border-gray-700">
+                <h3 id="modal-title" class="text-2xl font-bold text-teal-400">Select Player</h3>
+                <input type="text" id="player-search" class="w-full bg-gray-700 p-2 rounded mt-2" placeholder="Search by name...">
+                <div id="era-filter" class="flex justify-center gap-4 mt-2"></div>
+            </div>
+            <div id="modal-player-list" class="p-4 overflow-y-auto"></div>
+            <div class="p-4 border-t border-gray-700 text-right">
+                <button id="modal-close-btn" class="bg-gray-600 text-white font-bold py-2 px-6 rounded-lg uppercase">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // This single script contains all the game's logic, data, and UI management.
+        // It's structured to be readable and follows the flow from the design document.
+
+        // --- DATA ---
+        // Expanded player database with at least 25 players per position
+        const players = [
+            // CATCHERS (25)
+            { id: 1, name: "Johnny Bench", positions: ["C"], era: "Hall of Famer", eraTag: '70s', speed: 4, defense: 9, stats: { avg: .267, hr: 389, rbi: 1376, bb: 891, so: 1278, ab: 7658 }, statmuseId: 'johnny-bench', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JB" },
+            { id: 2, name: "Yogi Berra", positions: ["C", "OF"], era: "Hall of Famer", eraTag: '50s', speed: 4, defense: 7, stats: { avg: .285, hr: 358, rbi: 1430, bb: 704, so: 414, ab: 7555 }, statmuseId: 'yogi-berra', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=YB" },
+            { id: 3, name: "Ivan Rodriguez", positions: ["C"], era: "Hall of Famer", eraTag: '90s', speed: 6, defense: 10, stats: { avg: .296, hr: 311, rbi: 1332, bb: 513, so: 1474, ab: 9592 }, statmuseId: 'ivan-rodriguez', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=IR" },
+            { id: 4, name: "Carlton Fisk", positions: ["C"], era: "Hall of Famer", eraTag: '80s', speed: 3, defense: 8, stats: { avg: .269, hr: 376, rbi: 1330, bb: 849, so: 1386, ab: 9338 }, statmuseId: 'carlton-fisk', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CF" },
+            { id: 5, name: "Mike Piazza", positions: ["C", "1B"], era: "Hall of Famer", eraTag: '90s', speed: 3, defense: 4, stats: { avg: .308, hr: 427, rbi: 1335, bb: 759, so: 1113, ab: 6911 }, statmuseId: 'mike-piazza', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MP" },
+            { id: 8, name: "Josh Gibson", positions: ["C"], era: "Legend", eraTag: '30s', speed: 6, defense: 7, stats: { avg: .374, hr: 238, rbi: 1000, bb: 300, so: 200, ab: 3000 }, statmuseId: 'josh-gibson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JG" },
+            { id: 9, name: "Roy Campanella", positions: ["C"], era: "Legend", eraTag: '50s', speed: 4, defense: 8, stats: { avg: .276, hr: 242, rbi: 856, bb: 533, so: 596, ab: 3857 }, statmuseId: 'roy-campanella', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RC" },
+            { id: 10, name: "Buster Posey", positions: ["C", "1B"], era: "Legend", eraTag: 'modern', speed: 4, defense: 9, stats: { avg: .302, hr: 158, rbi: 729, bb: 540, so: 733, ab: 4574 }, statmuseId: 'buster-posey', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BP" },
+            { id: 101, name: "Gary Carter", positions: ["C"], era: "Hall of Famer", eraTag: '80s', speed: 4, defense: 8, stats: { avg: .262, hr: 324, rbi: 1225, bb: 899, so: 1199, ab: 8077 }, statmuseId: 'gary-carter', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GC" },
+            { id: 102, name: "Thurman Munson", positions: ["C"], era: "Legend", eraTag: '70s', speed: 5, defense: 7, stats: { avg: .292, hr: 113, rbi: 701, bb: 430, so: 696, ab: 5343 }, statmuseId: 'thurman-munson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TM" },
+            { id: 103, name: "Bill Dickey", positions: ["C"], era: "Hall of Famer", eraTag: '30s', speed: 3, defense: 7, stats: { avg: .313, hr: 202, rbi: 1209, bb: 741, so: 289, ab: 6300 }, statmuseId: 'bill-dickey', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BD" },
+            { id: 104, name: "Mickey Cochrane", positions: ["C"], era: "Hall of Famer", eraTag: '30s', speed: 6, defense: 6, stats: { avg: .320, hr: 119, rbi: 832, bb: 857, so: 277, ab: 5169 }, statmuseId: 'mickey-cochrane', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MC" },
+            { id: 105, name: "Gabby Hartnett", positions: ["C"], era: "Hall of Famer", eraTag: '30s', speed: 3, defense: 8, stats: { avg: .297, hr: 236, rbi: 1179, bb: 712, so: 666, ab: 6432 }, statmuseId: 'gabby-hartnett', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GH" },
+            { id: 106, name: "Ted Simmons", positions: ["C", "1B"], era: "Hall of Famer", eraTag: '70s', speed: 3, defense: 5, stats: { avg: .285, hr: 248, rbi: 1389, bb: 855, so: 960, ab: 8680 }, statmuseId: 'ted-simmons', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TS" },
+            { id: 107, name: "Joe Mauer", positions: ["C", "1B"], era: "Legend", eraTag: 'modern', speed: 5, defense: 7, stats: { avg: .306, hr: 143, rbi: 923, bb: 939, so: 1034, ab: 7188 }, statmuseId: 'joe-mauer', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JM" },
+            { id: 108, name: "Yadier Molina", positions: ["C"], era: "Legend", eraTag: 'modern', speed: 3, defense: 10, stats: { avg: .277, hr: 176, rbi: 1022, bb: 618, so: 998, ab: 7824 }, statmuseId: 'yadier-molina', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=YM" },
+            { id: 109, name: "Jorge Posada", positions: ["C"], era: "Legend", eraTag: '90s', speed: 3, defense: 6, stats: { avg: .273, hr: 275, rbi: 1065, bb: 936, so: 1453, ab: 6092 }, statmuseId: 'jorge-posada', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JP" },
+            { id: 110, name: "Lance Parrish", positions: ["C"], era: "Legend", eraTag: '80s', speed: 3, defense: 8, stats: { avg: .252, hr: 324, rbi: 1070, bb: 577, so: 1533, ab: 6664 }, statmuseId: 'lance-parrish', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=LP" },
+            { id: 111, name: "Willson Contreras", positions: ["C"], era: "Active", eraTag: 'modern', speed: 5, defense: 7, stats: { avg: .258, hr: 138, rbi: 419, bb: 312, so: 801, ab: 2980 }, statmuseId: 'willson-contreras', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=WC" },
+            { id: 112, name: "J.T. Realmuto", positions: ["C"], era: "Active", eraTag: 'modern', speed: 8, defense: 8, stats: { avg: .274, hr: 154, rbi: 605, bb: 350, so: 980, ab: 4300 }, statmuseId: 'jt-realmuto', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JTR" },
+            { id: 113, name: "Sean Murphy", positions: ["C"], era: "Active", eraTag: 'modern', speed: 4, defense: 9, stats: { avg: .240, hr: 75, rbi: 240, bb: 180, so: 450, ab: 1600 }, statmuseId: 'sean-murphy', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SM" },
+            { id: 114, name: "Adley Rutschman", positions: ["C"], era: "Active", eraTag: 'modern', speed: 4, defense: 8, stats: { avg: .270, hr: 33, rbi: 122, bb: 140, so: 160, ab: 800 }, statmuseId: 'adley-rutschman', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AR" },
+            { id: 115, name: "Will Smith", positions: ["C"], era: "Active", eraTag: 'modern', speed: 3, defense: 7, stats: { avg: .265, hr: 91, rbi: 308, bb: 180, so: 350, ab: 1500 }, statmuseId: 'will-smith-20190601', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=WS" },
+            { id: 116, name: "Ernie Lombardi", positions: ["C"], era: "Hall of Famer", eraTag: '30s', speed: 1, defense: 5, stats: { avg: .306, hr: 190, rbi: 990, bb: 534, so: 263, ab: 5863 }, statmuseId: 'ernie-lombardi', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EL" },
+            { id: 117, name: "Biz Mackey", positions: ["C"], era: "Legend", eraTag: '30s', speed: 5, defense: 8, stats: { avg: .322, hr: 80, rbi: 500, bb: 200, so: 150, ab: 2500 }, statmuseId: 'biz-mackey', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BM" },
+
+            // FIRST BASEMEN (25)
+            { id: 11, name: "Lou Gehrig", positions: ["1B"], era: "Hall of Famer", eraTag: '30s', speed: 5, defense: 6, stats: { avg: .340, hr: 493, rbi: 1995, bb: 1508, so: 790, ab: 8001 }, statmuseId: 'lou-gehrig', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=LG" },
+            { id: 12, name: "Albert Pujols", positions: ["1B", "DH"], era: "Legend", eraTag: 'modern', speed: 3, defense: 5, stats: { avg: .296, hr: 703, rbi: 2218, bb: 1373, so: 1404, ab: 11421 }, statmuseId: 'albert-pujols', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AP" },
+            { id: 13, name: "Jimmie Foxx", positions: ["1B", "C"], era: "Hall of Famer", eraTag: '30s', speed: 5, defense: 5, stats: { avg: .325, hr: 534, rbi: 1922, bb: 1452, so: 1311, ab: 8134 }, statmuseId: 'jimmie-foxx', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JF" },
+            { id: 14, name: "Frank Thomas", positions: ["1B", "DH"], era: "Hall of Famer", eraTag: '90s', speed: 2, defense: 3, stats: { avg: .301, hr: 521, rbi: 1704, bb: 1667, so: 1397, ab: 8199 }, statmuseId: 'frank-thomas', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=FT" },
+            { id: 15, name: "Jeff Bagwell", positions: ["1B"], era: "Hall of Famer", eraTag: '90s', speed: 6, defense: 7, stats: { avg: .297, hr: 449, rbi: 1529, bb: 1401, so: 1558, ab: 7797 }, statmuseId: 'jeff-bagwell', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JB" },
+            { id: 16, name: "Freddie Freeman", positions: ["1B"], era: "Active", eraTag: 'modern', speed: 5, defense: 7, stats: { avg: .301, hr: 321, rbi: 1143, bb: 928, so: 1332, ab: 6718 }, statmuseId: 'freddie-freeman', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=FF" },
+            { id: 17, name: "Paul Goldschmidt", positions: ["1B"], era: "Active", eraTag: 'modern', speed: 6, defense: 8, stats: { avg: .293, hr: 340, rbi: 1122, bb: 955, so: 1695, ab: 6296 }, statmuseId: 'paul-goldschmidt', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=PG" },
+            { id: 18, name: "Harmon Killebrew", positions: ["1B", "3B", "DH"], era: "Legend", eraTag: '70s', speed: 2, defense: 4, stats: { avg: .256, hr: 573, rbi: 1584, bb: 1559, so: 1699, ab: 8147 }, statmuseId: 'harmon-killebrew', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=HK" },
+            { id: 19, name: "Willie McCovey", positions: ["1B", "DH"], era: "Legend", eraTag: '70s', speed: 3, defense: 4, stats: { avg: .270, hr: 521, rbi: 1555, bb: 1345, so: 1550, ab: 8197 }, statmuseId: 'willie-mccovey', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=WM" },
+            { id: 20, name: "Miguel Cabrera", positions: ["1B", "3B", "DH"], era: "Legend", eraTag: 'modern', speed: 2, defense: 4, stats: { avg: .307, hr: 511, rbi: 1881, bb: 1259, so: 1804, ab: 9931 }, statmuseId: 'miguel-cabrera', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MC" },
+            { id: 118, name: "Willie Stargell", positions: ["1B", "OF"], era: "Hall of Famer", eraTag: '70s', speed: 3, defense: 5, stats: { avg: .282, hr: 475, rbi: 1540, bb: 953, so: 1936, ab: 7927 }, statmuseId: 'willie-stargell', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=WS" },
+            { id: 119, name: "Eddie Murray", positions: ["1B", "DH"], era: "Hall of Famer", eraTag: '80s', speed: 4, defense: 8, stats: { avg: .287, hr: 504, rbi: 1917, bb: 1333, so: 1516, ab: 11336 }, statmuseId: 'eddie-murray', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EM" },
+            { id: 120, name: "Rod Carew", positions: ["1B", "2B"], era: "Hall of Famer", eraTag: '70s', speed: 7, defense: 6, stats: { avg: .328, hr: 92, rbi: 1015, bb: 1018, so: 1028, ab: 9315 }, statmuseId: 'rod-carew', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RC" },
+            { id: 121, name: "George Sisler", positions: ["1B"], era: "Hall of Famer", eraTag: '30s', speed: 8, defense: 7, stats: { avg: .340, hr: 102, rbi: 1175, bb: 470, so: 327, ab: 8267 }, statmuseId: 'george-sisler', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GS" },
+            { id: 122, name: "Hank Greenberg", positions: ["1B", "OF"], era: "Hall of Famer", eraTag: '30s', speed: 4, defense: 4, stats: { avg: .313, hr: 331, rbi: 1276, bb: 852, so: 844, ab: 5193 }, statmuseId: 'hank-greenberg', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=HG" },
+            { id: 123, name: "Johnny Mize", positions: ["1B"], era: "Hall of Famer", eraTag: '50s', speed: 3, defense: 5, stats: { avg: .312, hr: 359, rbi: 1337, bb: 856, so: 528, ab: 5654 }, statmuseId: 'johnny-mize', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JM" },
+            { id: 124, name: "Jim Thome", positions: ["1B", "DH"], era: "Hall of Famer", eraTag: '90s', speed: 2, defense: 3, stats: { avg: .276, hr: 612, rbi: 1699, bb: 1747, so: 2548, ab: 8422 }, statmuseId: 'jim-thome', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JT" },
+            { id: 125, name: "Todd Helton", positions: ["1B"], era: "Legend", eraTag: '90s', speed: 4, defense: 8, stats: { avg: .316, hr: 369, rbi: 1406, bb: 1335, so: 1175, ab: 7962 }, statmuseId: 'todd-helton', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TH" },
+            { id: 126, name: "Keith Hernandez", positions: ["1B"], era: "Legend", eraTag: '80s', speed: 5, defense: 10, stats: { avg: .296, hr: 162, rbi: 1071, bb: 1070, so: 1012, ab: 7814 }, statmuseId: 'keith-hernandez', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=KH" },
+            { id: 127, name: "Pete Alonso", positions: ["1B"], era: "Active", eraTag: 'modern', speed: 3, defense: 4, stats: { avg: .251, hr: 206, rbi: 538, bb: 305, so: 730, ab: 2750 }, statmuseId: 'pete-alonso', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=PA" },
+            { id: 128, name: "Matt Olson", positions: ["1B"], era: "Active", eraTag: 'modern', speed: 3, defense: 8, stats: { avg: .256, hr: 230, rbi: 612, bb: 450, so: 950, ab: 3200 }, statmuseId: 'matt-olson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MO" },
+            { id: 129, name: "Vladimir Guerrero Jr.", positions: ["1B", "DH"], era: "Active", eraTag: 'modern', speed: 4, defense: 5, stats: { avg: .279, hr: 130, rbi: 404, bb: 280, so: 450, ab: 2500 }, statmuseId: 'vladimir-guerrero-jr', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=VJr" },
+            { id: 130, name: "Mark McGwire", positions: ["1B"], era: "Legend", eraTag: '90s', speed: 2, defense: 4, stats: { avg: .263, hr: 583, rbi: 1414, bb: 1317, so: 1596, ab: 6187 }, statmuseId: 'mark-mcgwire', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MM" },
+            { id: 131, name: "Rafael Palmeiro", positions: ["1B", "OF"], era: "Legend", eraTag: '90s', speed: 4, defense: 6, stats: { avg: .288, hr: 569, rbi: 1835, bb: 1353, so: 1348, ab: 10472 }, statmuseId: 'rafael-palmeiro', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RP" },
+            { id: 132, name: "Orlando Cepeda", positions: ["1B"], era: "Hall of Famer", eraTag: '70s', speed: 4, defense: 4, stats: { avg: .297, hr: 379, rbi: 1365, bb: 588, so: 1147, ab: 7927 }, statmuseId: 'orlando-cepeda', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=OC" },
+
+            // SECOND BASEMEN (25)
+            { id: 21, name: "Rogers Hornsby", positions: ["2B"], era: "Hall of Famer", eraTag: '30s', speed: 6, defense: 6, stats: { avg: .358, hr: 301, rbi: 1584, bb: 1038, so: 679, ab: 8173 }, statmuseId: 'rogers-hornsby', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RH" },
+            { id: 23, name: "Ryne Sandberg", positions: ["2B"], era: "Hall of Famer", eraTag: '80s', speed: 7, defense: 9, stats: { avg: .285, hr: 282, rbi: 1061, bb: 761, so: 1260, ab: 8385 }, statmuseId: 'ryne-sandberg', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RS" },
+            { id: 24, name: "Roberto Alomar", positions: ["2B"], era: "Hall of Famer", eraTag: '90s', speed: 8, defense: 10, stats: { avg: .300, hr: 210, rbi: 1134, bb: 1032, so: 1140, ab: 9073 }, statmuseId: 'roberto-alomar', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RA" },
+            { id: 26, name: "Jose Altuve", positions: ["2B"], era: "Active", eraTag: 'modern', speed: 8, defense: 7, stats: { avg: .307, hr: 209, rbi: 747, bb: 481, so: 890, ab: 6680 }, statmuseId: 'jose-altuve', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JA" },
+            { id: 27, name: "Marcus Semien", positions: ["2B", "SS"], era: "Active", eraTag: 'modern', speed: 7, defense: 8, stats: { avg: .257, hr: 215, rbi: 698, bb: 540, so: 1250, ab: 5200 }, statmuseId: 'marcus-semien', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MS" },
+            { id: 28, name: "Nap Lajoie", positions: ["2B"], era: "Legend", eraTag: '30s', speed: 7, defense: 8, stats: { avg: .338, hr: 82, rbi: 1599, bb: 516, so: 533, ab: 9590 }, statmuseId: 'nap-lajoie', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=NL" },
+            { id: 29, name: "Eddie Collins", positions: ["2B"], era: "Legend", eraTag: '30s', speed: 9, defense: 9, stats: { avg: .333, hr: 47, rbi: 1300, bb: 1499, so: 467, ab: 9949 }, statmuseId: 'eddie-collins', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EC" },
+            { id: 30, name: "Chase Utley", positions: ["2B"], era: "Legend", eraTag: 'modern', speed: 6, defense: 8, stats: { avg: .275, hr: 259, rbi: 1025, bb: 626, so: 1104, ab: 6464 }, statmuseId: 'chase-utley', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CU" },
+            { id: 133, name: "Craig Biggio", positions: ["2B", "C", "OF"], era: "Hall of Famer", eraTag: '90s', speed: 8, defense: 7, stats: { avg: .281, hr: 291, rbi: 1175, bb: 1160, so: 1753, ab: 10876 }, statmuseId: 'craig-biggio', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CB" },
+            { id: 134, name: "Lou Whitaker", positions: ["2B"], era: "Legend", eraTag: '80s', speed: 7, defense: 9, stats: { avg: .276, hr: 244, rbi: 1084, bb: 1197, so: 1099, ab: 9190 }, statmuseId: 'lou-whitaker', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=LW" },
+            { id: 135, name: "Bill Mazeroski", positions: ["2B"], era: "Hall of Famer", eraTag: '50s', speed: 4, defense: 10, stats: { avg: .260, hr: 138, rbi: 853, bb: 447, so: 1012, ab: 7755 }, statmuseId: 'bill-mazeroski', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BM" },
+            { id: 136, name: "Jeff Kent", positions: ["2B", "3B", "1B"], era: "Legend", eraTag: '90s', speed: 4, defense: 5, stats: { avg: .290, hr: 377, rbi: 1518, bb: 801, so: 1240, ab: 8498 }, statmuseId: 'jeff-kent', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JK" },
+            { id: 137, name: "Dustin Pedroia", positions: ["2B"], era: "Legend", eraTag: 'modern', speed: 6, defense: 9, stats: { avg: .299, hr: 140, rbi: 725, bb: 551, so: 654, ab: 5637 }, statmuseId: 'dustin-pedroia', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=DP" },
+            { id: 138, name: "Robinson Cano", positions: ["2B"], era: "Legend", eraTag: 'modern', speed: 3, defense: 7, stats: { avg: .301, hr: 335, rbi: 1306, bb: 580, so: 1004, ab: 8374 }, statmuseId: 'robinson-cano', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RC" },
+            { id: 139, name: "Joe Gordon", positions: ["2B"], era: "Hall of Famer", eraTag: '50s', speed: 5, defense: 8, stats: { avg: .268, hr: 253, rbi: 975, bb: 802, so: 938, ab: 6157 }, statmuseId: 'joe-gordon', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JG" },
+            { id: 140, name: "Frankie Frisch", positions: ["2B", "3B"], era: "Hall of Famer", eraTag: '30s', speed: 8, defense: 7, stats: { avg: .316, hr: 105, rbi: 1244, bb: 825, so: 272, ab: 9112 }, statmuseId: 'frankie-frisch', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=FF" },
+            { id: 141, name: "Charlie Gehringer", positions: ["2B"], era: "Hall of Famer", eraTag: '30s', speed: 7, defense: 8, stats: { avg: .320, hr: 184, rbi: 1427, bb: 1186, so: 372, ab: 8860 }, statmuseId: 'charlie-gehringer', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CG" },
+            { id: 142, name: "Bobby Doerr", positions: ["2B"], era: "Hall of Famer", eraTag: '50s', speed: 4, defense: 8, stats: { avg: .288, hr: 223, rbi: 1247, bb: 809, so: 597, ab: 6972 }, statmuseId: 'bobby-doerr', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BD" },
+            { id: 143, name: "Rennie Stennett", positions: ["2B"], era: "Legend", eraTag: '70s', speed: 7, defense: 7, stats: { avg: .274, hr: 41, rbi: 432, bb: 250, so: 500, ab: 4500 }, statmuseId: 'rennie-stennett', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RS" },
+            { id: 144, name: "DJ LeMahieu", positions: ["2B", "3B", "1B"], era: "Active", eraTag: 'modern', speed: 5, defense: 9, stats: { avg: .292, hr: 110, rbi: 580, bb: 450, so: 800, ab: 5500 }, statmuseId: 'dj-lemahieu', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=DJL" },
+            { id: 145, name: "Ozzie Albies", positions: ["2B"], era: "Active", eraTag: 'modern', speed: 8, defense: 8, stats: { avg: .273, hr: 135, rbi: 450, bb: 200, so: 600, ab: 3200 }, statmuseId: 'ozzie-albies', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=OA" },
+            { id: 146, name: "Ketel Marte", positions: ["2B", "SS", "OF"], era: "Active", eraTag: 'modern', speed: 7, defense: 7, stats: { avg: .280, hr: 110, rbi: 420, bb: 300, so: 650, ab: 3500 }, statmuseId: 'ketel-marte', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=KM" },
+            { id: 147, name: "Whit Merrifield", positions: ["2B", "OF"], era: "Active", eraTag: 'modern', speed: 9, defense: 7, stats: { avg: .284, hr: 90, rbi: 475, bb: 250, so: 700, ab: 4200 }, statmuseId: 'whit-merrifield', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=WM" },
+            { id: 148, name: "Gleyber Torres", positions: ["2B", "SS"], era: "Active", eraTag: 'modern', speed: 5, defense: 6, stats: { avg: .265, hr: 130, rbi: 380, bb: 250, so: 600, ab: 2800 }, statmuseId: 'gleyber-torres', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GT" },
+            { id: 149, name: "Jonathan India", positions: ["2B"], era: "Active", eraTag: 'modern', speed: 7, defense: 6, stats: { avg: .255, hr: 40, rbi: 150, bb: 130, so: 300, ab: 1300 }, statmuseId: 'jonathan-india', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JI" },
+
+            // THIRD BASEMEN (25)
+            { id: 32, name: "George Brett", positions: ["3B", "1B"], era: "Hall of Famer", eraTag: '80s', speed: 6, defense: 7, stats: { avg: .305, hr: 317, rbi: 1596, bb: 1096, so: 908, ab: 10349 }, statmuseId: 'george-brett', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GB" },
+            { id: 33, name: "Chipper Jones", positions: ["3B", "OF"], era: "Hall of Famer", eraTag: '90s', speed: 5, defense: 6, stats: { avg: .303, hr: 468, rbi: 1623, bb: 1512, so: 1409, ab: 8984 }, statmuseId: 'chipper-jones', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CJ" },
+            { id: 34, name: "Adrian Beltre", positions: ["3B"], era: "Legend", eraTag: 'modern', speed: 4, defense: 9, stats: { avg: .286, hr: 477, rbi: 1707, bb: 848, so: 1732, ab: 11068 }, statmuseId: 'adrian-beltre', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AB" },
+            { id: 35, name: "Eddie Mathews", positions: ["3B"], era: "Hall of Famer", eraTag: '50s', speed: 4, defense: 8, stats: { avg: .271, hr: 512, rbi: 1453, bb: 1444, so: 1487, ab: 8537 }, statmuseId: 'eddie-mathews', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EM" },
+            { id: 36, name: "Nolan Arenado", positions: ["3B"], era: "Active", eraTag: 'modern', speed: 4, defense: 10, stats: { avg: .287, hr: 325, rbi: 1061, bb: 480, so: 950, ab: 5800 }, statmuseId: 'nolan-arenado', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=NA" },
+            { id: 37, name: "Manny Machado", positions: ["3B", "SS"], era: "Active", eraTag: 'modern', speed: 5, defense: 9, stats: { avg: .280, hr: 313, rbi: 946, bb: 550, so: 1200, ab: 5800 }, statmuseId: 'manny-machado', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MM" },
+            { id: 38, name: "Brooks Robinson", positions: ["3B"], era: "Legend", eraTag: '70s', speed: 4, defense: 10, stats: { avg: .267, hr: 268, rbi: 1357, bb: 860, so: 990, ab: 10654 }, statmuseId: 'brooks-robinson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BR" },
+            { id: 39, name: "Paul Molitor", positions: ["3B", "DH", "1B"], era: "Hall of Famer", eraTag: '80s', speed: 8, defense: 6, stats: { avg: .306, hr: 234, rbi: 1307, bb: 1094, so: 1244, ab: 10835 }, statmuseId: 'paul-molitor', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=PM" },
+            { id: 40, name: "Scott Rolen", positions: ["3B"], era: "Hall of Famer", eraTag: '90s', speed: 5, defense: 9, stats: { avg: .281, hr: 316, rbi: 1287, bb: 899, so: 1410, ab: 7398 }, statmuseId: 'scott-rolen', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SR" },
+            { id: 150, name: "Wade Boggs", positions: ["3B"], era: "Hall of Famer", eraTag: '80s', speed: 3, defense: 7, stats: { avg: .328, hr: 118, rbi: 1014, bb: 1412, so: 745, ab: 9180 }, statmuseId: 'wade-boggs', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=WB" },
+            { id: 151, name: "Ron Santo", positions: ["3B"], era: "Hall of Famer", eraTag: '70s', speed: 4, defense: 9, stats: { avg: .277, hr: 342, rbi: 1331, bb: 1108, so: 1353, ab: 8165 }, statmuseId: 'ron-santo', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RS" },
+            { id: 152, name: "Graig Nettles", positions: ["3B"], era: "Legend", eraTag: '70s', speed: 4, defense: 9, stats: { avg: .248, hr: 390, rbi: 1314, bb: 1088, so: 1193, ab: 8871 }, statmuseId: 'graig-nettles', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GN" },
+            { id: 153, name: "David Wright", positions: ["3B"], era: "Legend", eraTag: 'modern', speed: 7, defense: 8, stats: { avg: .296, hr: 242, rbi: 970, bb: 761, so: 1278, ab: 5998 }, statmuseId: 'david-wright', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=DW" },
+            { id: 154, name: "Evan Longoria", positions: ["3B"], era: "Active", eraTag: 'modern', speed: 4, defense: 8, stats: { avg: .264, hr: 342, rbi: 1139, bb: 750, so: 1600, ab: 7500 }, statmuseId: 'evan-longoria', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EL" },
+            { id: 155, name: "Alex Bregman", positions: ["3B", "SS"], era: "Active", eraTag: 'modern', speed: 5, defense: 7, stats: { avg: .274, hr: 165, rbi: 588, bb: 480, so: 650, ab: 3800 }, statmuseId: 'alex-bregman', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AB" },
+            { id: 156, name: "Rafael Devers", positions: ["3B"], era: "Active", eraTag: 'modern', speed: 5, defense: 5, stats: { avg: .280, hr: 172, rbi: 555, bb: 250, so: 750, ab: 3200 }, statmuseId: 'rafael-devers', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RD" },
+            { id: 157, name: "Austin Riley", positions: ["3B"], era: "Active", eraTag: 'modern', speed: 4, defense: 7, stats: { avg: .275, hr: 135, rbi: 380, bb: 200, so: 600, ab: 2200 }, statmuseId: 'austin-riley', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AR" },
+            { id: 158, name: "Jose Ramirez", positions: ["3B", "2B"], era: "Active", eraTag: 'modern', speed: 8, defense: 7, stats: { avg: .279, hr: 216, rbi: 746, bb: 500, so: 800, ab: 4800 }, statmuseId: 'jose-ramirez', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JR" },
+            { id: 159, name: "Matt Chapman", positions: ["3B"], era: "Active", eraTag: 'modern', speed: 5, defense: 10, stats: { avg: .240, hr: 155, rbi: 428, bb: 380, so: 950, ab: 3000 }, statmuseId: 'matt-chapman', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MC" },
+            { id: 160, name: "Kris Bryant", positions: ["3B", "OF"], era: "Active", eraTag: 'modern', speed: 6, defense: 6, stats: { avg: .276, hr: 182, rbi: 541, bb: 400, so: 1000, ab: 3800 }, statmuseId: 'kris-bryant', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=KB" },
+            { id: 161, name: "Josh Donaldson", positions: ["3B"], era: "Active", eraTag: 'modern', speed: 4, defense: 7, stats: { avg: .261, hr: 279, rbi: 816, bb: 650, so: 1300, ab: 5000 }, statmuseId: 'josh-donaldson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JD" },
+            { id: 162, name: "Home Run Baker", positions: ["3B"], era: "Hall of Famer", eraTag: '30s', speed: 5, defense: 7, stats: { avg: .307, hr: 96, rbi: 987, bb: 508, so: 472, ab: 5905 }, statmuseId: 'home-run-baker', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=HRB" },
+            { id: 163, name: "Pie Traynor", positions: ["3B"], era: "Hall of Famer", eraTag: '30s', speed: 6, defense: 8, stats: { avg: .320, hr: 58, rbi: 1273, bb: 636, so: 278, ab: 7559 }, statmuseId: 'pie-traynor', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=PT" },
+            { id: 164, name: "Darrell Evans", positions: ["3B", "1B"], era: "Legend", eraTag: '80s', speed: 3, defense: 6, stats: { avg: .248, hr: 414, rbi: 1344, bb: 1605, so: 1674, ab: 8359 }, statmuseId: 'darrell-evans', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=DE" },
+            { id: 165, name: "Buddy Bell", positions: ["3B"], era: "Legend", eraTag: '80s', speed: 5, defense: 9, stats: { avg: .279, hr: 201, rbi: 1106, bb: 745, so: 966, ab: 9145 }, statmuseId: 'buddy-bell', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BB" },
+
+            // SHORTSTOPS (25)
+            { id: 41, name: "Honus Wagner", positions: ["SS"], era: "Hall of Famer", eraTag: '30s', speed: 9, defense: 9, stats: { avg: .328, hr: 101, rbi: 1732, bb: 963, so: 742, ab: 10439 }, statmuseId: 'honus-wagner', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=HW" },
+            { id: 42, name: "Cal Ripken Jr.", positions: ["SS"], era: "Hall of Famer", eraTag: '80s', speed: 4, defense: 9, stats: { avg: .276, hr: 431, rbi: 1695, bb: 1129, so: 1305, ab: 11551 }, statmuseId: 'cal-ripken-jr', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CRJ" },
+            { id: 43, name: "Derek Jeter", positions: ["SS"], era: "Legend", eraTag: '90s', speed: 7, defense: 8, stats: { avg: .310, hr: 260, rbi: 1311, bb: 1082, so: 1840, ab: 11195 }, statmuseId: 'derek-jeter', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=DJ" },
+            { id: 45, name: "Barry Larkin", positions: ["SS"], era: "Hall of Famer", eraTag: '90s', speed: 8, defense: 8, stats: { avg: .295, hr: 198, rbi: 960, bb: 939, so: 817, ab: 7067 }, statmuseId: 'barry-larkin', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BL" },
+            { id: 46, name: "Francisco Lindor", positions: ["SS"], era: "Active", eraTag: 'modern', speed: 8, defense: 9, stats: { avg: .274, hr: 215, rbi: 694, bb: 450, so: 950, ab: 4800 }, statmuseId: 'francisco-lindor', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=FL" },
+            { id: 47, name: "Corey Seager", positions: ["SS"], era: "Active", eraTag: 'modern', speed: 5, defense: 7, stats: { avg: .287, hr: 170, rbi: 549, bb: 350, so: 750, ab: 3500 }, statmuseId: 'corey-seager', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CS" },
+            { id: 48, name: "Ernie Banks", positions: ["SS", "1B"], era: "Legend", eraTag: '50s', speed: 4, defense: 7, stats: { avg: .274, hr: 512, rbi: 1636, bb: 763, so: 1236, ab: 9421 }, statmuseId: 'ernie-banks', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EB" },
+            { id: 49, name: "Robin Yount", positions: ["SS", "OF"], era: "Hall of Famer", eraTag: '80s', speed: 7, defense: 8, stats: { avg: .285, hr: 251, rbi: 1406, bb: 966, so: 1350, ab: 11008 }, statmuseId: 'robin-yount', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RY" },
+            { id: 50, name: "Alex Rodriguez", positions: ["SS", "3B"], era: "Legend", eraTag: '90s', speed: 7, defense: 7, stats: { avg: .295, hr: 696, rbi: 2086, bb: 1338, so: 2287, ab: 10566 }, statmuseId: 'alex-rodriguez', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AR" },
+            { id: 166, name: "Alan Trammell", positions: ["SS"], era: "Hall of Famer", eraTag: '80s', speed: 6, defense: 9, stats: { avg: .285, hr: 185, rbi: 1003, bb: 850, so: 874, ab: 8288 }, statmuseId: 'alan-trammell', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AT" },
+            { id: 167, name: "Pee Wee Reese", positions: ["SS"], era: "Hall of Famer", eraTag: '50s', speed: 7, defense: 8, stats: { avg: .269, hr: 126, rbi: 885, bb: 1210, so: 890, ab: 8058 }, statmuseId: 'pee-wee-reese', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=PWR" },
+            { id: 168, name: "Luke Appling", positions: ["SS"], era: "Hall of Famer", eraTag: '30s', speed: 5, defense: 7, stats: { avg: .310, hr: 45, rbi: 1116, bb: 1302, so: 528, ab: 8856 }, statmuseId: 'luke-appling', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=LA" },
+            { id: 169, name: "Luis Aparicio", positions: ["SS"], era: "Hall of Famer", eraTag: '50s', speed: 9, defense: 9, stats: { avg: .262, hr: 83, rbi: 791, bb: 736, so: 769, ab: 10230 }, statmuseId: 'luis-aparicio', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=LA" },
+            { id: 170, name: "Omar Vizquel", positions: ["SS"], era: "Legend", eraTag: '90s', speed: 8, defense: 10, stats: { avg: .272, hr: 80, rbi: 951, bb: 1028, so: 1087, ab: 10586 }, statmuseId: 'omar-vizquel', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=OV" },
+            { id: 171, name: "Nomar Garciaparra", positions: ["SS"], era: "Legend", eraTag: '90s', speed: 7, defense: 7, stats: { avg: .313, hr: 229, rbi: 936, bb: 405, so: 690, ab: 5227 }, statmuseId: 'nomar-garciaparra', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=NG" },
+            { id: 172, name: "Miguel Tejada", positions: ["SS"], era: "Legend", eraTag: '90s', speed: 5, defense: 6, stats: { avg: .285, hr: 307, rbi: 1302, bb: 645, so: 1016, ab: 8154 }, statmuseId: 'miguel-tejada', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MT" },
+            { id: 173, name: "Jimmy Rollins", positions: ["SS"], era: "Legend", eraTag: 'modern', speed: 9, defense: 8, stats: { avg: .264, hr: 231, rbi: 936, bb: 813, so: 1264, ab: 9294 }, statmuseId: 'jimmy-rollins', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JR" },
+            { id: 174, name: "Troy Tulowitzki", positions: ["SS"], era: "Legend", eraTag: 'modern', speed: 4, defense: 9, stats: { avg: .290, hr: 225, rbi: 780, bb: 510, so: 961, ab: 4861 }, statmuseId: 'troy-tulowitzki', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TT" },
+            { id: 175, name: "Trea Turner", positions: ["SS", "2B"], era: "Active", eraTag: 'modern', speed: 10, defense: 7, stats: { avg: .296, hr: 150, rbi: 510, bb: 280, so: 800, ab: 4000 }, statmuseId: 'trea-turner', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TT" },
+            { id: 176, name: "Carlos Correa", positions: ["SS"], era: "Active", eraTag: 'modern', speed: 5, defense: 8, stats: { avg: .272, hr: 172, rbi: 630, bb: 420, so: 900, ab: 3800 }, statmuseId: 'carlos-correa', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CC" },
+            { id: 177, name: "Xander Bogaerts", positions: ["SS", "2B"], era: "Active", eraTag: 'modern', speed: 6, defense: 7, stats: { avg: .291, hr: 175, rbi: 750, bb: 550, so: 1100, ab: 5500 }, statmuseId: 'xander-bogaerts', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=XB" },
+            { id: 178, name: "Bo Bichette", positions: ["SS"], era: "Active", eraTag: 'modern', speed: 7, defense: 6, stats: { avg: .290, hr: 95, rbi: 330, bb: 150, so: 450, ab: 2200 }, statmuseId: 'bo-bichette', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BB" },
+            { id: 179, name: "Bobby Witt Jr.", positions: ["SS"], era: "Active", eraTag: 'modern', speed: 10, defense: 8, stats: { avg: .265, hr: 50, rbi: 180, bb: 80, so: 280, ab: 1200 }, statmuseId: 'bobby-witt-jr', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BWJ" },
+            { id: 180, name: "Dansby Swanson", positions: ["SS"], era: "Active", eraTag: 'modern', speed: 6, defense: 9, stats: { avg: .255, hr: 125, rbi: 450, bb: 300, so: 900, ab: 3500 }, statmuseId: 'dansby-swanson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=DS" },
+            { id: 181, name: "Joe Cronin", positions: ["SS"], era: "Hall of Famer", eraTag: '30s', speed: 5, defense: 6, stats: { avg: .301, hr: 170, rbi: 1424, bb: 1059, so: 561, ab: 7565 }, statmuseId: 'joe-cronin', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JC" },
+
+            // OUTFIELDERS (50+)
+            { id: 59, name: "Ken Griffey Jr.", positions: ["OF"], era: "Hall of Famer", eraTag: '90s', speed: 8, defense: 10, stats: { avg: .284, hr: 630, rbi: 1836, bb: 1312, so: 1779, ab: 9801 }, statmuseId: 'ken-griffey-jr', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=KGJ" },
+            { id: 60, name: "Ty Cobb", positions: ["OF"], era: "Legend", eraTag: '30s', speed: 9, defense: 7, stats: { avg: .366, hr: 117, rbi: 1944, bb: 1249, so: 680, ab: 11436 }, statmuseId: 'ty-cobb', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TC" },
+            { id: 61, name: "Mickey Mantle", positions: ["OF"], era: "Legend", eraTag: '50s', speed: 8, defense: 8, stats: { avg: .298, hr: 536, rbi: 1509, bb: 1733, so: 1710, ab: 8102 }, statmuseId: 'mickey-mantle', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MM" },
+            { id: 62, name: "Stan Musial", positions: ["OF", "1B"], era: "Legend", eraTag: '50s', speed: 7, defense: 6, stats: { avg: .331, hr: 475, rbi: 1951, bb: 1599, so: 696, ab: 10972 }, statmuseId: 'stan-musial', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SM" },
+            { id: 63, name: "Ichiro Suzuki", positions: ["OF"], era: "Legend", eraTag: 'modern', speed: 10, defense: 9, stats: { avg: .311, hr: 117, rbi: 780, bb: 648, so: 1080, ab: 9934 }, statmuseId: 'ichiro-suzuki', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=IS" },
+            { id: 64, name: "Rickey Henderson", positions: ["OF"], era: "Hall of Famer", eraTag: '80s', speed: 10, defense: 7, stats: { avg: .279, hr: 297, rbi: 1115, bb: 2190, so: 1694, ab: 10961 }, statmuseId: 'rickey-henderson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RH" },
+            { id: 65, name: "Barry Bonds", positions: ["OF"], era: "Legend", eraTag: '90s', speed: 7, defense: 8, stats: { avg: .298, hr: 762, rbi: 1996, bb: 2558, so: 1539, ab: 9847 }, statmuseId: 'barry-bonds', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BB" },
+            { id: 66, name: "Roberto Clemente", positions: ["OF"], era: "Hall of Famer", eraTag: '70s', speed: 8, defense: 10, stats: { avg: .317, hr: 240, rbi: 1305, bb: 621, so: 1230, ab: 9454 }, statmuseId: 'roberto-clemente', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RC" },
+            { id: 67, name: "Tony Gwynn", positions: ["OF"], era: "Hall of Famer", eraTag: '80s', speed: 7, defense: 7, stats: { avg: .338, hr: 135, rbi: 1138, bb: 790, so: 434, ab: 9288 }, statmuseId: 'tony-gwynn', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TG" },
+            { id: 68, name: "Frank Robinson", positions: ["OF"], era: "Hall of Famer", eraTag: '70s', speed: 6, defense: 6, stats: { avg: .294, hr: 586, rbi: 1812, bb: 1420, so: 1532, ab: 10006 }, statmuseId: 'frank-robinson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=FR" },
+            { id: 69, name: "Bryce Harper", positions: ["OF", "DH"], era: "Active", eraTag: 'modern', speed: 6, defense: 6, stats: { avg: .281, hr: 306, rbi: 889, bb: 850, so: 1400, ab: 5500 }, statmuseId: 'bryce-harper', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BH" },
+            { id: 70, name: "Vladimir Guerrero", positions: ["OF"], era: "Hall of Famer", eraTag: '90s', speed: 5, defense: 4, stats: { avg: .318, hr: 449, rbi: 1496, bb: 737, so: 985, ab: 8155 }, statmuseId: 'vladimir-guerrero', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=VG" },
+            { id: 182, name: "Tris Speaker", positions: ["OF"], era: "Hall of Famer", eraTag: '30s', speed: 7, defense: 9, stats: { avg: .345, hr: 117, rbi: 1529, bb: 1381, so: 220, ab: 10195 }, statmuseId: 'tris-speaker', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TS" },
+            { id: 183, name: "Joe DiMaggio", positions: ["OF"], era: "Hall of Famer", eraTag: '50s', speed: 6, defense: 8, stats: { avg: .325, hr: 361, rbi: 1537, bb: 790, so: 369, ab: 6821 }, statmuseId: 'joe-dimaggio', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JD" },
+            { id: 184, name: "Al Kaline", positions: ["OF"], era: "Hall of Famer", eraTag: '70s', speed: 6, defense: 9, stats: { avg: .297, hr: 399, rbi: 1583, bb: 1277, so: 1020, ab: 10116 }, statmuseId: 'al-kaline', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AK" },
+            { id: 185, name: "Carl Yastrzemski", positions: ["OF", "1B"], era: "Hall of Famer", eraTag: '70s', speed: 5, defense: 8, stats: { avg: .285, hr: 452, rbi: 1844, bb: 1845, so: 1393, ab: 11988 }, statmuseId: 'carl-yastrzemski', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CY" },
+            { id: 186, name: "Reggie Jackson", positions: ["OF", "DH"], era: "Hall of Famer", eraTag: '70s', speed: 5, defense: 5, stats: { avg: .262, hr: 563, rbi: 1702, bb: 1375, so: 2597, ab: 9864 }, statmuseId: 'reggie-jackson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RJ" },
+            { id: 187, name: "Dave Winfield", positions: ["OF"], era: "Hall of Famer", eraTag: '80s', speed: 7, defense: 8, stats: { avg: .283, hr: 465, rbi: 1833, bb: 1216, so: 1686, ab: 11003 }, statmuseId: 'dave-winfield', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=DW" },
+            { id: 188, name: "Larry Walker", positions: ["OF"], era: "Hall of Famer", eraTag: '90s', speed: 7, defense: 8, stats: { avg: .313, hr: 383, rbi: 1311, bb: 913, so: 1231, ab: 6907 }, statmuseId: 'larry-walker', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=LW" },
+            { id: 189, name: "Manny Ramirez", positions: ["OF", "DH"], era: "Legend", eraTag: '90s', speed: 3, defense: 4, stats: { avg: .312, hr: 555, rbi: 1831, bb: 1329, so: 1813, ab: 8244 }, statmuseId: 'manny-ramirez', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MR" },
+            { id: 190, name: "Sammy Sosa", positions: ["OF"], era: "Legend", eraTag: '90s', speed: 6, defense: 6, stats: { avg: .273, hr: 609, rbi: 1667, bb: 929, so: 2306, ab: 8813 }, statmuseId: 'sammy-sosa', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SS" },
+            { id: 191, name: "Juan Gonzalez", positions: ["OF"], era: "Legend", eraTag: '90s', speed: 4, defense: 5, stats: { avg: .295, hr: 434, rbi: 1404, bb: 549, so: 1279, ab: 6555 }, statmuseId: 'juan-gonzalez', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JG" },
+            { id: 192, name: "Albert Belle", positions: ["OF", "DH"], era: "Legend", eraTag: '90s', speed: 4, defense: 4, stats: { avg: .295, hr: 381, rbi: 1239, bb: 605, so: 961, ab: 5854 }, statmuseId: 'albert-belle', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AB" },
+            { id: 193, name: "Carlos Beltran", positions: ["OF"], era: "Legend", eraTag: 'modern', speed: 7, defense: 8, stats: { avg: .279, hr: 435, rbi: 1587, bb: 1084, so: 1772, ab: 9768 }, statmuseId: 'carlos-beltran', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CB" },
+            { id: 194, name: "Andrew McCutchen", positions: ["OF"], era: "Active", eraTag: 'modern', speed: 7, defense: 7, stats: { avg: .276, hr: 299, rbi: 1045, bb: 950, so: 1600, ab: 7200 }, statmuseId: 'andrew-mccutchen', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AM" },
+            { id: 195, name: "Aaron Judge", positions: ["OF"], era: "Active", eraTag: 'modern', speed: 5, defense: 8, stats: { avg: .282, hr: 257, rbi: 572, bb: 500, so: 1000, ab: 3200 }, statmuseId: 'aaron-judge', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AJ" },
+            { id: 196, name: "Mookie Betts", positions: ["OF", "2B"], era: "Active", eraTag: 'modern', speed: 8, defense: 9, stats: { avg: .295, hr: 252, rbi: 758, bb: 650, so: 800, ab: 5200 }, statmuseId: 'mookie-betts', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MB" },
+            { id: 197, name: "Juan Soto", positions: ["OF"], era: "Active", eraTag: 'modern', speed: 5, defense: 5, stats: { avg: .284, hr: 160, rbi: 485, bb: 520, so: 600, ab: 2800 }, statmuseId: 'juan-soto', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JS" },
+            { id: 198, name: "Ronald Acuna Jr.", positions: ["OF"], era: "Active", eraTag: 'modern', speed: 10, defense: 7, stats: { avg: .292, hr: 161, rbi: 404, bb: 300, so: 700, ab: 2800 }, statmuseId: 'ronald-acuna-jr', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RAJ" },
+            { id: 199, name: "Fernando Tatis Jr.", positions: ["OF", "SS"], era: "Active", eraTag: 'modern', speed: 9, defense: 8, stats: { avg: .280, hr: 106, rbi: 260, bb: 130, so: 450, ab: 1400 }, statmuseId: 'fernando-tatis-jr', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=FTJ" },
+            { id: 200, name: "Julio Rodriguez", positions: ["OF"], era: "Active", eraTag: 'modern', speed: 9, defense: 8, stats: { avg: .279, hr: 60, rbi: 180, bb: 90, so: 300, ab: 1200 }, statmuseId: 'julio-rodriguez', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JR" },
+
+            // PITCHERS (75+)
+            { id: 71, name: "Babe Ruth", positions: ["OF", "P", "DH"], era: "Hall of Famer", eraTag: '30s', speed: 5, defense: 6, stats: { avg: .342, hr: 714, rbi: 2213, bb: 2062, so: 1330, ab: 8399, era: 2.28, so_p: 488, wins: 94, ip: 1221, bb_p: 441, ha_p: 1060 }, twoWay: true, statmuseId: 'babe-ruth', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BR" },
+            { id: 72, name: "Cy Young", positions: ["P"], era: "Hall of Famer", eraTag: '30s', stats: { era: 2.63, so: 2803, wins: 511, ip: 7356, bb: 1217, ha: 7092 }, statmuseId: 'cy-young', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CY" },
+            { id: 201, name: "Christy Mathewson", positions: ["P"], era: "Hall of Famer", eraTag: '30s', stats: { era: 2.13, so: 2507, wins: 373, ip: 4788, bb: 848, ha: 4215 }, statmuseId: 'christy-mathewson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CM" },
+            { id: 202, name: "Lefty Grove", positions: ["P"], era: "Hall of Famer", eraTag: '30s', stats: { era: 3.06, so: 2266, wins: 300, ip: 3940, bb: 1187, ha: 3799 }, statmuseId: 'lefty-grove', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=LG" },
+            { id: 203, name: "Warren Spahn", positions: ["P"], era: "Hall of Famer", eraTag: '50s', stats: { era: 3.09, so: 2583, wins: 363, ip: 5243, bb: 1434, ha: 4830 }, statmuseId: 'warren-spahn', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=WS" },
+            { id: 204, name: "Tom Seaver", positions: ["P"], era: "Hall of Famer", eraTag: '70s', stats: { era: 2.86, so: 3640, wins: 311, ip: 4783, bb: 1390, ha: 3971 }, statmuseId: 'tom-seaver', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TS" },
+            { id: 205, name: "Nolan Ryan", positions: ["P"], era: "Hall of Famer", eraTag: '80s', stats: { era: 3.19, so: 5714, wins: 324, ip: 5386, bb: 2795, ha: 3923 }, statmuseId: 'nolan-ryan', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=NR" },
+            { id: 206, name: "Steve Carlton", positions: ["P"], era: "Hall of Famer", eraTag: '70s', stats: { era: 3.22, so: 4136, wins: 329, ip: 5217, bb: 1833, ha: 4672 }, statmuseId: 'steve-carlton', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SC" },
+            { id: 207, name: "Roger Clemens", positions: ["P"], era: "Legend", eraTag: '90s', stats: { era: 3.12, so: 4672, wins: 354, ip: 4916, bb: 1580, ha: 4185 }, statmuseId: 'roger-clemens', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RC" },
+            { id: 235, name: "Randy Johnson", positions: ["P"], era: "Hall of Famer", eraTag: '90s', stats: { era: 3.29, so: 4875, wins: 303, ip: 4135, bb: 1497, ha: 3346 }, statmuseId: 'randy-johnson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RJ" },
+            { id: 236, name: "Greg Maddux", positions: ["P"], era: "Hall of Famer", eraTag: '90s', stats: { era: 3.16, so: 3371, wins: 355, ip: 5008, bb: 999, ha: 4726 }, statmuseId: 'greg-maddux', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GM" },
+            { id: 237, name: "Pedro Martinez", positions: ["P"], era: "Hall of Famer", eraTag: '90s', stats: { era: 2.93, so: 3154, wins: 219, ip: 2827, bb: 760, ha: 2221 }, statmuseId: 'pedro-martinez', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=PM" },
+            { id: 238, name: "Mariano Rivera", positions: ["P"], era: "Hall of Famer", eraTag: '90s', stats: { era: 2.21, so: 1173, saves: 652, ip: 1283, bb: 286, ha: 998 }, statmuseId: 'mariano-rivera', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MR" },
+            { id: 239, name: "Shohei Ohtani", positions: ["P", "DH"], era: "Active", eraTag: 'modern', speed: 8, defense: 6, stats: { avg: .277, hr: 180, rbi: 450, bb: 300, so: 700, ab: 2200, era: 3.01, so_p: 608, wins: 38, ip: 481, bb_p: 173, ha_p: 334 }, twoWay: true, statmuseId: 'shohei-ohtani', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SO" },
+            { id: 208, name: "Roy Halladay", positions: ["P"], era: "Hall of Famer", eraTag: 'modern', stats: { era: 3.38, so: 2117, wins: 203, ip: 2749, bb: 592, ha: 2598 }, statmuseId: 'roy-halladay', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RH" },
+            { id: 209, name: "Justin Verlander", positions: ["P"], era: "Active", eraTag: 'modern', stats: { era: 3.24, so: 3342, wins: 257, ip: 3329, bb: 924, ha: 2790 }, statmuseId: 'justin-verlander', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JV" },
+            { id: 210, name: "Max Scherzer", positions: ["P"], era: "Active", eraTag: 'modern', stats: { era: 3.15, so: 3367, wins: 214, ip: 2835, bb: 780, ha: 2340 }, statmuseId: 'max-scherzer', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MS" },
+            { id: 211, name: "Gerrit Cole", positions: ["P"], era: "Active", eraTag: 'modern', stats: { era: 3.17, so: 2152, wins: 145, ip: 1859, bb: 460, ha: 1570 }, statmuseId: 'gerrit-cole', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GC" },
+            { id: 212, name: "Jacob deGrom", positions: ["P"], era: "Active", eraTag: 'modern', stats: { era: 2.53, so: 1652, wins: 84, ip: 1356, bb: 280, ha: 1045 }, statmuseId: 'jacob-degrom', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JD" },
+            { id: 213, name: "Satchel Paige", positions: ["P"], era: "Legend", eraTag: '50s', stats: { era: 3.29, so: 288, wins: 28, ip: 476, bb: 180, ha: 429 }, statmuseId: 'satchel-paige', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SP" },
+            { id: 214, name: "Bob Feller", positions: ["P"], era: "Hall of Famer", eraTag: '50s', stats: { era: 3.25, so: 2581, wins: 266, ip: 3827, bb: 1764, ha: 3249 }, statmuseId: 'bob-feller', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BF" },
+            { id: 215, name: "Juan Marichal", positions: ["P"], era: "Hall of Famer", eraTag: '70s', stats: { era: 2.89, so: 2303, wins: 243, ip: 3507, bb: 709, ha: 3251 }, statmuseId: 'juan-marichal', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JM" },
+            { id: 216, name: "Jim Palmer", positions: ["P"], era: "Hall of Famer", eraTag: '70s', stats: { era: 2.86, so: 2212, wins: 268, ip: 3948, bb: 1311, ha: 3392 }, statmuseId: 'jim-palmer', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JP" },
+            { id: 217, name: "Fergie Jenkins", positions: ["P"], era: "Hall of Famer", eraTag: '70s', stats: { era: 3.34, so: 3192, wins: 284, ip: 4500, bb: 997, ha: 4496 }, statmuseId: 'fergie-jenkins', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=FJ" },
+            { id: 218, name: "Don Sutton", positions: ["P"], era: "Hall of Famer", eraTag: '80s', stats: { era: 3.26, so: 3574, wins: 324, ip: 5282, bb: 1343, ha: 4691 }, statmuseId: 'don-sutton', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=DS" },
+            { id: 219, name: "Phil Niekro", positions: ["P"], era: "Hall of Famer", eraTag: '80s', stats: { era: 3.35, so: 3342, wins: 318, ip: 5404, bb: 1809, ha: 4979 }, statmuseId: 'phil-niekro', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=PN" },
+            { id: 220, name: "Gaylord Perry", positions: ["P"], era: "Hall of Famer", eraTag: '70s', stats: { era: 3.11, so: 3534, wins: 314, ip: 5350, bb: 1379, ha: 4587 }, statmuseId: 'gaylord-perry', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GP" },
+            { id: 221, name: "John Smoltz", positions: ["P"], era: "Hall of Famer", eraTag: '90s', stats: { era: 3.33, so: 3084, wins: 213, saves: 154, ip: 3473, bb: 1010, ha: 3074 }, statmuseId: 'john-smoltz', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JS" },
+            { id: 222, name: "Tom Glavine", positions: ["P"], era: "Hall of Famer", eraTag: '90s', stats: { era: 3.54, so: 2607, wins: 305, ip: 4413, bb: 1500, ha: 4298 }, statmuseId: 'tom-glavine', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TG" },
+            { id: 223, name: "Mike Mussina", positions: ["P"], era: "Hall of Famer", eraTag: '90s', stats: { era: 3.68, so: 2813, wins: 270, ip: 3562, bb: 785, ha: 3587 }, statmuseId: 'mike-mussina', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MM" },
+            { id: 224, name: "Curt Schilling", positions: ["P"], era: "Legend", eraTag: '90s', stats: { era: 3.46, so: 3116, wins: 216, ip: 3261, bb: 711, ha: 3115 }, statmuseId: 'curt-schilling', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CS" },
+            { id: 225, name: "CC Sabathia", positions: ["P"], era: "Legend", eraTag: 'modern', stats: { era: 3.74, so: 3093, wins: 251, ip: 3577, bb: 1099, ha: 3498 }, statmuseId: 'cc-sabathia', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CC" },
+            { id: 226, name: "Zack Greinke", positions: ["P"], era: "Active", eraTag: 'modern', stats: { era: 3.49, so: 2979, wins: 225, ip: 3380, bb: 800, ha: 3200 }, statmuseId: 'zack-greinke', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=ZG" },
+            { id: 227, name: "Spencer Strider", positions: ["P"], era: "Active", eraTag: 'modern', stats: { era: 3.37, so: 480, wins: 32, ip: 320, bb: 80, ha: 250 }, statmuseId: 'spencer-strider', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SS" },
+            { id: 228, name: "Corbin Burnes", positions: ["P"], era: "Active", eraTag: 'modern', stats: { era: 3.26, so: 870, wins: 45, ip: 700, bb: 200, ha: 550 }, statmuseId: 'corbin-burnes', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CB" },
+            { id: 229, name: "Rollie Fingers", positions: ["P"], era: "Hall of Famer", eraTag: '70s', stats: { era: 2.90, so: 1299, saves: 341, ip: 1701, bb: 492, ha: 1530 }, statmuseId: 'rollie-fingers', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RF" },
+            { id: 230, name: "Goose Gossage", positions: ["P"], era: "Hall of Famer", eraTag: '80s', stats: { era: 3.01, so: 1502, saves: 310, ip: 1809, bb: 689, ha: 1563 }, statmuseId: 'goose-gossage', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GG" },
+            { id: 231, name: "Lee Smith", positions: ["P"], era: "Hall of Famer", eraTag: '80s', stats: { era: 3.03, so: 1251, saves: 478, ip: 1289, bb: 446, ha: 1131 }, statmuseId: 'lee-smith', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=LS" },
+            { id: 232, name: "Bruce Sutter", positions: ["P"], era: "Hall of Famer", eraTag: '80s', stats: { era: 2.83, so: 861, saves: 300, ip: 1042, bb: 309, ha: 863 }, statmuseId: 'bruce-sutter', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BS" },
+            { id: 233, name: "Craig Kimbrel", positions: ["P"], era: "Active", eraTag: 'modern', stats: { era: 2.40, so: 1192, saves: 417, ip: 750, bb: 280, ha: 450 }, statmuseId: 'craig-kimbrel', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CK" },
+            { id: 234, name: "Kenley Jansen", positions: ["P"], era: "Active", eraTag: 'modern', stats: { era: 2.52, so: 1190, saves: 420, ip: 820, bb: 240, ha: 550 }, statmuseId: 'kenley-jansen', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=KJ" },
+        ];
+
+        const stadiums = [
+            // Active MLB Stadiums
+            { name: "Angel Stadium", factors: { hr: 1.1, triple: 0.8, double: 1.0, single: 1.0 } },
+            { name: "Busch Stadium", factors: { hr: 0.9, triple: 1.0, double: 1.1, single: 1.0 } },
+            { name: "Chase Field", factors: { hr: 1.0, triple: 1.3, double: 1.2, single: 1.0 } },
+            { name: "Citi Field", factors: { hr: 0.8, triple: 1.2, double: 1.0, single: 1.0 } },
+            { name: "Citizens Bank Park", factors: { hr: 1.2, triple: 0.9, double: 1.0, single: 1.0 } },
+            { name: "Comerica Park", factors: { hr: 0.8, triple: 1.5, double: 1.2, single: 1.0 } },
+            { name: "Coors Field", factors: { hr: 1.4, triple: 1.3, double: 1.4, single: 1.1 } },
+            { name: "Dodger Stadium", factors: { hr: 0.9, triple: 0.8, double: 1.0, single: 1.0 } },
+            { name: "Fenway Park", factors: { hr: 0.9, triple: 0.9, double: 1.5, single: 1.0 } },
+            { name: "Globe Life Field", factors: { hr: 1.0, triple: 1.1, double: 1.1, single: 1.0 } },
+            { name: "Great American Ball Park", factors: { hr: 1.3, triple: 1.0, double: 1.1, single: 1.0 } },
+            { name: "Guaranteed Rate Field", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 } },
+            { name: "Kauffman Stadium", factors: { hr: 0.9, triple: 1.4, double: 1.1, single: 1.0 } },
+            { name: "LoanDepot Park", factors: { hr: 0.8, triple: 1.2, double: 1.0, single: 1.0 } },
+            { name: "Minute Maid Park", factors: { hr: 1.0, triple: 0.7, double: 1.1, single: 1.0 } },
+            { name: "Nationals Park", factors: { hr: 1.0, triple: 1.0, double: 1.0, single: 1.0 } },
+            { name: "Oracle Park", factors: { hr: 0.7, triple: 1.6, double: 1.2, single: 1.0 } },
+            { name: "Oriole Park at Camden Yards", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 } },
+            { name: "Petco Park", factors: { hr: 0.8, triple: 1.1, double: 1.1, single: 1.0 } },
+            { name: "PNC Park", factors: { hr: 0.9, triple: 1.4, double: 1.1, single: 1.0 } },
+            { name: "Progressive Field", factors: { hr: 1.0, triple: 1.0, double: 1.1, single: 1.0 } },
+            { name: "RingCentral Coliseum", factors: { hr: 0.8, triple: 1.0, double: 1.0, single: 1.0 } },
+            { name: "Rogers Centre", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 } },
+            { name: "T-Mobile Park", factors: { hr: 0.9, triple: 1.1, double: 1.1, single: 1.0 } },
+            { name: "Target Field", factors: { hr: 1.0, triple: 1.1, double: 1.1, single: 1.0 } },
+            { name: "Tropicana Field", factors: { hr: 1.0, triple: 1.2, double: 1.1, single: 1.0 } },
+            { name: "Truist Park", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 } },
+            { name: "Wrigley Field", factors: { hr: 1.1, triple: 1.2, double: 1.2, single: 1.0 } },
+            { name: "Yankee Stadium", factors: { hr: 1.2, triple: 0.7, double: 0.9, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/refs/heads/stadiums/Yankee_Stadium_overhead_2010.jpg" },
+            // Historical & Fictional
+            { name: "Polo Grounds", factors: { hr: 0.8, triple: 1.5, double: 1.2, single: 1.0 } },
+            { name: "Hiram Bithorn Stadium", factors: { hr: 0.9, triple: 1.0, double: 1.0, single: 1.0 } },
+            { name: "Field of Dreams", factors: { hr: 1.1, triple: 1.2, double: 1.1, single: 1.1 } },
+        ];
+
+        // --- GAME STATE ---
+        let gameState = {
+            currentScreen: 'home-screen',
+            teams: {
+                1: { name: "Team 1", roster: {}, battingOrder: [] },
+                2: { name: "Team 2", roster: {}, battingOrder: [] },
+            },
+            selectedStadium: null,
+            gameSim: null,
+        };
+
+        // --- UI ELEMENTS ---
+        const screens = document.querySelectorAll('.screen');
+        const modal = document.getElementById('player-modal');
+        let modalContext = {}; // { teamId, position }
+
+        // --- UI LOGIC ---
+        function navigateTo(screenId) {
+            screens.forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            gameState.currentScreen = screenId;
+        }
+
+        function initializeTeamBuilder(teamId) {
+            const container = document.getElementById(`team-${teamId}-builder`);
+            const positions = ["C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "DH"];
+            const pitcherRoles = { "SP": "Starter", "MR1": "Reliever 1", "MR2": "Reliever 2", "CL": "Closer" };
+
+            let builderHTML = `<input type="text" value="Team ${teamId}" class="team-name-input w-full bg-gray-700 p-2 rounded mb-4 text-center text-2xl font-bold" data-team-id="${teamId}">`;
+            builderHTML += `<h3 class="text-xl font-bold mb-2 text-teal-300">Position Players</h3><div class="grid grid-cols-3 gap-2 mb-4">`;
+            positions.forEach(pos => {
+                builderHTML += `<div id="pos-${teamId}-${pos}" class="player-slot bg-gray-700 rounded p-2 text-center h-28 flex flex-col justify-center items-center" data-team-id="${teamId}" data-position="${pos}">
+                    <span class="font-bold text-lg">${pos}</span>
+                    <button class="add-player-btn mt-2 bg-teal-600 px-3 py-1 rounded text-sm hover:bg-teal-500">+</button>
+                </div>`;
+            });
+            builderHTML += `</div>`;
+            builderHTML += `<h3 class="text-xl font-bold mb-2 text-teal-300">Pitching Staff</h3><div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4">`;
+            Object.entries(pitcherRoles).forEach(([role, title]) => {
+                 builderHTML += `<div id="pos-${teamId}-${role}" class="player-slot bg-gray-700 rounded p-2 text-center h-28 flex flex-col justify-center items-center" data-team-id="${teamId}" data-position="${role}">
+                    <span class="font-bold text-lg">${title}</span>
+                    <button class="add-player-btn mt-2 bg-teal-600 px-3 py-1 rounded text-sm hover:bg-teal-500">+</button>
+                </div>`;
+            });
+            builderHTML += `</div>`;
+            builderHTML += `
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-xl font-bold text-teal-300">Batting Order</h3>
+                    <button id="ai-lineup-btn-${teamId}" class="bg-indigo-500 text-white font-bold py-1 px-2 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase text-xs">Generate AI Lineup</button>
+                </div>
+            `;
+            builderHTML += `<div id="batting-order-${teamId}" class="drop-zone bg-gray-900 p-2 rounded space-y-1 min-h-[50px]"></div>`;
+            container.innerHTML = builderHTML;
+        }
+        
+        function openPlayerModal(teamId, position) {
+            modalContext = { teamId, position };
+            document.getElementById('modal-title').textContent = `Select ${position}`;
+            
+            const eras = ["All", "Active", "Hall of Famer", "Legend"];
+            const eraFilterContainer = document.getElementById('era-filter');
+            eraFilterContainer.innerHTML = eras.map(era => `
+                <label class="flex items-center space-x-2">
+                    <input type="radio" name="era" value="${era}" class="form-radio bg-gray-900" ${era === 'All' ? 'checked' : ''}>
+                    <span>${era}</span>
+                </label>
+            `).join('');
+            
+            document.getElementById('player-search').value = '';
+            populateModalList();
+            modal.classList.remove('hidden');
+            document.getElementById('modal-player-list').scrollTop = 0; // Reset scroll to top
+        }
+
+        function populateModalList() {
+            const listContainer = document.getElementById('modal-player-list');
+            const search = document.getElementById('player-search').value.toLowerCase();
+            const selectedEra = document.querySelector('input[name="era"]:checked').value;
+            const { teamId, position } = modalContext;
+
+            const isPitcherRole = ["SP", "MR1", "MR2", "CL"].includes(position);
+            const otherTeamId = teamId == 1 ? 2 : 1;
+            const otherTeamIds = new Set(Object.values(gameState.teams[otherTeamId].roster).map(p => p.id));
+            const sameTeamRoster = gameState.teams[teamId].roster;
+
+            let filteredPlayers = players.filter(p => {
+                // Availability Check
+                if (otherTeamIds.has(p.id)) return false;
+
+                const isSelectedOnSameTeam = Object.values(sameTeamRoster).some(player => player.id === p.id);
+
+                if (p.twoWay) {
+                    const isSelectedAsPitcher = sameTeamRoster.SP?.id === p.id;
+                    const isSelectedAsDH = sameTeamRoster.DH?.id === p.id;
+
+                    if (position === 'SP' && isSelectedAsDH) { /* Allow selecting as P if already DH */ }
+                    else if (position === 'DH' && isSelectedAsPitcher) { /* Allow selecting as DH if already P */ }
+                    else if (isSelectedOnSameTeam) { return false; }
+                } else if (isSelectedOnSameTeam) {
+                    return false;
+                }
+
+                // Standard Filters
+                const matchesSearch = p.name.toLowerCase().includes(search);
+                const matchesEra = selectedEra === 'All' || p.era === selectedEra;
+                
+                // Position Filter
+                let matchesPosition = false;
+                const outfieldPositions = ["LF", "CF", "RF"];
+                if (isPitcherRole) {
+                    matchesPosition = p.positions.includes("P");
+                } else if (outfieldPositions.includes(position)) {
+                    matchesPosition = p.positions.includes("OF");
+                } else {
+                    matchesPosition = p.positions.includes(position);
+                }
+                
+                return matchesSearch && matchesEra && matchesPosition;
+            });
+
+            if (filteredPlayers.length === 0) {
+                listContainer.innerHTML = `<p class="text-gray-400 text-center">No available players match the criteria.</p>`;
+                return;
+            }
+
+            listContainer.innerHTML = filteredPlayers.map(p => {
+                const stats = (p.positions.includes('P') && !p.stats.avg) || (p.twoWay && isPitcherRole)
+                    ? `W: ${p.stats.wins}, ERA: ${p.stats.era}, SO: ${p.stats.so_p || p.stats.so}`
+                    : `AVG: ${p.stats.avg}, HR: ${p.stats.hr}, RBI: ${p.stats.rbi}`;
+                return `
+                    <div class="player-card flex items-center justify-between p-2 rounded hover:bg-gray-700 cursor-pointer transition duration-150" data-player-id="${p.id}">
+                        <div class="flex items-center">
+                            <img src="${p.portrait}" alt="${p.name}" class="w-12 h-12 rounded-full mr-4" onerror="this.onerror=null;this.src='https://placehold.co/100x100/1f2937/ffffff?text=ERR';">
+                            <div>
+                                <p class="font-bold text-lg">${p.name}</p>
+                                <p class="text-sm text-gray-400">${stats}</p>
+                            </div>
+                        </div>
+                        <span class="text-sm font-semibold text-teal-400">${p.era}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectPlayer(playerId) {
+            const player = players.find(p => p.id === playerId);
+            const { teamId, position } = modalContext;
+            
+            // Call a helper to avoid duplicating code
+            addPlayerToSlot(teamId, position, player);
+
+            modal.classList.add('hidden');
+        }
+        
+        function addPlayerToSlot(teamId, position, player) {
+            gameState.teams[teamId].roster[position] = player;
+            
+            const slot = document.getElementById(`pos-${teamId}-${position}`);
+            slot.innerHTML = `
+                <img src="${player.portrait}" alt="${player.name}" class="w-12 h-12 rounded-full mb-1" onerror="this.onerror=null;this.src='https://placehold.co/100x100/1f2937/ffffff?text=ERR';">
+                <p class="font-bold text-sm truncate">${player.name}</p>
+                <button class="remove-player-btn text-red-500 text-xs hover:text-red-400">REMOVE</button>
+            `;
+            
+            if (!["SP", "MR1", "MR2", "CL"].includes(position)) {
+                 addPlayerToBattingOrder(teamId, player);
+            }
+
+            checkTeamReady(teamId);
+        }
+
+        function removePlayer(teamId, position) {
+            const playerToRemove = gameState.teams[teamId].roster[position];
+            if (!playerToRemove) return;
+
+            delete gameState.teams[teamId].roster[position];
+            
+            const slot = document.getElementById(`pos-${teamId}-${position}`);
+            const positionTitle = slot.dataset.position.startsWith("MR") ? `Reliever ${slot.dataset.position.slice(-1)}` : (slot.dataset.position === "SP" ? "Starter" : (slot.dataset.position === "CL" ? "Closer" : slot.dataset.position));
+            slot.innerHTML = `<span class="font-bold text-lg">${positionTitle || position}</span>
+                              <button class="add-player-btn mt-2 bg-teal-600 px-3 py-1 rounded text-sm hover:bg-teal-500">+</button>`;
+
+            const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
+            const playerCard = battingOrderContainer.querySelector(`[data-player-id="${playerToRemove.id}"]`);
+            if(playerCard) playerCard.remove();
+            
+            updateBattingOrder(teamId);
+        }
+        
+        function addPlayerToBattingOrder(teamId, player) {
+            const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
+            const playerCard = document.createElement('div');
+            playerCard.className = 'draggable bg-gray-700 p-2 rounded flex items-center justify-between';
+            playerCard.draggable = true;
+            playerCard.dataset.playerId = player.id;
+            playerCard.innerHTML = `
+                <span class="font-bold">${player.name}</span>
+                <span class="text-gray-400">${player.positions[0]}</span>
+            `;
+            battingOrderContainer.appendChild(playerCard);
+            updateBattingOrder(teamId);
+        }
+        
+        function updateBattingOrder(teamId) {
+            const container = document.getElementById(`batting-order-${teamId}`);
+            const orderedIds = Array.from(container.children).map(child => parseInt(child.dataset.playerId));
+            gameState.teams[teamId].battingOrder = orderedIds;
+            checkTeamReady(teamId);
+        }
+        
+        function checkTeamReady(teamId) {
+            const roster = gameState.teams[teamId].roster;
+            const positionPlayers = Object.keys(roster).filter(pos => !["SP", "MR1", "MR2", "CL"].includes(pos));
+            const pitchers = Object.keys(roster).filter(pos => ["SP", "MR1", "MR2", "CL"].includes(pos));
+            
+            const teamReady = positionPlayers.length === 9 && pitchers.length === 4 && gameState.teams[teamId].battingOrder.length === 9;
+            
+            if (teamId == 1) {
+                document.getElementById('to-team-2-builder-btn').disabled = !teamReady;
+            } else {
+                document.getElementById('to-stadium-select-btn').disabled = !teamReady;
+            }
+        }
+
+        function initializeStadiums() {
+            const list = document.getElementById('stadium-list');
+            list.innerHTML = stadiums.map(s => `
+                <div class="stadium-card bg-gray-700 p-4 rounded-lg shadow-lg cursor-pointer border-2 border-gray-700 hover:border-teal-400 transition flex flex-col justify-between" data-stadium-name="${s.name}">
+                    <h3 class="text-xl font-bold text-center mb-2">${s.name}</h3>
+                    ${s.thumbnail 
+                        ? `<img src="${s.thumbnail}" alt="${s.name}" class="w-full h-32 object-cover rounded-md">` 
+                        : `<div class="h-32 flex flex-col justify-center items-center text-gray-400">
+                               <ul>
+                                   <li>HR Factor: ${s.factors.hr}</li>
+                                   <li>Triple Factor: ${s.factors.triple}</li>
+                                   <li>Double Factor: ${s.factors.double}</li>
+                               </ul>
+                           </div>`
+                    }
+                </div>
+            `).join('');
+        }
+        
+        // --- BROADCAST COMMENTARY DATA ---
+        const commentary = {
+            strikeout: [
+                "{batter} is caught looking, a beautiful pitch from {pitcher}!",
+                "Swung on and missed! {pitcher} gets the strikeout!",
+                "{pitcher} blows a fastball by {batter} for the K!",
+                "Down on strikes! {batter} couldn't catch up to that one.",
+                "A nasty slider from {pitcher} buckles the knees of {batter}. Strike three!",
+            ],
+            walk: [
+                "{pitcher} loses {batter} on a full count. That's a walk.",
+                "Ball four, and {batter} will take his base.",
+                "{batter} shows great patience at the plate and draws the walk.",
+                "The home plate umpire rings him up... just kidding, it's ball four!",
+            ],
+            single: [
+                "{batter} ropes a single into left field!",
+                "A sharp grounder finds its way through the infield for a base hit.",
+                "{batter} bloops one into shallow center for a single.",
+                "That's a base knock for {batter}!",
+            ],
+            double: [
+                "{batter} smokes one into the gap! That'll be a stand-up double.",
+                "A line drive down the right-field line, {batter} cruises into second.",
+                "He hits it high and deep to center... it's off the wall! A double for {batter}.",
+            ],
+            triple: [
+                "{batter} drives one into deep right-center! He's digging for three... and he's in there! A triple!",
+                "That ball is rattling around in the corner! {batter} is flying around the bases for a triple!",
+            ],
+            homerun: [
+                "That ball is hit deep to left field... way back... GONE! A home run for {batter}!",
+                "High fly ball to right... forget about it! {batter} circles the bases!",
+                "There it goes! A no-doubter for {batter}!",
+                "He got all of that one! A towering shot from {batter}!",
+            ],
+            out: [
+                "{batter} hits a routine grounder to second, easy play for the out.",
+                "Pops it up into foul territory... and the catcher makes the play.",
+                "A sharp liner, but right at the shortstop for the out.",
+                "{batter} flies out to the warning track in center field.",
+                "Ground ball to third, the throw across the diamond... in time!",
+            ],
+            double_play: [
+                "Ground ball to short... they turn two! A 6-4-3 double play to end the threat!",
+                "A tailor-made double play ball, and they execute it perfectly!",
+            ],
+            error: [
+                "A routine grounder, but it's bobbled! An ERROR allows {batter} to reach safely!",
+                "The throw is wide! {batter} is safe on the error!",
+            ],
+        };
+
+        function getCommentary(event, context) {
+            const options = commentary[event];
+            let text = options[Math.floor(Math.random() * options.length)];
+            for (const key in context) {
+                text = text.replace(`{${key}}`, context[key]);
+            }
+            return text;
+        }
+
+
+        // ---  ADVANCED SIMULATION LOGIC ---
+        class GameSimulation {
+            constructor(team1, team2, stadium) {
+                this.teams = {
+                    away: this.prepareTeam(team1),
+                    home: this.prepareTeam(team2),
+                };
+                this.stadium = stadium;
+                this.log = [];
+                this.events = []; // For storing structured event data for the summary
+                this.score = { away: 0, home: 0 };
+                this.lineScore = { away: [], home: [] };
+                this.inning = 1;
+                this.topOfInning = true;
+                this.outs = 0;
+                this.bases = [null, null, null];
+                this.currentBatterIndex = { away: 0, home: 0 };
+                this.isGameOver = false;
+                this.stats = { players: {} };
+                this.initPlayerStats();
+                
+                this.leagueAveragesByEra = {
+                    '30s': { bbRate: 0.09, soRate: 0.08, hrRate: 0.015, babip: 0.290, runsPerGame: 4.8 },
+                    '50s': { bbRate: 0.09, soRate: 0.11, hrRate: 0.025, babip: 0.280, runsPerGame: 4.5 },
+                    '70s': { bbRate: 0.08, soRate: 0.13, hrRate: 0.020, babip: 0.280, runsPerGame: 4.0 },
+                    '80s': { bbRate: 0.08, soRate: 0.14, hrRate: 0.020, babip: 0.290, runsPerGame: 4.2 },
+                    '90s': { bbRate: 0.09, soRate: 0.16, hrRate: 0.030, babip: 0.295, runsPerGame: 4.7 },
+                    'modern': { bbRate: 0.085, soRate: 0.23, hrRate: 0.035, babip: 0.300, runsPerGame: 4.5 },
+                };
+            }
+
+            prepareTeam(teamData) {
+                const team = {
+                    name: teamData.name,
+                    battingOrder: teamData.battingOrder.map(id => players.find(p => p.id === id)),
+                    pitchers: {
+                        sp: { ...teamData.roster.SP, pitchCount: 0, stamina: teamData.roster.SP.eraTag === 'modern' ? 95 : 110, role: 'SP' },
+                        mr1: { ...teamData.roster.MR1, pitchCount: 0, stamina: 40, role: 'MR' },
+                        mr2: { ...teamData.roster.MR2, pitchCount: 0, stamina: 40, role: 'MR' },
+                        cl: { ...teamData.roster.CL, pitchCount: 0, stamina: 25, role: 'CL' },
+                    },
+                    bullpen: ['mr1', 'mr2', 'cl'],
+                    currentPitcher: null
+                };
+                team.currentPitcher = team.pitchers.sp;
+                return team;
+            }
+            
+            initPlayerStats() {
+                players.forEach(p => {
+                    this.stats.players[p.id] = {
+                        ab: 0, r: 0, h: 0, rbi: 0, bb: 0, so: 0, '2b': 0, '3b': 0, hr: 0,
+                        ip: 0, h_a: 0, r_a: 0, er_a: 0, bb_a: 0, so_p: 0, pitchCount: 0,
+                        wins: 0, saves: 0, mvpScore: 0,
+                    };
+                });
+            }
+
+            getLeverage() {
+                const scoreDifference = Math.abs(this.score.away - this.score.home);
+                const runnersOnBase = this.bases.filter(r => r !== null).length;
+                let leverage = 1.0;
+
+                if (this.inning >= 7) leverage *= 1.5;
+                if (this.inning >= 9) leverage *= 1.2;
+                if (scoreDifference <= 1) leverage *= 2.0;
+                else if (scoreDifference <= 3) leverage *= 1.5;
+                if (runnersOnBase > 0) leverage *= 1.2;
+                if (runnersOnBase >= 2) leverage *= 1.5;
+
+                return leverage;
+            }
+
+            updateMvpScore(playerId, value) {
+                if (this.stats.players[playerId]) {
+                    this.stats.players[playerId].mvpScore += value;
+                }
+            }
+            
+            stat(playerId, stat, value = 1) { this.stats.players[playerId][stat] += value; }
+            addLog(message) { this.log.push(message); }
+            addEvent(eventData) { this.events.push(eventData); }
+
+            checkPitchingChange() {
+                const teamKey = this.topOfInning ? 'home' : 'away';
+                const team = this.teams[teamKey];
+                const pitcher = team.currentPitcher;
+                const scoreDiff = this.score[teamKey] - this.score[this.topOfInning ? 'away' : 'home'];
+
+                const isTired = pitcher.pitchCount >= pitcher.stamina;
+                const isSaveSituation = this.inning >= 8 && !this.topOfInning && scoreDiff > 0 && scoreDiff <= 3;
+
+                let nextPitcherRole = null;
+                if (isSaveSituation && team.bullpen.includes('cl') && pitcher.role !== 'CL') {
+                    nextPitcherRole = 'cl';
+                } else if (isTired && team.bullpen.length > 0) {
+                    nextPitcherRole = team.bullpen[0];
+                }
+
+                if (nextPitcherRole) {
+                    const newPitcher = team.pitchers[nextPitcherRole];
+                    team.currentPitcher = newPitcher;
+                    team.bullpen = team.bullpen.filter(p => p !== nextPitcherRole);
+                    this.addLog(`--- PITCHING CHANGE ---`);
+                    this.addLog(`${newPitcher.name} is now pitching for ${team.name}.`);
+                }
+            }
+
+            simulatePlay() {
+                if (this.isGameOver) return;
+                
+                this.checkPitchingChange();
+
+                const currentTeamKey = this.topOfInning ? 'away' : 'home';
+                const opposingTeamKey = this.topOfInning ? 'home' : 'away';
+                const batter = this.teams[currentTeamKey].battingOrder[this.currentBatterIndex[currentTeamKey]];
+                const pitcher = this.teams[opposingTeamKey].currentPitcher;
+                const leagueAvg = this.leagueAveragesByEra[batter.eraTag] || this.leagueAveragesByEra['modern'];
+                const leverage = this.getLeverage();
+
+                this.addLog(`--- ${this.topOfInning ? 'Top' : 'Bottom'} of the ${this.inning}, ${this.outs} out(s) ---`);
+                this.addLog(`${batter.name} steps up to the plate, facing ${pitcher.name}.`);
+                
+                const pitches = Math.floor(Math.random() * 4) + 3;
+                pitcher.pitchCount += pitches;
+                this.stat(pitcher.id, 'pitchCount', pitches);
+                this.stat(batter.id, 'ab');
+
+                const batterBBRate = (batter.stats.bb) / (batter.stats.ab + batter.stats.bb);
+                const batterSORate = (batter.stats.so) / (batter.stats.ab + batter.stats.bb);
+                const pitcherBBRate = (pitcher.stats.bb_p || pitcher.stats.bb) / ((pitcher.stats.ip * 3) || 1);
+                const pitcherSORate = (pitcher.stats.so_p || pitcher.stats.so) / ((pitcher.stats.ip * 3) || 1);
+
+                const finalBBRate = (batterBBRate / leagueAvg.bbRate) * (pitcherBBRate / leagueAvg.bbRate) * leagueAvg.bbRate;
+                const finalSORate = (batterSORate / leagueAvg.soRate) * (pitcherSORate / leagueAvg.soRate) * leagueAvg.soRate;
+
+                const roll = Math.random();
+
+                if (roll < finalBBRate) { // WALK
+                    this.addLog(getCommentary('walk', { batter: batter.name, pitcher: pitcher.name }));
+                    this.stat(batter.id, 'bb'); this.stat(pitcher.id, 'bb_a');
+                    this.updateMvpScore(batter.id, 0.3 * leverage);
+                    this.updateMvpScore(pitcher.id, -0.3 * leverage);
+                    this.advanceRunners(batter, 1, true, leverage);
+                } else if (roll < finalBBRate + finalSORate) { // STRIKEOUT
+                    this.addLog(getCommentary('strikeout', { batter: batter.name, pitcher: pitcher.name }));
+                    this.stat(batter.id, 'so'); this.stat(pitcher.id, 'so_p');
+                    this.updateMvpScore(batter.id, -0.35 * leverage);
+                    this.updateMvpScore(pitcher.id, 0.35 * leverage);
+                    this.addOuts(1);
+                } else { // BALL IN PLAY
+                    this.handleBallInPlay(batter, pitcher, leagueAvg, leverage);
+                }
+
+                this.currentBatterIndex[currentTeamKey] = (this.currentBatterIndex[currentTeamKey] + 1) % 9;
+
+                if (this.outs >= 3) {
+                    this.endOfInningHalf();
+                }
+            }
+
+            handleBallInPlay(batter, pitcher, leagueAvg, leverage) {
+                const batterHRRate = batter.stats.hr / (batter.stats.ab + batter.stats.bb);
+                const pitcherHRRate = ((pitcher.stats.ha_p || pitcher.stats.ha) / ((pitcher.stats.ip * 3) || 1)) * 0.12; // Estimate HR/BIP
+                const finalHRRate = (batterHRRate / leagueAvg.hrRate) * (pitcherHRRate / leagueAvg.hrRate) * leagueAvg.hrRate * this.stadium.factors.hr;
+
+                if (Math.random() < finalHRRate) {
+                    this.addLog(getCommentary('homerun', { batter: batter.name }));
+                    this.stat(batter.id, 'h'); this.stat(batter.id, 'hr'); this.stat(pitcher.id, 'h_a');
+                    const runsBefore = this.score[this.topOfInning ? 'away' : 'home'];
+                    this.advanceRunners(batter, 4, false, leverage);
+                    const rbi = this.score[this.topOfInning ? 'away' : 'home'] - runsBefore;
+                    const mvpPoints = (1.5 + rbi) * leverage;
+                    this.updateMvpScore(batter.id, mvpPoints);
+                    this.updateMvpScore(pitcher.id, -mvpPoints);
+                    this.addEvent({ inning: this.inning, batter: batter.name, result: 'HR', rbi: rbi });
+                    return;
+                }
+
+                const batterBABIP = (batter.stats.avg - (batter.stats.hr / batter.stats.ab)) * 1.1; // Estimate
+                const finalBABIP = (batterBABIP / leagueAvg.babip) * leagueAvg.babip;
+                
+                if (Math.random() < finalBABIP) { // HIT
+                    const batterISO = ((batter.stats.hr * 4) + ((batter.stats.rbi - batter.stats.hr) * 1.5)) / batter.stats.ab; // Simple ISO
+                    const hitRoll = Math.random();
+                    if (hitRoll < 0.7 - (batterISO * 0.5)) { 
+                        this.addLog(getCommentary('single', { batter: batter.name }));
+                        this.updateMvpScore(batter.id, 0.5 * leverage); this.updateMvpScore(pitcher.id, -0.5 * leverage);
+                        this.advanceRunners(batter, 1, false, leverage); 
+                    } else if (hitRoll < 0.95 - (batterISO * 0.2)) { 
+                        this.addLog(getCommentary('double', { batter: batter.name })); this.stat(batter.id, '2b'); 
+                        this.updateMvpScore(batter.id, 0.8 * leverage); this.updateMvpScore(pitcher.id, -0.8 * leverage);
+                        this.advanceRunners(batter, 2, false, leverage); 
+                    } else { 
+                        this.addLog(getCommentary('triple', { batter: batter.name })); this.stat(batter.id, '3b'); 
+                        this.updateMvpScore(batter.id, 1.2 * leverage); this.updateMvpScore(pitcher.id, -1.2 * leverage);
+                        this.advanceRunners(batter, 3, false, leverage); 
+                    }
+                    this.stat(batter.id, 'h'); this.stat(pitcher.id, 'h_a');
+                } else { // OUT
+                    const defenseRoll = Math.random();
+                    if (defenseRoll < 0.02) { // Error
+                        this.addLog(getCommentary('error', { batter: batter.name }));
+                        this.advanceRunners(batter, 1, false, leverage);
+                    } else {
+                        if (this.bases[0] && this.outs < 2 && batter.speed < 5 && Math.random() < 0.5) {
+                            this.addLog(getCommentary('double_play', {}));
+                            this.updateMvpScore(batter.id, -0.8 * leverage); this.updateMvpScore(pitcher.id, 0.8 * leverage);
+                            this.addOuts(2);
+                            this.bases[0] = null;
+                        } else {
+                            this.addLog(getCommentary('out', { batter: batter.name }));
+                            this.updateMvpScore(batter.id, -0.3 * leverage); this.updateMvpScore(pitcher.id, 0.3 * leverage);
+                            this.addOuts(1);
+                        }
+                    }
+                }
+            }
+            
+            addOuts(numOuts) {
+                const pitcher = this.teams[this.topOfInning ? 'home' : 'away'].currentPitcher;
+                this.outs += numOuts;
+                this.stat(pitcher.id, 'ip', numOuts / 3);
+            }
+
+            advanceRunners(batter, bases, isWalk = false, leverage) {
+                let runsScored = 0;
+                let newBases = [null, null, null];
+                const runners = [
+                    { runner: this.bases[2], start: 2 },
+                    { runner: this.bases[1], start: 1 },
+                    { runner: this.bases[0], start: 0 },
+                    { runner: batter, start: -1 }
+                ].filter(r => r.runner);
+
+                runners.sort((a, b) => b.start - a.start);
+
+                for (const { runner, start } of runners) {
+                    let end = start + bases;
+                    if (isWalk) {
+                        const isForced = runners.some(r => r.start === start - 1);
+                        if (start === -1 || isForced) end = start + 1;
+                        else end = start;
+                    }
+                    
+                    if (end >= 3) {
+                        runsScored++;
+                        this.stat(runner.id, 'r');
+                        this.updateMvpScore(runner.id, 0.2 * leverage); // Bonus for scoring
+                    } else {
+                        if (!newBases[end]) newBases[end] = runner;
+                        else { 
+                           for(let i = end + 1; i < 4; i++) {
+                                if (i >= 3) { runsScored++; this.stat(newBases[i-1].id, 'r'); this.updateMvpScore(newBases[i-1].id, 0.2 * leverage); break; }
+                                if (!newBases[i]) { newBases[i] = newBases[i-1]; newBases[i-1] = null; }
+                           }
+                           newBases[end] = runner;
+                        }
+                    }
+                }
+                
+                this.bases = newBases;
+
+                if (runsScored > 0) {
+                    const teamKey = this.topOfInning ? 'away' : 'home';
+                    this.score[teamKey] += runsScored;
+                    this.stat(batter.id, 'rbi', runsScored);
+                    this.updateMvpScore(batter.id, (runsScored * 0.5) * leverage); // Bonus for RBIs
+                    const pitcher = this.teams[this.topOfInning ? 'home' : 'away'].currentPitcher;
+                    this.stat(pitcher.id, 'r_a', runsScored);
+                    this.stat(pitcher.id, 'er_a', runsScored);
+                    this.updateMvpScore(pitcher.id, (runsScored * -1) * leverage);
+                    this.addLog(`${runsScored} run(s) score.`);
+                }
+            }
+
+            endOfInningHalf() {
+                const teamKey = this.topOfInning ? 'away' : 'home';
+                const runsThisInning = this.score[teamKey] - (this.lineScore[teamKey].reduce((a, b) => a + b, 0) || 0);
+                this.lineScore[teamKey].push(runsThisInning);
+
+                this.outs = 0;
+                this.bases = [null, null, null];
+                this.addLog(`------ End of ${this.topOfInning ? 'Top' : 'Bottom'} ${this.inning} ------`);
+                this.addLog(`Score: ${this.teams.away.name} ${this.score.away} - ${this.teams.home.name} ${this.score.home}`);
+
+                if (this.inning >= 9) {
+                    if (!this.topOfInning && this.score.home > this.score.away) {
+                        return this.finalizeGame();
+                    }
+                    if (!this.topOfInning && this.score.home !== this.score.away) {
+                        return this.finalizeGame();
+                    }
+                }
+                
+                if (this.topOfInning) {
+                    this.topOfInning = false;
+                } else {
+                    this.topOfInning = true;
+                    this.inning++;
+                }
+
+                if (this.inning > 9 && this.score.away === this.score.home) {
+                    this.addLog("Extra Innings: Ghost runner on 2nd.");
+                    const runnerTeamKey = this.topOfInning ? 'away' : 'home';
+                    const runnerIndex = (this.currentBatterIndex[runnerTeamKey] - 1 + 8) % 8;
+                    this.bases[1] = this.teams[runnerTeamKey].battingOrder[runnerIndex];
+                }
+            }
+            
+            finalizeGame() {
+                if (this.isGameOver) return;
+                this.isGameOver = true;
+                this.addLog("GAME OVER!");
+                const winningTeamKey = this.score.away > this.score.home ? 'away' : 'home';
+                const losingTeamKey = winningTeamKey === 'away' ? 'home' : 'away';
+
+                const winningPitcher = this.teams[winningTeamKey].currentPitcher;
+                const losingPitcher = this.teams[losingTeamKey].currentPitcher;
+
+                this.stat(winningPitcher.id, 'wins');
+                this.updateMvpScore(winningPitcher.id, 5); // Win bonus
+                this.updateMvpScore(losingPitcher.id, -5); // Loss penalty
+                
+                if (this.teams[winningTeamKey].currentPitcher.role === 'CL' && (this.score[winningTeamKey] - this.score[losingTeamKey]) <=3) {
+                    this.stat(this.teams[winningTeamKey].currentPitcher.id, 'saves');
+                    this.updateMvpScore(this.teams[winningTeamKey].currentPitcher.id, 3); // Save bonus
+                }
+                
+                document.getElementById('to-recap-btn').classList.remove('hidden');
+            }
+            
+            generateGameSummary() {
+                const winningTeam = this.score.away > this.score.home ? this.teams.away.name : this.teams.home.name;
+                const losingTeam = this.score.away > this.score.home ? this.teams.home.name : this.teams.away.name;
+                const finalScore = `${this.teams.away.name} ${this.score.away} - ${this.teams.home.name} ${this.score.home}`;
+                const scoreDiff = Math.abs(this.score.away - this.score.home);
+
+                const summaryOpeners = [
+                    `It was a hard-fought contest at ${this.stadium.name}, but the ${winningTeam} emerged victorious over the ${losingTeam} with a final score of ${finalScore}.`,
+                    `In a stunning display of skill, the ${winningTeam} defeated the ${losingTeam} today, finishing with a score of ${finalScore}.`,
+                    `What a game! The ${winningTeam} pulled ahead to clinch the win against the ${losingTeam}, final score ${finalScore}.`,
+                    `The crowd is on its feet as the ${winningTeam} celebrate their ${this.score.away > this.score.home ? this.score.away + '-' + this.score.home : this.score.home + '-' + this.score.away} victory over the ${losingTeam}.`,
+                    `That's all she wrote from ${this.stadium.name}, where the ${winningTeam} took down the ${losingTeam} in a fantastic ballgame.`,
+                    scoreDiff > 5 ? `The ${winningTeam} dominated today's game, cruising to a ${finalScore} win over the ${losingTeam}.` : `It was a nail-biter at ${this.stadium.name}, with the ${winningTeam} just edging out the ${losingTeam} by a score of ${finalScore}.`,
+                    `A stellar performance from the ${winningTeam} secures them the W against the ${losingTeam}. Final score: ${this.score.away > this.score.home ? this.score.away + ' to ' + this.score.home : this.score.home + ' to ' + this.score.away}.`
+                ];
+
+                let summary = summaryOpeners[Math.floor(Math.random() * summaryOpeners.length)];
+
+                const bigPlays = this.events.filter(e => e.rbi >= 2).sort((a,b) => b.rbi - a.rbi);
+                if (bigPlays.length > 0) {
+                    const biggestPlay = bigPlays[0];
+                    const playType = biggestPlay.result === 'HR' ? `${biggestPlay.rbi}-run homer` : `clutch hit`;
+                    summary += ` A key moment came in the ${biggestPlay.inning}th inning when ${biggestPlay.batter} delivered a ${playType}, shifting the momentum. `;
+                }
+
+                const mvp = getMvp(this);
+                const mvpStats = this.stats.players[mvp.id];
+                if (mvpStats.ip > 0) {
+                    const ipString = `${Math.floor(mvpStats.ip)}.${Math.round((mvpStats.ip % 1) * 3)}`;
+                    const dominanceLine = mvpStats.so_p > 7 ? `was dominant on the mound, fanning ${mvpStats.so_p}` : `pitched a gem`;
+                    summary += `${mvp.name} ${dominanceLine}, going ${ipString} innings to secure the win.`;
+                } else {
+                    const offenseLine = mvpStats.hr > 1 ? `led the offensive charge with ${mvpStats.hr} home runs` : `was a force at the plate`;
+                    summary += `${mvp.name} ${offenseLine}, going ${mvpStats.h}-for-${mvpStats.ab} with ${mvpStats.rbi} RBI.`;
+                }
+                
+                return summary;
+            }
+            
+            runFullGame() {
+                while(!this.isGameOver && this.log.length < 2000) {
+                    this.simulatePlay();
+                }
+                if (!this.isGameOver) this.finalizeGame();
+            }
+        }
+        
+        function getMvp(sim) {
+            let mvp = null;
+            let maxMvpScore = -Infinity;
+            Object.keys(sim.stats.players).forEach(playerId => {
+                const pStats = sim.stats.players[playerId];
+                const player = players.find(p => p.id == playerId);
+                if (!player || (pStats.ab === 0 && pStats.ip === 0)) return;
+
+                if (pStats.mvpScore > maxMvpScore) {
+                    maxMvpScore = pStats.mvpScore;
+                    mvp = player;
+                }
+            });
+            return mvp;
+        }
+
+        function updateScoreboard() {
+            const sim = gameState.gameSim;
+            if (!sim) return;
+            
+            const inningDisplay = sim.isGameOver ? "Final" : `${sim.topOfInning ? '▲' : '▼'} ${sim.inning}`;
+            
+            document.getElementById('scoreboard').innerHTML = `
+                <div class="flex justify-between items-center text-xl md:text-2xl font-mono bg-gray-900 p-2 rounded">
+                    <div>${sim.teams.away.name}: <span class="font-bold text-teal-400">${sim.score.away}</span></div>
+                    <div class="text-center">${inningDisplay}<br>${!sim.isGameOver ? `Outs: ${sim.outs}` : ''}</div>
+                    <div>${sim.teams.home.name}: <span class="font-bold text-teal-400">${sim.score.home}</span></div>
+                </div>
+            `;
+        }
+        
+        function updatePlayByPlay() {
+            const sim = gameState.gameSim;
+            if (!sim) return;
+            const logContainer = document.getElementById('play-by-play');
+            logContainer.innerHTML = sim.log.map(entry => `<p>${entry}</p>`).join('');
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function generateRecap() {
+            const sim = gameState.gameSim;
+            
+            const mvp = getMvp(sim);
+            const mvpStats = sim.stats.players[mvp.id];
+            let mvpStatLine = '';
+
+            if (mvpStats.ip > 0) {
+                const fullInnings = Math.floor(mvpStats.ip);
+                const partialInnings = Math.round((mvpStats.ip % 1) * 3);
+                const ipString = `${fullInnings}.${partialInnings}`;
+                mvpStatLine = `${ipString} IP, ${mvpStats.so_p} K, ${mvpStats.er_a} ER`;
+                if (mvpStats.wins > 0) mvpStatLine += ', W';
+                if (mvpStats.saves > 0) mvpStatLine += ', SV';
+            } else {
+                mvpStatLine = `${mvpStats.h}-for-${mvpStats.ab}, ${mvpStats.hr} HR, ${mvpStats.rbi} RBI`;
+            }
+            
+            document.getElementById('mvp-section').innerHTML = `
+                <h3 class="text-3xl font-bold">Game MVP</h3>
+                <img src="${mvp.portrait}" class="w-24 h-24 rounded-full mx-auto my-2 border-4 border-teal-400 bg-gray-700 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/100x100/1f2937/ffffff?text=MVP';">
+                <p class="text-2xl font-bold">${mvp.name}</p>
+                <p class="text-teal-400 font-semibold">${mvpStatLine}</p>
+            `;
+            
+            document.getElementById('inning-box-score').innerHTML = generateInningBoxScore(sim);
+            
+            const boxScoreHtml = `
+                <div class="space-y-6">
+                    ${generateTeamBoxScore(sim, 'away')}
+                    ${generateTeamBoxScore(sim, 'home')}
+                </div>
+            `;
+            document.getElementById('box-score').innerHTML = boxScoreHtml;
+        }
+
+        function generateInningBoxScore(sim) {
+            const innings = Math.max(sim.lineScore.away.length, 9);
+            let header = '<th class="p-2"></th>';
+            for (let i = 1; i <= innings; i++) {
+                header += `<th class="p-2 text-center">${i}</th>`;
+            }
+            header += '<th class="p-2 text-center font-bold">R</th><th class="p-2 text-center font-bold">H</th><th class="p-2 text-center font-bold">E</th>';
+            
+            const totalHits = (teamKey) => Array.from(sim.teams[teamKey].battingOrder).reduce((acc, p) => acc + sim.stats.players[p.id].h, 0);
+
+            const awayRow = `<tr><td class="p-2 font-semibold">${sim.teams.away.name}</td>${sim.lineScore.away.map(r => `<td class="p-2 text-center">${r}</td>`).join('')}${'<td></td>'.repeat(innings - sim.lineScore.away.length)}<td class="p-2 text-center font-bold">${sim.score.away}</td><td class="p-2 text-center font-bold">${totalHits('away')}</td><td class="p-2 text-center font-bold">0</td></tr>`;
+            const homeRow = `<tr><td class="p-2 font-semibold">${sim.teams.home.name}</td>${sim.lineScore.home.map(r => `<td class="p-2 text-center">${r}</td>`).join('')}${'<td></td>'.repeat(innings - sim.lineScore.home.length)}<td class="p-2 text-center font-bold">${sim.score.home}</td><td class="p-2 text-center font-bold">${totalHits('home')}</td><td class="p-2 text-center font-bold">0</td></tr>`;
+
+            return `
+                <table class="w-full text-left text-sm">
+                    <thead><tr class="border-b-2 border-gray-600">${header}</tr></thead>
+                    <tbody>${awayRow}${homeRow}</tbody>
+                </table>
+            `;
+        }
+
+        function generateTeamBoxScore(sim, teamKey) {
+            const team = sim.teams[teamKey];
+            let battingHtml = `
+                <h4 class="text-2xl font-bold text-teal-300 mb-2">${team.name} Batting</h4>
+                <table class="w-full text-left text-sm">
+                    <thead class="border-b-2 border-gray-600">
+                        <tr>
+                            <th class="p-2">Player</th>
+                            <th class="p-2 text-center">AB</th><th class="p-2 text-center">R</th><th class="p-2 text-center">H</th>
+                            <th class="p-2 text-center">2B</th><th class="p-2 text-center">3B</th><th class="p-2 text-center">HR</th>
+                            <th class="p-2 text-center">RBI</th><th class="p-2 text-center">BB</th><th class="p-2 text-center">SO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            team.battingOrder.forEach(p => {
+                const s = sim.stats.players[p.id];
+                battingHtml += `
+                    <tr class="border-b border-gray-700">
+                        <td class="p-2 font-semibold">${p.name}</td>
+                        <td class="p-2 text-center">${s.ab}</td><td class="p-2 text-center">${s.r}</td><td class="p-2 text-center">${s.h}</td>
+                        <td class="p-2 text-center">${s['2b']}</td><td class="p-2 text-center">${s['3b']}</td><td class="p-2 text-center">${s.hr}</td>
+                        <td class="p-2 text-center">${s.rbi}</td><td class="p-2 text-center">${s.bb}</td><td class="p-2 text-center">${s.so}</td>
+                    </tr>
+                `;
+            });
+            battingHtml += `</tbody></table>`;
+
+            let pitchingHtml = `
+                <h4 class="text-2xl font-bold text-teal-300 mt-6 mb-2">${team.name} Pitching</h4>
+                <table class="w-full text-left text-sm">
+                    <thead class="border-b-2 border-gray-600">
+                        <tr>
+                            <th class="p-2">Player</th>
+                            <th class="p-2 text-center">IP</th><th class="p-2 text-center">H</th><th class="p-2 text-center">R</th>
+                            <th class="p-2 text-center">ER</th><th class="p-2 text-center">BB</th><th class="p-2 text-center">SO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            Object.values(team.pitchers).forEach(p => {
+                const s = sim.stats.players[p.id];
+                if (s.ip > 0) {
+                    const fullInnings = Math.floor(s.ip);
+                    const partialInnings = Math.round((s.ip % 1) * 3);
+                    const ipString = `${fullInnings}.${partialInnings}`;
+                    pitchingHtml += `
+                        <tr class="border-b border-gray-700">
+                            <td class="p-2 font-semibold">${p.name}</td>
+                            <td class="p-2 text-center">${ipString}</td><td class="p-2 text-center">${s.h_a}</td><td class="p-2 text-center">${s.r_a}</td>
+                            <td class="p-2 text-center">${s.er_a}</td><td class="p-2 text-center">${s.bb_a}</td><td class="p-2 text-center">${s.so_p}</td>
+                        </tr>
+                    `;
+                }
+            });
+            pitchingHtml += `</tbody></table>`;
+            
+            const hitBreakdownHtml = `<div class="mt-4">${generateHitBreakdown(sim, teamKey)}</div>`;
+
+            return battingHtml + pitchingHtml + hitBreakdownHtml;
+        }
+
+        function generateHitBreakdown(sim, teamKey) {
+            let breakdownHtml = `<h4 class="text-xl font-bold text-teal-300 mb-2">Hit Breakdown</h4>`;
+            const hits = { '2B': [], '3B': [], HR: [], RBI: [] };
+            
+            sim.teams[teamKey].battingOrder.forEach(p => {
+                const s = sim.stats.players[p.id];
+                if (s['2b'] > 0) hits['2B'].push(`${p.name} (${s['2b']})`);
+                if (s['3b'] > 0) hits['3B'].push(`${p.name} (${s['3b']})`);
+                if (s.hr > 0) hits.HR.push(`${p.name} (${s.hr})`);
+                if (s.rbi > 0) hits.RBI.push(`${p.name} (${s.rbi})`);
+            });
+
+            if (hits['2B'].length > 0) breakdownHtml += `<p class="text-sm"><span class="font-semibold">2B:</span> ${hits['2B'].join(', ')}</p>`;
+            if (hits['3B'].length > 0) breakdownHtml += `<p class="text-sm"><span class="font-semibold">3B:</span> ${hits['3B'].join(', ')}</p>`;
+            if (hits.HR.length > 0) breakdownHtml += `<p class="text-sm"><span class="font-semibold">HR:</span> ${hits.HR.join(', ')}</p>`;
+            if (hits.RBI.length > 0) breakdownHtml += `<p class="text-sm"><span class="font-semibold">RBI:</span> ${hits.RBI.join(', ')}</p>`;
+            
+            if (Object.values(hits).every(arr => arr.length === 0)) {
+                return ''; // Return nothing if there's no data to show
+            }
+
+            return breakdownHtml;
+        }
+        
+        function resetGame() {
+            const teamNames = ["Beasts", "Mavericks", "Bills", "Demons", "Bisons", "Camels", "Black Panthers", "Black Widows", "Blue Birds", "Owls"];
+            let name1 = teamNames[Math.floor(Math.random() * teamNames.length)];
+            let name2 = teamNames[Math.floor(Math.random() * teamNames.length)];
+            while (name1 === name2) {
+                name2 = teamNames[Math.floor(Math.random() * teamNames.length)];
+            }
+
+            gameState.teams = {
+                1: { name: name1, roster: {}, battingOrder: [] },
+                2: { name: name2, roster: {}, battingOrder: [] },
+            };
+            gameState.selectedStadium = null;
+            gameState.gameSim = null;
+            initializeTeamBuilder(1);
+            initializeTeamBuilder(2);
+            document.querySelector('#team-1-builder .team-name-input').value = name1;
+            document.querySelector('#team-2-builder .team-name-input').value = name2;
+            document.getElementById('to-game-btn').disabled = true;
+            document.querySelectorAll('.stadium-card').forEach(c => c.classList.remove('selected'));
+        }
+
+        function startNewGame() {
+            // Hide post-game elements
+            document.getElementById('game-inning-box-score').classList.add('hidden');
+            document.getElementById('game-summary').classList.add('hidden');
+            document.getElementById('to-recap-btn').classList.add('hidden');
+
+            // Start simulation
+            gameState.gameSim = new GameSimulation(gameState.teams[1], gameState.teams[2], gameState.selectedStadium);
+            gameState.gameSim.runFullGame();
+            updateScoreboard();
+            updatePlayByPlay();
+            
+            // Show post-game elements
+            const boxScoreContainer = document.getElementById('game-inning-box-score');
+            boxScoreContainer.innerHTML = generateInningBoxScore(gameState.gameSim);
+            boxScoreContainer.classList.remove('hidden');
+
+            const summaryContainer = document.getElementById('game-summary');
+            summaryContainer.innerHTML = `<h4 class="text-2xl font-bold text-teal-300 mb-2">GAME SUMMARY</h4><p>${gameState.gameSim.generateGameSummary()}</p>`;
+            summaryContainer.classList.remove('hidden');
+        }
+        
+        function randomizeTeam(teamId) {
+            // Clear existing roster and batting order for the team
+            const allPositions = ["C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "DH", "SP", "MR1", "MR2", "CL"];
+            allPositions.forEach(pos => {
+                if (gameState.teams[teamId].roster[pos]) {
+                    removePlayer(teamId, pos);
+                }
+            });
+            gameState.teams[teamId].roster = {};
+            gameState.teams[teamId].battingOrder = [];
+            const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
+            battingOrderContainer.innerHTML = '';
+
+            const otherTeamId = teamId == 1 ? 2 : 1;
+            const usedPlayerIds = new Set(Object.values(gameState.teams[otherTeamId].roster).map(p => p.id));
+
+            const positionMap = {
+                "C": ["C"], "1B": ["1B"], "2B": ["2B"], "3B": ["3B"], "SS": ["SS"],
+                "LF": ["OF"], "CF": ["OF"], "RF": ["OF"], "DH": ["C", "1B", "2B", "3B", "SS", "OF", "DH"],
+                "SP": ["P"], "MR1": ["P"], "MR2": ["P"], "CL": ["P"]
+            };
+
+            allPositions.forEach(pos => {
+                const eligiblePositions = positionMap[pos];
+                let availablePlayers = players.filter(p => 
+                    !usedPlayerIds.has(p.id) && p.positions.some(pp => eligiblePositions.includes(pp))
+                );
+                
+                if (availablePlayers.length > 0) {
+                    const randomPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+                    usedPlayerIds.add(randomPlayer.id);
+                    addPlayerToSlot(teamId, pos, randomPlayer);
+                }
+            });
+            
+            // Shuffle batting order for some variety
+            let order = gameState.teams[teamId].battingOrder;
+            for (let i = order.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [order[i], order[j]] = [order[j], order[i]];
+            }
+            battingOrderContainer.innerHTML = ''; // Clear visual order
+            order.forEach(playerId => {
+                const player = players.find(p => p.id === playerId);
+                addPlayerToBattingOrder(teamId, player); // Re-add in shuffled order
+            });
+        }
+        
+        function generateAiLineup(teamId) {
+            const roster = gameState.teams[teamId].roster;
+            const positionPlayers = Object.keys(roster)
+                .filter(pos => !["SP", "MR1", "MR2", "CL"].includes(pos))
+                .map(pos => roster[pos]);
+
+            if (positionPlayers.length < 9) {
+                console.log("Need 9 position players to generate a lineup.");
+                return;
+            }
+
+            // Heuristic scoring for lineup spots
+            const scorePlayer = (player) => {
+                const stats = player.stats;
+                const obp = (stats.h + stats.bb) / (stats.ab + stats.bb);
+                const slg = ((stats.h - (stats['2b'] + stats['3b'] + stats.hr)) + (stats['2b'] * 2) + (stats['3b'] * 3) + (stats.hr * 4)) / stats.ab;
+                const ops = obp + slg;
+                const contact = 1 - (stats.so / stats.ab);
+
+                return {
+                    player,
+                    leadoff: obp * 1.5 + player.speed * 0.1, // High OBP, good speed
+                    twoHole: contact * 1.5 + ops * 0.5,     // High contact, good overall hitter
+                    threeHole: ops * 2,                     // Best hitter
+                    cleanup: slg * 1.5 + stats.hr * 0.1,    // Power
+                    power: slg * 1.2 + stats.hr * 0.15,     // Power
+                    overall: ops                            // General offensive value
+                };
+            };
+
+            const scoredPlayers = positionPlayers.map(scorePlayer);
+            let lineup = new Array(9).fill(null);
+            let remainingPlayers = [...scoredPlayers];
+
+            const placePlayer = (spot, sortBy) => {
+                if (remainingPlayers.length === 0) return;
+                remainingPlayers.sort((a, b) => b[sortBy] - a[sortBy]);
+                const bestPlayer = remainingPlayers.shift();
+                lineup[spot] = bestPlayer.player;
+            };
+
+            // Place key lineup spots
+            placePlayer(0, 'leadoff');   // 1. Leadoff
+            placePlayer(2, 'threeHole'); // 3. Best Hitter
+            placePlayer(3, 'cleanup');   // 4. Cleanup
+            placePlayer(1, 'twoHole');   // 2. Contact
+            placePlayer(4, 'power');     // 5. Power/Protection
+
+            // Fill the rest of the lineup with the best remaining overall hitters
+            remainingPlayers.sort((a, b) => b.overall - a.overall);
+            for (let i = 0; i < lineup.length; i++) {
+                if (lineup[i] === null && remainingPlayers.length > 0) {
+                    lineup[i] = remainingPlayers.shift().player;
+                }
+            }
+
+            // Update the UI
+            const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
+            battingOrderContainer.innerHTML = ''; // Clear existing visual order
+
+            const newOrderIds = lineup.map(p => p.id);
+            
+            newOrderIds.forEach(playerId => {
+                const player = players.find(p => p.id === playerId);
+                addPlayerToBattingOrder(teamId, player);
+            });
+
+            updateBattingOrder(teamId);
+        }
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'start-game-btn') {
+                resetGame();
+                navigateTo('team-1-builder-screen');
+            }
+            if (e.target.id === 'to-team-2-builder-btn') navigateTo('team-2-builder-screen');
+            if (e.target.id === 'to-stadium-select-btn') navigateTo('stadium-selector-screen');
+            if (e.target.id === 'to-game-btn') {
+                navigateTo('game-simulation-screen');
+                startNewGame();
+            }
+            if (e.target.id === 'to-recap-btn') {
+                generateRecap();
+                navigateTo('recap-screen');
+            }
+             if (e.target.id === 'to-home-btn') {
+                navigateTo('home-screen');
+            }
+            if (e.target.id === 'rematch-btn') {
+                navigateTo('game-simulation-screen');
+                startNewGame();
+            }
+            if (e.target.id === 'randomize-team-1-btn') {
+                randomizeTeam(1);
+            }
+            if (e.target.id === 'randomize-team-2-btn') {
+                randomizeTeam(2);
+            }
+            if (e.target.id === 'ai-lineup-btn-1') {
+                generateAiLineup(1);
+            }
+            if (e.target.id === 'ai-lineup-btn-2') {
+                generateAiLineup(2);
+            }
+
+            if (e.target.classList.contains('add-player-btn')) {
+                const slot = e.target.closest('.player-slot');
+                openPlayerModal(slot.dataset.teamId, slot.dataset.position);
+            }
+            if (e.target.classList.contains('remove-player-btn')) {
+                const slot = e.target.closest('.player-slot');
+                removePlayer(slot.dataset.teamId, slot.dataset.position);
+            }
+            if (e.target.closest('.player-card')) {
+                const card = e.target.closest('.player-card');
+                selectPlayer(parseInt(card.dataset.playerId));
+            }
+
+            if (e.target.closest('.stadium-card')) {
+                document.querySelectorAll('.stadium-card').forEach(c => c.classList.remove('selected'));
+                const card = e.target.closest('.stadium-card');
+                card.classList.add('selected');
+                gameState.selectedStadium = stadiums.find(s => s.name === card.dataset.stadiumName);
+                document.getElementById('to-game-btn').disabled = false;
+            }
+
+            if (e.target.id === 'modal-close-btn') {
+                modal.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('player-search').addEventListener('input', populateModalList);
+        document.getElementById('era-filter').addEventListener('change', populateModalList);
+        
+        document.getElementById('app').addEventListener('change', (e) => {
+            if (e.target.classList.contains('team-name-input')) {
+                const teamId = e.target.dataset.teamId;
+                gameState.teams[teamId].name = e.target.value;
+            }
+        });
+        
+        let draggedItem = null;
+        document.getElementById('app').addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('draggable')) {
+                draggedItem = e.target;
+                setTimeout(() => e.target.classList.add('dragging'), 0);
+            }
+        });
+        document.getElementById('app').addEventListener('dragend', (e) => {
+            if (draggedItem) {
+                draggedItem.classList.remove('dragging');
+                const teamBuilder = draggedItem.closest('.team-builder');
+                if (teamBuilder) {
+                    const teamId = teamBuilder.id.includes('1') ? 1 : 2;
+                    updateBattingOrder(teamId);
+                }
+                draggedItem = null;
+            }
+        });
+        document.getElementById('app').addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const dropZone = e.target.closest('.drop-zone');
+            if (dropZone && draggedItem) {
+                const afterElement = getDragAfterElement(dropZone, e.clientY);
+                if (afterElement == null) {
+                    dropZone.appendChild(draggedItem);
+                } else {
+                    dropZone.insertBefore(draggedItem, afterElement);
+                }
+            }
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.draggable:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // --- INITIALIZATION ---
+        initializeTeamBuilder(1);
+        initializeTeamBuilder(2);
+        initializeStadiums();
+    </script>
+</body>
+</html>
