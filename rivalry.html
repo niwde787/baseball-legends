@@ -50,12 +50,12 @@
         <section id="team-1-builder-screen" class="screen active">
             <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-4xl mx-auto">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-4xl font-bold text-teal-400">BUILD TEAM PR</h2>
+                    <h2 class="text-4xl font-bold text-teal-400">Puerto Rico</h2>
                     <button id="randomize-team-1-btn" class="bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase text-sm">RANDOMIZE TEAM</button>
                 </div>
                 <div id="team-1-builder" class="team-builder"></div>
                 <div class="text-center mt-8">
-                    <button id="to-team-2-builder-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed uppercase" disabled>BUILD TEAM AL</button>
+                    <button id="to-team-2-builder-btn" class="bg-teal-500 text-gray-900 font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed uppercase" disabled>Alabama</button>
                 </div>
             </div>
         </section>
@@ -64,7 +64,7 @@
         <section id="team-2-builder-screen" class="screen">
             <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-4xl mx-auto">
                  <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-4xl font-bold text-teal-400">BUILD TEAM AL</h2>
+                    <h2 class="text-4xl font-bold text-teal-400">Alabama</h2>
                     <button id="randomize-team-2-btn" class="bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase text-sm">RANDOMIZE TEAM</button>
                 </div>
                 <div id="team-2-builder" class="team-builder"></div>
@@ -207,8 +207,8 @@
         ];
 
         const stadiums = [
-            { name: "Hiram Bithorn Stadium", homeOf: "PR", factors: { hr: 0.9, triple: 1.0, double: 1.0, single: 1.0 }, thumbnail: "https://placehold.co/300x200/1f2937/ffffff?text=Hiram+Bithorn" },
-            { name: "Truist Park", homeOf: "AL", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 }, thumbnail: "https://placehold.co/300x200/1f2937/ffffff?text=Truist+Park" },
+            { name: "Hiram Bithorn Stadium", homeOf: "PR", factors: { hr: 0.9, triple: 1.0, double: 1.0, single: 1.0 }, thumbnail: "https://placehold.co/300x200/1f2937/ffffff?text=Hiram+Bithorn", dimensions: { lf: '325', cf: '404', rf: '325' } },
+            { name: "Truist Park", homeOf: "AL", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 }, thumbnail: "https://placehold.co/300x200/1f2937/ffffff?text=Truist+Park", dimensions: { lf: '335', cf: '400', rf: '325' } },
         ];
 
         // --- GAME STATE ---
@@ -237,7 +237,7 @@
         function initializeTeamBuilder(teamId) {
             const container = document.getElementById(`team-${teamId}-builder`);
             const positions = ["C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "DH"];
-            const pitcherRoles = { "SP": "Starter", "MR1": "Reliever 1", "MR2": "Reliever 2", "CL": "Closer" };
+            const pitcherRoles = { "SP": "Starter", "MR": "Reliever", "CL": "Closer" };
 
             let builderHTML = `<h3 class="text-xl font-bold mb-2 text-teal-300">Position Players</h3><div class="grid grid-cols-3 gap-2 mb-4">`;
             positions.forEach(pos => {
@@ -247,7 +247,7 @@
                 </div>`;
             });
             builderHTML += `</div>`;
-            builderHTML += `<h3 class="text-xl font-bold mb-2 text-teal-300">Pitching Staff</h3><div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4">`;
+            builderHTML += `<h3 class="text-xl font-bold mb-2 text-teal-300">Pitching Staff</h3><div class="grid grid-cols-3 gap-2 mb-4">`;
             Object.entries(pitcherRoles).forEach(([role, title]) => {
                  builderHTML += `<div id="pos-${teamId}-${role}" class="player-slot bg-gray-700 rounded p-2 text-center h-28 flex flex-col justify-center items-center" data-team-id="${teamId}" data-position="${role}">
                     <span class="font-bold text-lg">${title}</span>
@@ -292,7 +292,7 @@
             
             const requiredBirthplace = teamId == 1 ? 'PR' : 'AL';
 
-            const isPitcherRole = ["SP", "MR1", "MR2", "CL"].includes(position);
+            const isPitcherRole = ["SP", "MR", "CL"].includes(position);
             const otherTeamId = teamId == 1 ? 2 : 1;
             const otherTeamIds = new Set(Object.values(gameState.teams[otherTeamId].roster).map(p => p.id));
             const sameTeamRoster = gameState.teams[teamId].roster;
@@ -361,7 +361,7 @@
                 <button class="remove-player-btn text-red-500 text-xs hover:text-red-400">REMOVE</button>
             `;
             
-            if (!["SP", "MR1", "MR2", "CL"].includes(position)) {
+            if (!["SP", "MR", "CL"].includes(position)) {
                  addPlayerToBattingOrder(teamId, player);
             }
             checkTeamReady(teamId);
@@ -374,8 +374,9 @@
             delete gameState.teams[teamId].roster[position];
             
             const slot = document.getElementById(`pos-${teamId}-${position}`);
-            const positionTitle = slot.dataset.position.startsWith("MR") ? `Reliever ${slot.dataset.position.slice(-1)}` : (slot.dataset.position === "SP" ? "Starter" : (slot.dataset.position === "CL" ? "Closer" : slot.dataset.position));
-            slot.innerHTML = `<span class="font-bold text-lg">${positionTitle || position}</span>
+            const pitcherRoles = { "SP": "Starter", "MR": "Reliever", "CL": "Closer" };
+            const positionTitle = pitcherRoles[position] || position;
+            slot.innerHTML = `<span class="font-bold text-lg">${positionTitle}</span>
                                   <button class="add-player-btn mt-2 bg-teal-600 px-3 py-1 rounded text-sm hover:bg-teal-500">+</button>`;
 
             const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
@@ -408,10 +409,10 @@
         
         function checkTeamReady(teamId) {
             const roster = gameState.teams[teamId].roster;
-            const positionPlayers = Object.keys(roster).filter(pos => !["SP", "MR1", "MR2", "CL"].includes(pos));
-            const pitchers = Object.keys(roster).filter(pos => ["SP", "MR1", "MR2", "CL"].includes(pos));
+            const positionPlayers = Object.keys(roster).filter(pos => !["SP", "MR", "CL"].includes(pos));
+            const pitchers = Object.keys(roster).filter(pos => ["SP", "MR", "CL"].includes(pos));
             
-            const teamReady = positionPlayers.length === 9 && pitchers.length === 4 && gameState.teams[teamId].battingOrder.length === 9;
+            const teamReady = positionPlayers.length === 9 && pitchers.length === 3 && gameState.teams[teamId].battingOrder.length === 9;
             
             if (teamId == 1) {
                 document.getElementById('to-team-2-builder-btn').disabled = !teamReady;
@@ -424,15 +425,18 @@
             const list = document.getElementById('stadium-list');
             list.innerHTML = stadiums.map(s => `
                 <div class="stadium-card bg-gray-700 p-4 rounded-lg shadow-lg cursor-pointer border-2 border-gray-700 hover:border-teal-400 transition" data-stadium-name="${s.name}">
-                    <h3 class="text-2xl font-bold text-center mb-4 col-span-2">${s.name} (Home of ${s.homeOf})</h3>
+                    <h3 class="text-2xl font-bold text-center mb-4 col-span-2">${s.name}</h3>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <img src="${s.thumbnail || 'https://placehold.co/300x200/1f2937/ffffff?text=Stadium'}" alt="${s.name}" class="w-full h-40 object-cover rounded-md">
                         </div>
                         <div class="text-sm">
-                            <p>HR Factor: ${s.factors.hr}</p>
-                            <p>Triple Factor: ${s.factors.triple}</p>
-                            <p>Double Factor: ${s.factors.double}</p>
+                            <p>LF: ${s.dimensions.lf}' | CF: ${s.dimensions.cf}' | RF: ${s.dimensions.rf}'</p>
+                            <div class="mt-4 pt-2 border-t border-gray-600">
+                                <p>HR Factor: ${s.factors.hr}</p>
+                                <p>Triple Factor: ${s.factors.triple}</p>
+                                <p>Double Factor: ${s.factors.double}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -491,11 +495,10 @@
                     battingOrder: teamData.battingOrder.map(id => players.find(p => p.id === id)),
                     pitchers: {
                         sp: { ...teamData.roster.SP, pitchCount: 0, stamina: 95, role: 'SP' },
-                        mr1: { ...teamData.roster.MR1, pitchCount: 0, stamina: 40, role: 'MR' },
-                        mr2: { ...teamData.roster.MR2, pitchCount: 0, stamina: 40, role: 'MR' },
+                        mr: { ...teamData.roster.MR, pitchCount: 0, stamina: 40, role: 'MR' },
                         cl: { ...teamData.roster.CL, pitchCount: 0, stamina: 25, role: 'CL' },
                     },
-                    bullpen: ['mr1', 'mr2', 'cl'],
+                    bullpen: ['mr', 'cl'],
                     currentPitcher: null
                 };
                 team.currentPitcher = team.pitchers.sp;
@@ -656,7 +659,7 @@
                 if (this.teams[winningTeamKey].currentPitcher.role === 'CL' && (this.score[winningTeamKey] - this.score[losingTeamKey]) <=3) { this.stat(this.teams[winningTeamKey].currentPitcher.id, 'saves'); }
                 document.getElementById('to-recap-btn').classList.remove('hidden');
             }
-            generateGameSummary() {
+            async generateGameSummary() {
                 const winningTeamKey = this.score.away > this.score.home ? 'away' : 'home';
                 const losingTeamKey = winningTeamKey === 'away' ? 'home' : 'away';
                 
@@ -667,26 +670,64 @@
                 const mvp = getMvp(this);
                 const mvpStats = this.stats.players[mvp.id];
 
-                let summary = '';
+                const intros = [
+                    `What a showdown at ${this.stadium.name}!`,
+                    `That's all she wrote from ${this.stadium.name}, where`,
+                    `Fans at ${this.stadium.name} won't soon forget this one!`,
+                    `It was a classic battle at ${this.stadium.name} today, and when the dust settled,`
+                ];
+                const intro = intros[Math.floor(Math.random() * intros.length)];
+
                 let joke = '';
+                let prompt = '';
 
                 if (winningTeam.name === 'PR') { // PR Wins, AL (Braxton) loses
-                    const jokes = [
+                    const fallbackJokes = [
                         `Looks like Coach Braxton's lineup had more holes than Swiss cheese! Wait, I thought Alabama was supposed to be superior to our small island, brah! Guess they couldn't handle the heat from the Boricuas!`,
                         `Braxton must've been managing with his eyes closed! That lineup was a swing and a miss from the start. The boys from PR came to play, and Alabama just couldn't catch up. ¡Wepa!`,
                         `Did Coach Braxton forget this was baseball and not football? Because his team got absolutely sacked today. PR's victory was sweeter than a piragua on a hot day!`
                     ];
-                    joke = jokes[Math.floor(Math.random() * jokes.length)];
+                    joke = fallbackJokes[Math.floor(Math.random() * fallbackJokes.length)];
+                    prompt = "Generate a short, funny, trash-talking baseball-themed joke from the perspective of a winning Puerto Rican team roasting the losing Alabama coach, Braxton.";
+
                 } else { // AL Wins, PR (Edwin) loses
-                    const jokes = [
+                    const fallbackJokes = [
                         `Coach Edwin must've thought he was managing a game of dominoes with those moves. That last pitching change was a real head-scratcher, leaving his pitcher out there to get shelled. Sweet Home Alabama, indeed!`,
                         `Tough day at the office for Coach Edwin. His team's bats were quieter than a library during finals week. Looks like the heart of Dixie beats stronger than the heart of the Caribbean today!`,
                         `Did PR's bats get lost in the Bermuda Triangle on the way to the stadium? Coach Edwin's strategy just didn't have enough 'Bama in it to compete with Braxton's powerhouse lineup.`
                     ];
-                    joke = jokes[Math.floor(Math.random() * jokes.length)];
+                    joke = fallbackJokes[Math.floor(Math.random() * fallbackJokes.length)];
+                    prompt = "Generate a short, funny, trash-talking baseball-themed joke from the perspective of a winning Alabama team roasting the losing Puerto Rican coach, Edwin.";
                 }
 
-                summary = `What a showdown at ${this.stadium.name}! The ${winningTeam.name} put on a clinic, taking down ${losingTeam.name} with a final score of ${finalScore}. ${joke}`;
+                try {
+                    let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                    const payload = { contents: chatHistory };
+                    const apiKey = ""; // API key will be provided by the environment
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const generatedText = result.candidates[0].content.parts[0].text;
+                        if (generatedText) {
+                            joke = generatedText.replace(/\"/g, ""); // Clean up quotes
+                        }
+                    }
+                } catch (error) {
+                    console.error("AI Joke generation failed, using fallback.", error);
+                    // Fallback joke is already set
+                }
+
+                const summary = `${intro} The ${winningTeam.name} put on a clinic, taking down ${losingTeam.name} with a final score of ${finalScore}. ${joke}`;
 
                 let mvpLine = '';
                 if (mvpStats.ip > 0) {
@@ -741,7 +782,7 @@
                 mvpStatLine = `${ipString} IP, ${mvpStats.so_p} K, ${mvpStats.er_a} ER`;
                 if (mvpStats.wins > 0) mvpStatLine += ', W';
             } else { mvpStatLine = `${mvpStats.h}-for-${mvpStats.ab}, ${mvpStats.hr} HR, ${mvpStats.rbi} RBI`; }
-            document.getElementById('mvp-section').innerHTML = `<h3 class="text-3xl font-bold">Game MVP</h3><img src="${mvp.portrait}" class="w-24 h-24 rounded-full mx-auto my-2 border-4 border-teal-400 bg-gray-700 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/100x100/1f2937/ffffff?text=MVP';"><p class="text-2xl font-bold">${mvp.name}</p><p class="text-teal-400 font-semibold">${mvpStatLine}</p>`;
+            document.getElementById('mvp-section').innerHTML = `<h3 class="text-3xl font-bold">Game MVP 🏆</h3><img src="${mvp.portrait}" class="w-24 h-24 rounded-full mx-auto my-2 border-4 border-teal-400 bg-gray-700 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/100x100/1f2937/ffffff?text=MVP';"><p class="text-2xl font-bold">${mvp.name}</p><p class="text-teal-400 font-semibold">${mvpStatLine}</p>`;
             document.getElementById('inning-box-score').innerHTML = generateInningBoxScore(sim);
             document.getElementById('box-score').innerHTML = `<div class="space-y-6">${generateTeamBoxScore(sim, 'away')}${generateTeamBoxScore(sim, 'home')}</div>`;
         }
@@ -769,7 +810,8 @@
         }
         
         function generateHitBreakdown(sim, teamKey) {
-            let breakdownHtml = `<h4 class="text-xl font-bold text-teal-300 mb-2 mt-4">Hit Breakdown</h4>`;
+            let breakdownHtml = `<div class="mt-4 space-y-1">
+                                    <h4 class="text-xl font-bold text-teal-300 mb-2">Hit Breakdown</h4>`;
             const hits = { '2B': [], '3B': [], HR: [], RBI: [] };
             
             sim.teams[teamKey].battingOrder.forEach(p => {
@@ -789,6 +831,7 @@
                 return ''; // Return nothing if there's no data to show
             }
 
+            breakdownHtml += `</div>`;
             return breakdownHtml;
         }
 
@@ -802,10 +845,16 @@
             document.querySelectorAll('.stadium-card').forEach(c => c.classList.remove('selected'));
         }
 
-        function startNewGame() {
+        async function startNewGame() {
+            const summaryContainer = document.getElementById('game-summary');
             document.getElementById('game-inning-box-score').classList.add('hidden');
-            document.getElementById('game-summary').classList.add('hidden');
+            summaryContainer.innerHTML = `<h4 class="text-2xl font-bold text-teal-300 mb-2">GAME SUMMARY</h4><p>Simulating game...</p>`;
+            summaryContainer.classList.remove('hidden');
             document.getElementById('to-recap-btn').classList.add('hidden');
+            
+            // Allow UI to update before running the full simulation
+            await new Promise(resolve => setTimeout(resolve, 100));
+
             gameState.gameSim = new GameSimulation(gameState.teams[1], gameState.teams[2], gameState.selectedStadium);
             gameState.gameSim.runFullGame();
             updateScoreboard();
@@ -813,13 +862,13 @@
             const boxScoreContainer = document.getElementById('game-inning-box-score');
             boxScoreContainer.innerHTML = generateInningBoxScore(gameState.gameSim);
             boxScoreContainer.classList.remove('hidden');
-            const summaryContainer = document.getElementById('game-summary');
-            summaryContainer.innerHTML = `<h4 class="text-2xl font-bold text-teal-300 mb-2">GAME SUMMARY</h4><p>${gameState.gameSim.generateGameSummary()}</p>`;
-            summaryContainer.classList.remove('hidden');
+            
+            const summaryText = await gameState.gameSim.generateGameSummary();
+            summaryContainer.innerHTML = `<h4 class="text-2xl font-bold text-teal-300 mb-2">GAME SUMMARY</h4><p>${summaryText}</p>`;
         }
         
         function randomizeTeam(teamId) {
-            const allPositions = ["C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "DH", "SP", "MR1", "MR2", "CL"];
+            const allPositions = ["C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "DH", "SP", "MR", "CL"];
             allPositions.forEach(pos => { if (gameState.teams[teamId].roster[pos]) { removePlayer(teamId, pos); } });
             gameState.teams[teamId].roster = {};
             gameState.teams[teamId].battingOrder = [];
@@ -827,7 +876,7 @@
             
             const requiredBirthplace = teamId == 1 ? 'PR' : 'AL';
             const usedPlayerIds = new Set();
-            const positionMap = { "C": ["C"], "1B": ["1B"], "2B": ["2B"], "3B": ["3B"], "SS": ["SS"], "LF": ["OF"], "CF": ["OF"], "RF": ["OF"], "DH": ["C", "1B", "2B", "3B", "SS", "OF", "DH"], "SP": ["P"], "MR1": ["P"], "MR2": ["P"], "CL": ["P"] };
+            const positionMap = { "C": ["C"], "1B": ["1B"], "2B": ["2B"], "3B": ["3B"], "SS": ["SS"], "LF": ["OF"], "CF": ["OF"], "RF": ["OF"], "DH": ["C", "1B", "2B", "3B", "SS", "OF", "DH"], "SP": ["P"], "MR": ["P"], "CL": ["P"] };
 
             allPositions.forEach(pos => {
                 const eligiblePositions = positionMap[pos];
@@ -844,7 +893,7 @@
         function generateAiLineup(teamId) {
             const roster = gameState.teams[teamId].roster;
             const positionPlayers = Object.keys(roster)
-                .filter(pos => !["SP", "MR1", "MR2", "CL"].includes(pos))
+                .filter(pos => !["SP", "MR", "CL"].includes(pos))
                 .map(pos => roster[pos]);
 
             if (positionPlayers.length < 9) {
@@ -854,60 +903,65 @@
 
             const scorePlayer = (player) => {
                 const stats = player.stats;
-                if (!stats.ab) return { player, leadoff: 0, twoHole: 0, threeHole: 0, cleanup: 0, power: 0, overall: 0 };
+                if (!stats.ab || stats.ab === 0) return { player, scores: { leadoff: 0, contact: 0, power: 0, overall: 0 } };
+                
                 const obp = (stats.h + stats.bb) / (stats.ab + stats.bb);
                 const slg = ((stats.h - (stats.hr)) * 1.4 + stats.hr * 4) / stats.ab; // Simplified SLG
                 const ops = obp + slg;
-                const contact = 1 - (stats.so / stats.ab);
+                const contactRate = 1 - (stats.so / stats.ab);
 
                 return {
                     player,
-                    leadoff: obp * 1.5 + player.speed * 0.1, // High OBP, good speed
-                    twoHole: contact * 1.5 + ops * 0.5,   // High contact, good overall hitter
-                    threeHole: ops * 2,                     // Best hitter
-                    cleanup: slg * 1.5 + stats.hr * 0.1,    // Power
-                    power: slg * 1.2 + stats.hr * 0.15,     // Power
-                    overall: ops                            // General offensive value
+                    scores: {
+                        leadoff: (obp * 2) + (player.speed * 0.1),
+                        contact: (contactRate * 1.5) + (stats.avg * 1.5),
+                        power: (slg * 2) + (stats.hr * 0.2),
+                        overall: ops
+                    }
                 };
             };
 
-            const scoredPlayers = positionPlayers.map(scorePlayer);
+            let scoredPlayers = positionPlayers.map(scorePlayer);
             let lineup = new Array(9).fill(null);
-            let remainingPlayers = [...scoredPlayers];
 
-            const placePlayer = (spot, sortBy) => {
-                if (remainingPlayers.length === 0) return;
-                remainingPlayers.sort((a, b) => b[sortBy] - a[sortBy]);
-                const bestPlayer = remainingPlayers.shift();
-                lineup[spot] = bestPlayer.player;
+            const assignPlayer = (spot, sortBy) => {
+                if (scoredPlayers.length === 0) return;
+                scoredPlayers.sort((a, b) => b.scores[sortBy] - a.scores[sortBy]);
+                const best = scoredPlayers.shift();
+                lineup[spot] = best.player;
             };
 
             // Place key lineup spots
-            placePlayer(0, 'leadoff');   // 1. Leadoff
-            placePlayer(2, 'threeHole'); // 3. Best Hitter
-            placePlayer(3, 'cleanup');   // 4. Cleanup
-            placePlayer(1, 'twoHole');   // 2. Contact
-            placePlayer(4, 'power');     // 5. Power/Protection
+            assignPlayer(0, 'leadoff');    // Leadoff: Best OBP and speed
+            assignPlayer(2, 'overall');    // 3-hole: Best overall hitter
+            assignPlayer(3, 'power');      // Cleanup: Best power
+            assignPlayer(1, 'contact');    // 2-hole: Best contact hitter
+            assignPlayer(4, 'power');      // 5-hole: Second best power
+            
+            // Fill the rest based on overall score
+            scoredPlayers.sort((a, b) => b.scores.overall - a.scores.overall);
+            [5, 6, 7, 8].forEach(spot => {
+                if(lineup[spot] === null && scoredPlayers.length > 0) {
+                    lineup[spot] = scoredPlayers.shift().player;
+                }
+            });
 
-            // Fill the rest of the lineup with the best remaining overall hitters
-            remainingPlayers.sort((a, b) => b.overall - a.overall);
+            // Final check for any null spots (should not happen with 9 players)
             for (let i = 0; i < lineup.length; i++) {
-                if (lineup[i] === null && remainingPlayers.length > 0) {
-                    lineup[i] = remainingPlayers.shift().player;
+                if (lineup[i] === null && scoredPlayers.length > 0) {
+                    lineup[i] = scoredPlayers.shift().player;
                 }
             }
-            
-            // Update the UI
+
             const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
-            const newOrderHtml = lineup.map(player => {
+            battingOrderContainer.innerHTML = lineup.map(player => {
                 if (!player) return ''; // Handle case where a player might be null
                 return `<div class="draggable bg-gray-700 p-2 rounded flex items-center justify-between" draggable="true" data-player-id="${player.id}">
                             <span class="font-bold">${player.name}</span>
                             <span class="text-gray-400">${player.positions[0]}</span>
                         </div>`;
             }).join('');
-            
-            battingOrderContainer.innerHTML = newOrderHtml;
+
             updateBattingOrder(teamId);
         }
 
