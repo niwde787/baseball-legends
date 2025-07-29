@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baseball Legends</title>
+    <title>Baseball Legends 2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,6 +41,12 @@
         .stadium-card.selected {
             border-color: #4f46e5; /* indigo-600 */
             box-shadow: 0 0 15px rgba(79, 70, 229, 0.5);
+        }
+        .rating-bar-bg {
+            background-color: #374151; /* bg-gray-700 */
+        }
+        .rating-bar {
+            transition: width 0.5s ease-in-out;
         }
     </style>
 </head>
@@ -119,7 +125,7 @@
         <!-- Recap Screen -->
         <section id="recap-screen" class="screen">
             <h2 class="text-5xl font-bold text-center mb-6 text-teal-400">GAME RECAP</h2>
-            <div id="mvp-section" class="text-center mb-6 bg-gray-800 p-4 rounded-lg shadow-xl"></div>
+            <div id="mvp-section" class="mb-6 bg-gray-800 p-4 rounded-lg shadow-xl"></div>
             <div id="inning-box-score" class="bg-gray-800 p-4 rounded-lg shadow-xl overflow-x-auto mb-6"></div>
             <div id="box-score" class="bg-gray-800 p-4 rounded-lg shadow-xl overflow-x-auto"></div>
             <div class="text-center mt-8 flex justify-center gap-4">
@@ -129,20 +135,22 @@
         </section>
         
         <footer class="text-center text-gray-500 text-sm mt-12">
-            © 2025 Baseball Legends V1.13. A Dingers Department Company All Rights Reserved | <a href="http://www.dingersdepartment.com" target="_blank" class="hover:text-teal-400">www.dingersdepartment.com</a>
+            © 2025 Baseball Legends V2.0. A Dingers Department Company All Rights Reserved | <a href="http://www.dingersdepartment.com" target="_blank" class="hover:text-teal-400">www.dingersdepartment.com</a>
         </footer>
 
     </div>
 
     <!-- Player Selection Modal -->
     <div id="player-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-gray-800 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-            <div class="p-4 border-b border-gray-700">
+        <div class="bg-gray-800 rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
                 <h3 id="modal-title" class="text-2xl font-bold text-teal-400">Select Player</h3>
-                <input type="text" id="player-search" class="w-full bg-gray-700 p-2 rounded mt-2" placeholder="Search by name...">
-                <div id="era-filter" class="flex justify-center gap-4 mt-2"></div>
+                <div id="era-filter" class="flex justify-center gap-4"></div>
             </div>
-            <div id="modal-player-list" class="p-4 overflow-y-auto"></div>
+             <div class="p-4 border-b border-gray-700">
+                <input type="text" id="player-search" class="w-full bg-gray-700 p-2 rounded" placeholder="Search by name...">
+            </div>
+            <div id="modal-player-list" class="p-4 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             <div class="p-4 border-t border-gray-700 text-right">
                 <button id="modal-close-btn" class="bg-gray-600 text-white font-bold py-2 px-6 rounded-lg uppercase">CLOSE</button>
             </div>
@@ -180,8 +188,8 @@
             { id: 3, name: "Ivan Rodriguez", positions: ["C"], era: "Hall of Famer", eraTag: '90s', speed: 6, defense: 10, stats: { avg: .296, hr: 311, rbi: 1332, bb: 513, so: 1474, ab: 9592 }, statmuseId: 'ivan-rodriguez', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=IR" },
             { id: 4, name: "Carlton Fisk", positions: ["C"], era: "Hall of Famer", eraTag: '80s', speed: 3, defense: 8, stats: { avg: .269, hr: 376, rbi: 1330, bb: 849, so: 1386, ab: 9338 }, statmuseId: 'carlton-fisk', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CF" },
             { id: 5, name: "Mike Piazza", positions: ["C", "1B"], era: "Hall of Famer", eraTag: '90s', speed: 3, defense: 4, stats: { avg: .308, hr: 427, rbi: 1335, bb: 759, so: 1113, ab: 6911 }, statmuseId: 'mike-piazza', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MP" },
-            { id: 8, name: "Josh Gibson", positions: ["C"], era: "Legend", eraTag: '30s', speed: 6, defense: 7, stats: { avg: .374, hr: 238, rbi: 1000, bb: 300, so: 200, ab: 3000 }, statmuseId: 'josh-gibson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JG" },
-            { id: 9, name: "Roy Campanella", positions: ["C"], era: "Legend", eraTag: '50s', speed: 4, defense: 8, stats: { avg: .276, hr: 242, rbi: 856, bb: 533, so: 596, ab: 3857 }, statmuseId: 'roy-campanella', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RC" },
+            { id: 8, name: "Josh Gibson", positions: ["C"], era: "Hall of Famer", eraTag: '30s', speed: 6, defense: 7, stats: { avg: .374, hr: 238, rbi: 1000, bb: 300, so: 200, ab: 3000 }, statmuseId: 'josh-gibson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JG" },
+            { id: 9, name: "Roy Campanella", positions: ["C"], era: "Hall of Famer", eraTag: '50s', speed: 4, defense: 8, stats: { avg: .276, hr: 242, rbi: 856, bb: 533, so: 596, ab: 3857 }, statmuseId: 'roy-campanella', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RC" },
             { id: 10, name: "Buster Posey", positions: ["C", "1B"], era: "Legend", eraTag: 'modern', speed: 4, defense: 9, stats: { avg: .302, hr: 158, rbi: 729, bb: 540, so: 733, ab: 4574 }, statmuseId: 'buster-posey', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BP" },
             { id: 101, name: "Gary Carter", positions: ["C"], era: "Hall of Famer", eraTag: '80s', speed: 4, defense: 8, stats: { avg: .262, hr: 324, rbi: 1225, bb: 899, so: 1199, ab: 8077 }, statmuseId: 'gary-carter', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GC" },
             { id: 102, name: "Thurman Munson", positions: ["C"], era: "Legend", eraTag: '70s', speed: 5, defense: 7, stats: { avg: .292, hr: 113, rbi: 701, bb: 430, so: 696, ab: 5343 }, statmuseId: 'thurman-munson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TM" },
@@ -189,7 +197,7 @@
             { id: 104, name: "Mickey Cochrane", positions: ["C"], era: "Hall of Famer", eraTag: '30s', speed: 6, defense: 6, stats: { avg: .320, hr: 119, rbi: 832, bb: 857, so: 277, ab: 5169 }, statmuseId: 'mickey-cochrane', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MC" },
             { id: 105, name: "Gabby Hartnett", positions: ["C"], era: "Hall of Famer", eraTag: '30s', speed: 3, defense: 8, stats: { avg: .297, hr: 236, rbi: 1179, bb: 712, so: 666, ab: 6432 }, statmuseId: 'gabby-hartnett', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GH" },
             { id: 106, name: "Ted Simmons", positions: ["C", "1B"], era: "Hall of Famer", eraTag: '70s', speed: 3, defense: 5, stats: { avg: .285, hr: 248, rbi: 1389, bb: 855, so: 960, ab: 8680 }, statmuseId: 'ted-simmons', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TS" },
-            { id: 107, name: "Joe Mauer", positions: ["C", "1B"], era: "Legend", eraTag: 'modern', speed: 5, defense: 7, stats: { avg: .306, hr: 143, rbi: 923, bb: 939, so: 1034, ab: 7188 }, statmuseId: 'joe-mauer', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JM" },
+            { id: 107, name: "Joe Mauer", positions: ["C", "1B"], era: "Hall of Famer", eraTag: 'modern', speed: 5, defense: 7, stats: { avg: .306, hr: 143, rbi: 923, bb: 939, so: 1034, ab: 7188 }, statmuseId: 'joe-mauer', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JM" },
             { id: 108, name: "Yadier Molina", positions: ["C"], era: "Legend", eraTag: 'modern', speed: 3, defense: 10, stats: { avg: .277, hr: 176, rbi: 1022, bb: 618, so: 998, ab: 7824 }, statmuseId: 'yadier-molina', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=YM" },
             { id: 109, name: "Jorge Posada", positions: ["C"], era: "Legend", eraTag: '90s', speed: 3, defense: 6, stats: { avg: .273, hr: 275, rbi: 1065, bb: 936, so: 1453, ab: 6092 }, statmuseId: 'jorge-posada', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JP" },
             { id: 110, name: "Lance Parrish", positions: ["C"], era: "Legend", eraTag: '80s', speed: 3, defense: 8, stats: { avg: .252, hr: 324, rbi: 1070, bb: 577, so: 1533, ab: 6664 }, statmuseId: 'lance-parrish', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=LP" },
@@ -199,7 +207,7 @@
             { id: 114, name: "Adley Rutschman", positions: ["C"], era: "Active", eraTag: 'modern', speed: 4, defense: 8, stats: { avg: .270, hr: 33, rbi: 122, bb: 140, so: 160, ab: 800 }, statmuseId: 'adley-rutschman', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AR" },
             { id: 115, name: "Will Smith", positions: ["C"], era: "Active", eraTag: 'modern', speed: 3, defense: 7, stats: { avg: .265, hr: 91, rbi: 308, bb: 180, so: 350, ab: 1500 }, statmuseId: 'will-smith-20190601', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=WS" },
             { id: 116, name: "Ernie Lombardi", positions: ["C"], era: "Hall of Famer", eraTag: '30s', speed: 1, defense: 5, stats: { avg: .306, hr: 190, rbi: 990, bb: 534, so: 263, ab: 5863 }, statmuseId: 'ernie-lombardi', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EL" },
-            { id: 117, name: "Biz Mackey", positions: ["C"], era: "Legend", eraTag: '30s', speed: 5, defense: 8, stats: { avg: .322, hr: 80, rbi: 500, bb: 200, so: 150, ab: 2500 }, statmuseId: 'biz-mackey', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BM" },
+            { id: 117, name: "Biz Mackey", positions: ["C"], era: "Hall of Famer", eraTag: '30s', speed: 5, defense: 8, stats: { avg: .322, hr: 80, rbi: 500, bb: 200, so: 150, ab: 2500 }, statmuseId: 'biz-mackey', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BM" },
 
             // FIRST BASEMEN (25)
             { id: 11, name: "Lou Gehrig", positions: ["1B"], era: "Hall of Famer", eraTag: '30s', speed: 5, defense: 6, stats: { avg: .340, hr: 493, rbi: 1995, bb: 1508, so: 790, ab: 8001 }, statmuseId: 'lou-gehrig', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=LG" },
@@ -209,8 +217,8 @@
             { id: 15, name: "Jeff Bagwell", positions: ["1B"], era: "Hall of Famer", eraTag: '90s', speed: 6, defense: 7, stats: { avg: .297, hr: 449, rbi: 1529, bb: 1401, so: 1558, ab: 7797 }, statmuseId: 'jeff-bagwell', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JB" },
             { id: 16, name: "Freddie Freeman", positions: ["1B"], era: "Active", eraTag: 'modern', speed: 5, defense: 7, stats: { avg: .301, hr: 321, rbi: 1143, bb: 928, so: 1332, ab: 6718 }, statmuseId: 'freddie-freeman', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=FF" },
             { id: 17, name: "Paul Goldschmidt", positions: ["1B"], era: "Active", eraTag: 'modern', speed: 6, defense: 8, stats: { avg: .293, hr: 340, rbi: 1122, bb: 955, so: 1695, ab: 6296 }, statmuseId: 'paul-goldschmidt', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=PG" },
-            { id: 18, name: "Harmon Killebrew", positions: ["1B", "3B", "DH"], era: "Legend", eraTag: '70s', speed: 2, defense: 4, stats: { avg: .256, hr: 573, rbi: 1584, bb: 1559, so: 1699, ab: 8147 }, statmuseId: 'harmon-killebrew', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=HK" },
-            { id: 19, name: "Willie McCovey", positions: ["1B", "DH"], era: "Legend", eraTag: '70s', speed: 3, defense: 4, stats: { avg: .270, hr: 521, rbi: 1555, bb: 1345, so: 1550, ab: 8197 }, statmuseId: 'willie-mccovey', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=WM" },
+            { id: 18, name: "Harmon Killebrew", positions: ["1B", "3B", "DH"], era: "Hall of Famer", eraTag: '70s', speed: 2, defense: 4, stats: { avg: .256, hr: 573, rbi: 1584, bb: 1559, so: 1699, ab: 8147 }, statmuseId: 'harmon-killebrew', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=HK" },
+            { id: 19, name: "Willie McCovey", positions: ["1B", "DH"], era: "Hall of Famer", eraTag: '70s', speed: 3, defense: 4, stats: { avg: .270, hr: 521, rbi: 1555, bb: 1345, so: 1550, ab: 8197 }, statmuseId: 'willie-mccovey', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=WM" },
             { id: 20, name: "Miguel Cabrera", positions: ["1B", "3B", "DH"], era: "Legend", eraTag: 'modern', speed: 2, defense: 4, stats: { avg: .307, hr: 511, rbi: 1881, bb: 1259, so: 1804, ab: 9931 }, statmuseId: 'miguel-cabrera', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MC" },
             { id: 118, name: "Willie Stargell", positions: ["1B", "OF"], era: "Hall of Famer", eraTag: '70s', speed: 3, defense: 5, stats: { avg: .282, hr: 475, rbi: 1540, bb: 953, so: 1936, ab: 7927 }, statmuseId: 'willie-stargell', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=WS" },
             { id: 119, name: "Eddie Murray", positions: ["1B", "DH"], era: "Hall of Famer", eraTag: '80s', speed: 4, defense: 8, stats: { avg: .287, hr: 504, rbi: 1917, bb: 1333, so: 1516, ab: 11336 }, statmuseId: 'eddie-murray', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EM" },
@@ -219,7 +227,7 @@
             { id: 122, name: "Hank Greenberg", positions: ["1B", "OF"], era: "Hall of Famer", eraTag: '30s', speed: 4, defense: 4, stats: { avg: .313, hr: 331, rbi: 1276, bb: 852, so: 844, ab: 5193 }, statmuseId: 'hank-greenberg', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=HG" },
             { id: 123, name: "Johnny Mize", positions: ["1B"], era: "Hall of Famer", eraTag: '50s', speed: 3, defense: 5, stats: { avg: .312, hr: 359, rbi: 1337, bb: 856, so: 528, ab: 5654 }, statmuseId: 'johnny-mize', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JM" },
             { id: 124, name: "Jim Thome", positions: ["1B", "DH"], era: "Hall of Famer", eraTag: '90s', speed: 2, defense: 3, stats: { avg: .276, hr: 612, rbi: 1699, bb: 1747, so: 2548, ab: 8422 }, statmuseId: 'jim-thome', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JT" },
-            { id: 125, name: "Todd Helton", positions: ["1B"], era: "Legend", eraTag: '90s', speed: 4, defense: 8, stats: { avg: .316, hr: 369, rbi: 1406, bb: 1335, so: 1175, ab: 7962 }, statmuseId: 'todd-helton', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TH" },
+            { id: 125, name: "Todd Helton", positions: ["1B"], era: "Hall of Famer", eraTag: '90s', speed: 4, defense: 8, stats: { avg: .316, hr: 369, rbi: 1406, bb: 1335, so: 1175, ab: 7962 }, statmuseId: 'todd-helton', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TH" },
             { id: 126, name: "Keith Hernandez", positions: ["1B"], era: "Legend", eraTag: '80s', speed: 5, defense: 10, stats: { avg: .296, hr: 162, rbi: 1071, bb: 1070, so: 1012, ab: 7814 }, statmuseId: 'keith-hernandez', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=KH" },
             { id: 127, name: "Pete Alonso", positions: ["1B"], era: "Active", eraTag: 'modern', speed: 3, defense: 4, stats: { avg: .251, hr: 206, rbi: 538, bb: 305, so: 730, ab: 2750 }, statmuseId: 'pete-alonso', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=PA" },
             { id: 128, name: "Matt Olson", positions: ["1B"], era: "Active", eraTag: 'modern', speed: 3, defense: 8, stats: { avg: .256, hr: 230, rbi: 612, bb: 450, so: 950, ab: 3200 }, statmuseId: 'matt-olson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MO" },
@@ -234,8 +242,8 @@
             { id: 24, name: "Roberto Alomar", positions: ["2B"], era: "Hall of Famer", eraTag: '90s', speed: 8, defense: 10, stats: { avg: .300, hr: 210, rbi: 1134, bb: 1032, so: 1140, ab: 9073 }, statmuseId: 'roberto-alomar', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RA" },
             { id: 26, name: "Jose Altuve", positions: ["2B"], era: "Active", eraTag: 'modern', speed: 8, defense: 7, stats: { avg: .307, hr: 209, rbi: 747, bb: 481, so: 890, ab: 6680 }, statmuseId: 'jose-altuve', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JA" },
             { id: 27, name: "Marcus Semien", positions: ["2B", "SS"], era: "Active", eraTag: 'modern', speed: 7, defense: 8, stats: { avg: .257, hr: 215, rbi: 698, bb: 540, so: 1250, ab: 5200 }, statmuseId: 'marcus-semien', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MS" },
-            { id: 28, name: "Nap Lajoie", positions: ["2B"], era: "Legend", eraTag: '30s', speed: 7, defense: 8, stats: { avg: .338, hr: 82, rbi: 1599, bb: 516, so: 533, ab: 9590 }, statmuseId: 'nap-lajoie', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=NL" },
-            { id: 29, name: "Eddie Collins", positions: ["2B"], era: "Legend", eraTag: '30s', speed: 9, defense: 9, stats: { avg: .333, hr: 47, rbi: 1300, bb: 1499, so: 467, ab: 9949 }, statmuseId: 'eddie-collins', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EC" },
+            { id: 28, name: "Nap Lajoie", positions: ["2B"], era: "Hall of Famer", eraTag: '30s', speed: 7, defense: 8, stats: { avg: .338, hr: 82, rbi: 1599, bb: 516, so: 533, ab: 9590 }, statmuseId: 'nap-lajoie', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=NL" },
+            { id: 29, name: "Eddie Collins", positions: ["2B"], era: "Hall of Famer", eraTag: '30s', speed: 9, defense: 9, stats: { avg: .333, hr: 47, rbi: 1300, bb: 1499, so: 467, ab: 9949 }, statmuseId: 'eddie-collins', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EC" },
             { id: 30, name: "Chase Utley", positions: ["2B"], era: "Legend", eraTag: 'modern', speed: 6, defense: 8, stats: { avg: .275, hr: 259, rbi: 1025, bb: 626, so: 1104, ab: 6464 }, statmuseId: 'chase-utley', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CU" },
             { id: 133, name: "Craig Biggio", positions: ["2B", "C", "OF"], era: "Hall of Famer", eraTag: '90s', speed: 8, defense: 7, stats: { avg: .281, hr: 291, rbi: 1175, bb: 1160, so: 1753, ab: 10876 }, statmuseId: 'craig-biggio', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CB" },
             { id: 134, name: "Lou Whitaker", positions: ["2B"], era: "Legend", eraTag: '80s', speed: 7, defense: 9, stats: { avg: .276, hr: 244, rbi: 1084, bb: 1197, so: 1099, ab: 9190 }, statmuseId: 'lou-whitaker', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=LW" },
@@ -258,11 +266,11 @@
             // THIRD BASEMEN (25)
             { id: 32, name: "George Brett", positions: ["3B", "1B"], era: "Hall of Famer", eraTag: '80s', speed: 6, defense: 7, stats: { avg: .305, hr: 317, rbi: 1596, bb: 1096, so: 908, ab: 10349 }, statmuseId: 'george-brett', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GB" },
             { id: 33, name: "Chipper Jones", positions: ["3B", "OF"], era: "Hall of Famer", eraTag: '90s', speed: 5, defense: 6, stats: { avg: .303, hr: 468, rbi: 1623, bb: 1512, so: 1409, ab: 8984 }, statmuseId: 'chipper-jones', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CJ" },
-            { id: 34, name: "Adrian Beltre", positions: ["3B"], era: "Legend", eraTag: 'modern', speed: 4, defense: 9, stats: { avg: .286, hr: 477, rbi: 1707, bb: 848, so: 1732, ab: 11068 }, statmuseId: 'adrian-beltre', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AB" },
+            { id: 34, name: "Adrian Beltre", positions: ["3B"], era: "Hall of Famer", eraTag: 'modern', speed: 4, defense: 9, stats: { avg: .286, hr: 477, rbi: 1707, bb: 848, so: 1732, ab: 11068 }, statmuseId: 'adrian-beltre', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AB" },
             { id: 35, name: "Eddie Mathews", positions: ["3B"], era: "Hall of Famer", eraTag: '50s', speed: 4, defense: 8, stats: { avg: .271, hr: 512, rbi: 1453, bb: 1444, so: 1487, ab: 8537 }, statmuseId: 'eddie-mathews', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EM" },
             { id: 36, name: "Nolan Arenado", positions: ["3B"], era: "Active", eraTag: 'modern', speed: 4, defense: 10, stats: { avg: .287, hr: 325, rbi: 1061, bb: 480, so: 950, ab: 5800 }, statmuseId: 'nolan-arenado', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=NA" },
             { id: 37, name: "Manny Machado", positions: ["3B", "SS"], era: "Active", eraTag: 'modern', speed: 5, defense: 9, stats: { avg: .280, hr: 313, rbi: 946, bb: 550, so: 1200, ab: 5800 }, statmuseId: 'manny-machado', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MM" },
-            { id: 38, name: "Brooks Robinson", positions: ["3B"], era: "Legend", eraTag: '70s', speed: 4, defense: 10, stats: { avg: .267, hr: 268, rbi: 1357, bb: 860, so: 990, ab: 10654 }, statmuseId: 'brooks-robinson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BR" },
+            { id: 38, name: "Brooks Robinson", positions: ["3B"], era: "Hall of Famer", eraTag: '70s', speed: 4, defense: 10, stats: { avg: .267, hr: 268, rbi: 1357, bb: 860, so: 990, ab: 10654 }, statmuseId: 'brooks-robinson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BR" },
             { id: 39, name: "Paul Molitor", positions: ["3B", "DH", "1B"], era: "Hall of Famer", eraTag: '80s', speed: 8, defense: 6, stats: { avg: .306, hr: 234, rbi: 1307, bb: 1094, so: 1244, ab: 10835 }, statmuseId: 'paul-molitor', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=PM" },
             { id: 40, name: "Scott Rolen", positions: ["3B"], era: "Hall of Famer", eraTag: '90s', speed: 5, defense: 9, stats: { avg: .281, hr: 316, rbi: 1287, bb: 899, so: 1410, ab: 7398 }, statmuseId: 'scott-rolen', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SR" },
             { id: 150, name: "Wade Boggs", positions: ["3B"], era: "Hall of Famer", eraTag: '80s', speed: 3, defense: 7, stats: { avg: .328, hr: 118, rbi: 1014, bb: 1412, so: 745, ab: 9180 }, statmuseId: 'wade-boggs', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=WB" },
@@ -285,11 +293,11 @@
             // SHORTSTOPS (25)
             { id: 41, name: "Honus Wagner", positions: ["SS"], era: "Hall of Famer", eraTag: '30s', speed: 9, defense: 9, stats: { avg: .328, hr: 101, rbi: 1732, bb: 963, so: 742, ab: 10439 }, statmuseId: 'honus-wagner', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=HW" },
             { id: 42, name: "Cal Ripken Jr.", positions: ["SS"], era: "Hall of Famer", eraTag: '80s', speed: 4, defense: 9, stats: { avg: .276, hr: 431, rbi: 1695, bb: 1129, so: 1305, ab: 11551 }, statmuseId: 'cal-ripken-jr', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CRJ" },
-            { id: 43, name: "Derek Jeter", positions: ["SS"], era: "Legend", eraTag: '90s', speed: 7, defense: 8, stats: { avg: .310, hr: 260, rbi: 1311, bb: 1082, so: 1840, ab: 11195 }, statmuseId: 'derek-jeter', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=DJ" },
+            { id: 43, name: "Derek Jeter", positions: ["SS"], era: "Hall of Famer", eraTag: '90s', speed: 7, defense: 8, stats: { avg: .310, hr: 260, rbi: 1311, bb: 1082, so: 1840, ab: 11195 }, statmuseId: 'derek-jeter', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=DJ" },
             { id: 45, name: "Barry Larkin", positions: ["SS"], era: "Hall of Famer", eraTag: '90s', speed: 8, defense: 8, stats: { avg: .295, hr: 198, rbi: 960, bb: 939, so: 817, ab: 7067 }, statmuseId: 'barry-larkin', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BL" },
             { id: 46, name: "Francisco Lindor", positions: ["SS"], era: "Active", eraTag: 'modern', speed: 8, defense: 9, stats: { avg: .274, hr: 215, rbi: 694, bb: 450, so: 950, ab: 4800 }, statmuseId: 'francisco-lindor', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=FL" },
             { id: 47, name: "Corey Seager", positions: ["SS"], era: "Active", eraTag: 'modern', speed: 5, defense: 7, stats: { avg: .287, hr: 170, rbi: 549, bb: 350, so: 750, ab: 3500 }, statmuseId: 'corey-seager', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=CS" },
-            { id: 48, name: "Ernie Banks", positions: ["SS", "1B"], era: "Legend", eraTag: '50s', speed: 4, defense: 7, stats: { avg: .274, hr: 512, rbi: 1636, bb: 763, so: 1236, ab: 9421 }, statmuseId: 'ernie-banks', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EB" },
+            { id: 48, name: "Ernie Banks", positions: ["SS", "1B"], era: "Hall of Famer", eraTag: '50s', speed: 4, defense: 7, stats: { avg: .274, hr: 512, rbi: 1636, bb: 763, so: 1236, ab: 9421 }, statmuseId: 'ernie-banks', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=EB" },
             { id: 49, name: "Robin Yount", positions: ["SS", "OF"], era: "Hall of Famer", eraTag: '80s', speed: 7, defense: 8, stats: { avg: .285, hr: 251, rbi: 1406, bb: 966, so: 1350, ab: 11008 }, statmuseId: 'robin-yount', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RY" },
             { id: 50, name: "Alex Rodriguez", positions: ["SS", "3B"], era: "Legend", eraTag: '90s', speed: 7, defense: 7, stats: { avg: .295, hr: 696, rbi: 2086, bb: 1338, so: 2287, ab: 10566 }, statmuseId: 'alex-rodriguez', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AR" },
             { id: 166, name: "Alan Trammell", positions: ["SS"], era: "Hall of Famer", eraTag: '80s', speed: 6, defense: 9, stats: { avg: .285, hr: 185, rbi: 1003, bb: 850, so: 874, ab: 8288 }, statmuseId: 'alan-trammell', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=AT" },
@@ -311,9 +319,9 @@
 
             // OUTFIELDERS (50+)
             { id: 59, name: "Ken Griffey Jr.", positions: ["OF"], era: "Hall of Famer", eraTag: '90s', speed: 8, defense: 10, stats: { avg: .284, hr: 630, rbi: 1836, bb: 1312, so: 1779, ab: 9801 }, statmuseId: 'ken-griffey-jr', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=KGJ" },
-            { id: 60, name: "Ty Cobb", positions: ["OF"], era: "Legend", eraTag: '30s', speed: 9, defense: 7, stats: { avg: .366, hr: 117, rbi: 1944, bb: 1249, so: 680, ab: 11436 }, statmuseId: 'ty-cobb', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TC" },
-            { id: 61, name: "Mickey Mantle", positions: ["OF"], era: "Legend", eraTag: '50s', speed: 8, defense: 8, stats: { avg: .298, hr: 536, rbi: 1509, bb: 1733, so: 1710, ab: 8102 }, statmuseId: 'mickey-mantle', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MM" },
-            { id: 62, name: "Stan Musial", positions: ["OF", "1B"], era: "Legend", eraTag: '50s', speed: 7, defense: 6, stats: { avg: .331, hr: 475, rbi: 1951, bb: 1599, so: 696, ab: 10972 }, statmuseId: 'stan-musial', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SM" },
+            { id: 60, name: "Ty Cobb", positions: ["OF"], era: "Hall of Famer", eraTag: '30s', speed: 9, defense: 7, stats: { avg: .366, hr: 117, rbi: 1944, bb: 1249, so: 680, ab: 11436 }, statmuseId: 'ty-cobb', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=TC" },
+            { id: 61, name: "Mickey Mantle", positions: ["OF"], era: "Hall of Famer", eraTag: '50s', speed: 8, defense: 8, stats: { avg: .298, hr: 536, rbi: 1509, bb: 1733, so: 1710, ab: 8102 }, statmuseId: 'mickey-mantle', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MM" },
+            { id: 62, name: "Stan Musial", positions: ["OF", "1B"], era: "Hall of Famer", eraTag: '50s', speed: 7, defense: 6, stats: { avg: .331, hr: 475, rbi: 1951, bb: 1599, so: 696, ab: 10972 }, statmuseId: 'stan-musial', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SM" },
             { id: 63, name: "Ichiro Suzuki", positions: ["OF"], era: "Legend", eraTag: 'modern', speed: 10, defense: 9, stats: { avg: .311, hr: 117, rbi: 780, bb: 648, so: 1080, ab: 9934 }, statmuseId: 'ichiro-suzuki', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=IS" },
             { id: 64, name: "Rickey Henderson", positions: ["OF"], era: "Hall of Famer", eraTag: '80s', speed: 10, defense: 7, stats: { avg: .279, hr: 297, rbi: 1115, bb: 2190, so: 1694, ab: 10961 }, statmuseId: 'rickey-henderson', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=RH" },
             { id: 65, name: "Barry Bonds", positions: ["OF"], era: "Legend", eraTag: '90s', speed: 7, defense: 8, stats: { avg: .298, hr: 762, rbi: 1996, bb: 2558, so: 1539, ab: 9847 }, statmuseId: 'barry-bonds', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BB" },
@@ -362,7 +370,7 @@
             { id: 210, name: "Max Scherzer", positions: ["P"], era: "Active", eraTag: 'modern', stats: { era: 3.15, so: 3367, wins: 214, ip: 2835, bb: 780, ha: 2340 }, statmuseId: 'max-scherzer', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=MS" },
             { id: 211, name: "Gerrit Cole", positions: ["P"], era: "Active", eraTag: 'modern', stats: { era: 3.17, so: 2152, wins: 145, ip: 1859, bb: 460, ha: 1570 }, statmuseId: 'gerrit-cole', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=GC" },
             { id: 212, name: "Jacob deGrom", positions: ["P"], era: "Active", eraTag: 'modern', stats: { era: 2.53, so: 1652, wins: 84, ip: 1356, bb: 280, ha: 1045 }, statmuseId: 'jacob-degrom', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JD" },
-            { id: 213, name: "Satchel Paige", positions: ["P"], era: "Legend", eraTag: '50s', stats: { era: 3.29, so: 288, wins: 28, ip: 476, bb: 180, ha: 429 }, statmuseId: 'satchel-paige', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SP" },
+            { id: 213, name: "Satchel Paige", positions: ["P"], era: "Hall of Famer", eraTag: '50s', stats: { era: 3.29, so: 288, wins: 28, ip: 476, bb: 180, ha: 429 }, statmuseId: 'satchel-paige', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=SP" },
             { id: 214, name: "Bob Feller", positions: ["P"], era: "Hall of Famer", eraTag: '50s', stats: { era: 3.25, so: 2581, wins: 266, ip: 3827, bb: 1764, ha: 3249 }, statmuseId: 'bob-feller', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=BF" },
             { id: 215, name: "Juan Marichal", positions: ["P"], era: "Hall of Famer", eraTag: '70s', stats: { era: 2.89, so: 2303, wins: 243, ip: 3507, bb: 709, ha: 3251 }, statmuseId: 'juan-marichal', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JM" },
             { id: 216, name: "Jim Palmer", positions: ["P"], era: "Hall of Famer", eraTag: '70s', stats: { era: 2.86, so: 2212, wins: 268, ip: 3948, bb: 1311, ha: 3392 }, statmuseId: 'jim-palmer', portrait: "https://placehold.co/100x100/1f2937/ffffff?text=JP" },
@@ -388,35 +396,35 @@
 
         const stadiums = [
             // Active MLB Stadiums
-            { name: "Angel Stadium", factors: { hr: 1.1, triple: 0.8, double: 1.0, single: 1.0 } },
-            { name: "Busch Stadium", factors: { hr: 0.9, triple: 1.0, double: 1.1, single: 1.0 } },
-            { name: "Chase Field", factors: { hr: 1.0, triple: 1.3, double: 1.2, single: 1.0 } },
-            { name: "Citi Field", factors: { hr: 0.8, triple: 1.2, double: 1.0, single: 1.0 } },
-            { name: "Citizens Bank Park", factors: { hr: 1.2, triple: 0.9, double: 1.0, single: 1.0 } },
-            { name: "Comerica Park", factors: { hr: 0.8, triple: 1.5, double: 1.2, single: 1.0 } },
-            { name: "Coors Field", factors: { hr: 1.4, triple: 1.3, double: 1.4, single: 1.1 } },
-            { name: "Dodger Stadium", factors: { hr: 0.9, triple: 0.8, double: 1.0, single: 1.0 } },
-            { name: "Fenway Park", factors: { hr: 0.9, triple: 0.9, double: 1.5, single: 1.0 } },
-            { name: "Globe Life Field", factors: { hr: 1.0, triple: 1.1, double: 1.1, single: 1.0 } },
-            { name: "Great American Ball Park", factors: { hr: 1.3, triple: 1.0, double: 1.1, single: 1.0 } },
-            { name: "Guaranteed Rate Field", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 } },
-            { name: "Kauffman Stadium", factors: { hr: 0.9, triple: 1.4, double: 1.1, single: 1.0 } },
-            { name: "LoanDepot Park", factors: { hr: 0.8, triple: 1.2, double: 1.0, single: 1.0 } },
-            { name: "Minute Maid Park", factors: { hr: 1.0, triple: 0.7, double: 1.1, single: 1.0 } },
-            { name: "Nationals Park", factors: { hr: 1.0, triple: 1.0, double: 1.0, single: 1.0 } },
-            { name: "Oracle Park", factors: { hr: 0.7, triple: 1.6, double: 1.2, single: 1.0 } },
-            { name: "Oriole Park at Camden Yards", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 } },
-            { name: "Petco Park", factors: { hr: 0.8, triple: 1.1, double: 1.1, single: 1.0 } },
-            { name: "PNC Park", factors: { hr: 0.9, triple: 1.4, double: 1.1, single: 1.0 } },
-            { name: "Progressive Field", factors: { hr: 1.0, triple: 1.0, double: 1.1, single: 1.0 } },
-            { name: "RingCentral Coliseum", factors: { hr: 0.8, triple: 1.0, double: 1.0, single: 1.0 } },
-            { name: "Rogers Centre", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 } },
-            { name: "T-Mobile Park", factors: { hr: 0.9, triple: 1.1, double: 1.1, single: 1.0 } },
-            { name: "Target Field", factors: { hr: 1.0, triple: 1.1, double: 1.1, single: 1.0 } },
-            { name: "Tropicana Field", factors: { hr: 1.0, triple: 1.2, double: 1.1, single: 1.0 } },
-            { name: "Truist Park", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 } },
-            { name: "Wrigley Field", factors: { hr: 1.1, triple: 1.2, double: 1.2, single: 1.0 } },
-            { name: "Yankee Stadium", factors: { hr: 1.2, triple: 0.7, double: 0.9, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/refs/heads/stadiums/Yankee_Stadium_overhead_2010.jpg" },
+            { name: "Angel Stadium", factors: { hr: 1.1, triple: 0.8, double: 1.0, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/AngelStadium.jpg" },
+            { name: "Busch Stadium", factors: { hr: 0.9, triple: 1.0, double: 1.1, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/BuschStadium.jpg" },
+            { name: "Chase Field", factors: { hr: 1.0, triple: 1.3, double: 1.2, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/ChaseField.jpg" },
+            { name: "Citi Field", factors: { hr: 0.8, triple: 1.2, double: 1.0, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/CitiField.jpg" },
+            { name: "Citizens Bank Park", factors: { hr: 1.2, triple: 0.9, double: 1.0, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/CitizensBankPark.jpg" },
+            { name: "Comerica Park", factors: { hr: 0.8, triple: 1.5, double: 1.2, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/ComericaPark.jpg" },
+            { name: "Coors Field", factors: { hr: 1.4, triple: 1.3, double: 1.4, single: 1.1 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/CoorsField.jpg" },
+            { name: "Dodger Stadium", factors: { hr: 0.9, triple: 0.8, double: 1.0, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/DodgerStadium.jpg" },
+            { name: "Fenway Park", factors: { hr: 0.9, triple: 0.9, double: 1.5, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/FenwayPark.jpg" },
+            { name: "Globe Life Field", factors: { hr: 1.0, triple: 1.1, double: 1.1, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/GlobeLifeField.jpg" },
+            { name: "Great American Ball Park", factors: { hr: 1.3, triple: 1.0, double: 1.1, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/GreatAmericanBallPark.jpg" },
+            { name: "Guaranteed Rate Field", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/RateField.jpg" },
+            { name: "Kauffman Stadium", factors: { hr: 0.9, triple: 1.4, double: 1.1, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/KauffmanStadium.jpg" },
+            { name: "LoanDepot Park", factors: { hr: 0.8, triple: 1.2, double: 1.0, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/LoanDepotPark.jpg" },
+            { name: "Daikin Park", factors: { hr: 1.0, triple: 0.7, double: 1.1, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/DaikinPark.JPG" },
+            { name: "Nationals Park", factors: { hr: 1.0, triple: 1.0, double: 1.0, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/NationalsPark.jpg" },
+            { name: "Oracle Park", factors: { hr: 0.7, triple: 1.6, double: 1.2, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/OraclePark.jpg" },
+            { name: "Oriole Park at Camden Yards", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/CamdenYards.jpg" },
+            { name: "Petco Park", factors: { hr: 0.8, triple: 1.1, double: 1.1, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/PetcoPark.jpg" },
+            { name: "PNC Park", factors: { hr: 0.9, triple: 1.4, double: 1.1, single: 1.0  }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/PNCPark.jpg" },
+            { name: "Progressive Field", factors: { hr: 1.0, triple: 1.0, double: 1.1, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/ProgressiveField.jpg" },
+            { name: "RingCentral Coliseum", factors: { hr: 0.8, triple: 1.0, double: 1.0, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/SutterHealthPark.jpg" },
+            { name: "Rogers Centre", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/RogersCentre.jpg" },
+            { name: "T-Mobile Park", factors: { hr: 0.9, triple: 1.1, double: 1.1, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/T-MobilePark.jpg" },
+            { name: "Target Field", factors: { hr: 1.0, triple: 1.1, double: 1.1, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/TargetField.jpg" },
+            { name: "Tropicana Field", factors: { hr: 1.0, triple: 1.2, double: 1.1, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/TropicanaField.jpg" },
+            { name: "Truist Park", factors: { hr: 1.1, triple: 0.9, double: 1.0, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/TruistPark.jpg" },
+            { name: "Wrigley Field", factors: { hr: 1.1, triple: 1.2, double: 1.2, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/WrigleyField.jpg" },
+            { name: "Yankee Stadium", factors: { hr: 1.2, triple: 0.7, double: 0.9, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/YankeeStadium.jpg" },
             // Historical & Fictional
             { name: "Polo Grounds", factors: { hr: 0.8, triple: 1.5, double: 1.2, single: 1.0 } },
             { name: "Hiram Bithorn Stadium", factors: { hr: 0.9, triple: 1.0, double: 1.0, single: 1.0 } },
@@ -456,7 +464,7 @@
             positions.forEach(pos => {
                 builderHTML += `<div id="pos-${teamId}-${pos}" class="player-slot bg-gray-700 rounded p-2 text-center h-28 flex flex-col justify-center items-center" data-team-id="${teamId}" data-position="${pos}">
                     <span class="font-bold text-lg">${pos}</span>
-                    <button class="add-player-btn mt-2 bg-teal-600 px-3 py-1 rounded text-sm hover:bg-teal-500">+</button>
+                    <button class="add-player-btn mt-2 bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-500">+</button>
                 </div>`;
             });
             builderHTML += `</div>`;
@@ -464,7 +472,7 @@
             Object.entries(pitcherRoles).forEach(([role, title]) => {
                  builderHTML += `<div id="pos-${teamId}-${role}" class="player-slot bg-gray-700 rounded p-2 text-center h-28 flex flex-col justify-center items-center" data-team-id="${teamId}" data-position="${role}">
                     <span class="font-bold text-lg">${title}</span>
-                    <button class="add-player-btn mt-2 bg-teal-600 px-3 py-1 rounded text-sm hover:bg-teal-500">+</button>
+                    <button class="add-player-btn mt-2 bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-500">+</button>
                 </div>`;
             });
             builderHTML += `</div>`;
@@ -602,7 +610,7 @@
             const slot = document.getElementById(`pos-${teamId}-${position}`);
             const positionTitle = slot.dataset.position.startsWith("MR") ? `Reliever ${slot.dataset.position.slice(-1)}` : (slot.dataset.position === "SP" ? "Starter" : (slot.dataset.position === "CL" ? "Closer" : slot.dataset.position));
             slot.innerHTML = `<span class="font-bold text-lg">${positionTitle || position}</span>
-                              <button class="add-player-btn mt-2 bg-teal-600 px-3 py-1 rounded text-sm hover:bg-teal-500">+</button>`;
+                              <button class="add-player-btn mt-2 bg-indigo-600 text-white px-3 py-1 rounded text-sm hover:bg-indigo-500">+</button>`;
 
             const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
             const playerCard = battingOrderContainer.querySelector(`[data-player-id="${playerToRemove.id}"]`);
@@ -1172,10 +1180,14 @@
             }
             
             document.getElementById('mvp-section').innerHTML = `
-                <h3 class="text-3xl font-bold">Game MVP</h3>
-                <img src="${mvp.portrait}" class="w-24 h-24 rounded-full mx-auto my-2 border-4 border-teal-400 bg-gray-700 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/100x100/1f2937/ffffff?text=MVP';">
-                <p class="text-2xl font-bold">${mvp.name}</p>
-                <p class="text-teal-400 font-semibold">${mvpStatLine}</p>
+                <h3 class="text-3xl font-bold text-center">Game MVP</h3>
+                <div class="flex justify-center mt-4">
+                    <div class="text-center">
+                        <img src="${mvp.portrait}" class="w-24 h-24 rounded-full mx-auto my-2 border-4 border-teal-400 bg-gray-700 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/100x100/1f2937/ffffff?text=MVP';">
+                        <p class="text-2xl font-bold">${mvp.name}</p>
+                        <p class="text-teal-400 font-semibold">${mvpStatLine}</p>
+                    </div>
+                </div>
             `;
             
             document.getElementById('inning-box-score').innerHTML = generateInningBoxScore(sim);
@@ -1474,7 +1486,7 @@
                 generateRecap();
                 navigateTo('recap-screen');
             }
-             if (e.target.id === 'to-home-btn') {
+             if (e.target.id === 'to-home-btn' || e.target.id === 'ranking-to-home-btn') {
                 navigateTo('home-screen');
             }
             if (e.target.id === 'rematch-btn') {
