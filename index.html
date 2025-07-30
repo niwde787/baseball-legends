@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baseball Legends 2.0</title>
+    <title>Baseball Legends 3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,6 +66,7 @@
                 <div class="flex flex-col items-center justify-center gap-4">
                     <button id="start-game-btn" class="bg-indigo-600 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">PLAY NOW</button>
                     <button id="rivalry-btn" class="bg-indigo-600 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">RIVALRY</button>
+                    <button id="franchise-mode-btn" class="bg-indigo-600 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">FRANCHISE MODE</button>
                 </div>
             </div>
         </section>
@@ -137,9 +138,20 @@
                 </div>
             </div>
         </section>
+
+        <!-- Franchise Mode Screen -->
+        <section id="franchise-mode-screen" class="screen">
+            <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-4xl mx-auto">
+                <h2 class="text-5xl font-bold text-center mb-6 text-teal-400">Franchise Mode</h2>
+                <p class="text-center text-xl text-gray-300">This exciting new game mode is coming soon! Stay tuned for updates.</p>
+                 <div class="text-center mt-8">
+                    <button id="franchise-to-home-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">HOME</button>
+                </div>
+            </div>
+        </section>
         
         <footer class="text-center text-gray-500 text-sm mt-12">
-            © 2025 Baseball Legends V1.29. A Dingers Department Company All Rights Reserved | <a href="http://www.dingersdepartment.com" target="_blank" class="hover:text-teal-400">www.dingersdepartment.com</a>
+            © 2025 Baseball Legends V3.0. A Dingers Department Company All Rights Reserved | <a href="http://www.dingersdepartment.com" target="_blank" class="hover:text-teal-400">www.dingersdepartment.com</a>
         </footer>
 
     </div>
@@ -244,6 +256,7 @@
 
             // SECOND BASEMEN (25)
             { id: 21, name: "Rogers Hornsby", positions: ["2B"], era: "Hall of Famer", eraTag: '30s', speed: 6, defense: 6, stats: { avg: .358, hr: 301, rbi: 1584, bb: 1038, so: 679, ab: 8173 }, statmuseId: 'rogers-hornsby', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png" },
+            { id: 22, name: "Joe Morgan", positions: ["2B"], era: "Hall of Famer", eraTag: '70s', speed: 8, defense: 8, stats: { avg: .271, hr: 268, rbi: 1133, bb: 1865, so: 1015, ab: 9277 }, statmuseId: 'joe-morgan', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png" },
             { id: 23, name: "Ryne Sandberg", positions: ["2B"], era: "Hall of Famer", eraTag: '80s', speed: 7, defense: 9, stats: { avg: .285, hr: 282, rbi: 1061, bb: 761, so: 1260, ab: 8385 }, statmuseId: 'ryne-sandberg', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png" },
             { id: 24, name: "Roberto Alomar", positions: ["2B"], era: "Hall of Famer", eraTag: '90s', speed: 8, defense: 10, stats: { avg: .300, hr: 210, rbi: 1134, bb: 1032, so: 1140, ab: 9073 }, statmuseId: 'roberto-alomar', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png" },
             { id: 26, name: "Jose Altuve", positions: ["2B"], era: "Active", eraTag: 'modern', speed: 8, defense: 7, stats: { avg: .307, hr: 209, rbi: 747, bb: 481, so: 890, ab: 6680 }, statmuseId: 'jose-altuve', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png" },
@@ -270,6 +283,7 @@
             { id: 149, name: "Jonathan India", positions: ["2B"], era: "Active", eraTag: 'modern', speed: 7, defense: 6, stats: { avg: .255, hr: 40, rbi: 150, bb: 130, so: 300, ab: 1300 }, statmuseId: 'jonathan-india', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png" },
 
             // THIRD BASEMEN (25)
+            { id: 31, name: "Mike Schmidt", positions: ["3B"], era: "Hall of Famer", eraTag: '80s', speed: 5, defense: 9, stats: { avg: .267, hr: 548, rbi: 1595, bb: 1507, so: 1883, ab: 8352 }, statmuseId: 'mike-schmidt', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png" },
             { id: 32, name: "George Brett", positions: ["3B"], era: "Hall of Famer", eraTag: '80s', speed: 6, defense: 7, stats: { avg: .305, hr: 317, rbi: 1596, bb: 1096, so: 908, ab: 10349 }, statmuseId: 'george-brett', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png" },
             { id: 33, name: "Chipper Jones", positions: ["3B"], era: "Hall of Famer", eraTag: '90s', speed: 5, defense: 6, stats: { avg: .303, hr: 468, rbi: 1623, bb: 1512, so: 1409, ab: 8984 }, statmuseId: 'chipper-jones', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png" },
             { id: 34, name: "Adrian Beltre", positions: ["3B"], era: "Hall of Famer", eraTag: 'modern', speed: 4, defense: 9, stats: { avg: .286, hr: 477, rbi: 1707, bb: 848, so: 1732, ab: 11068 }, statmuseId: 'adrian-beltre', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png" },
@@ -1490,7 +1504,7 @@
                 generateRecap();
                 navigateTo('recap-screen');
             }
-             if (e.target.id === 'to-home-btn' || e.target.id === 'ranking-to-home-btn') {
+             if (e.target.id === 'to-home-btn' || e.target.id === 'ranking-to-home-btn' || e.target.id === 'franchise-to-home-btn') {
                 navigateTo('home-screen');
             }
             if (e.target.id === 'rematch-btn') {
@@ -1514,6 +1528,9 @@
                 document.getElementById('pin-input').value = '';
                 document.getElementById('pin-error').textContent = '';
                 document.getElementById('pin-input').focus();
+            }
+            if (e.target.id === 'franchise-mode-btn') {
+                navigateTo('franchise-mode-screen');
             }
             if(e.target.id === 'pin-close-btn') {
                 document.getElementById('pin-modal').classList.add('hidden');
