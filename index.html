@@ -66,7 +66,7 @@
                 <div class="flex flex-col items-center justify-center gap-4">
                     <button id="start-game-btn" class="bg-indigo-600 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">PLAY NOW</button>
                     <button id="rivalry-btn" class="bg-indigo-600 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">RIVALRY</button>
-                    <button id="franchise-mode-btn" class="bg-gray-600 text-gray-400 font-bold text-xl py-3 px-8 rounded-lg shadow-lg w-64 uppercase cursor-not-allowed" disabled>FRANCHISE MODE</button>
+                    <button id="series-btn" class="bg-indigo-600 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">SERIES</button>
                 </div>
             </div>
         </section>
@@ -101,12 +101,21 @@
 
         <!-- Stadium Selector Screen -->
         <section id="stadium-selector-screen" class="screen">
-            <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-5xl mx-auto">
-                <h2 class="text-4xl font-bold text-center mb-6 text-teal-400">SELECT A STADIUM</h2>
-                <div id="stadium-list" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-6xl mx-auto">
+                <h2 class="text-4xl font-bold text-center mb-6 text-teal-400">SELECT HOME STADIUMS</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 id="stadium-team-1-name" class="text-2xl font-bold text-center mb-4 text-teal-300">Team 1's Home Field</h3>
+                        <div id="stadium-list-1" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto p-2"></div>
+                    </div>
+                    <div>
+                        <h3 id="stadium-team-2-name" class="text-2xl font-bold text-center mb-4 text-teal-300">Team 2's Home Field</h3>
+                        <div id="stadium-list-2" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto p-2"></div>
+                    </div>
+                </div>
             </div>
             <div class="text-center mt-8">
-                 <button id="to-game-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed uppercase" disabled>PLAY BALL!</button>
+                 <button id="start-series-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 disabled:bg-gray-600 disabled:cursor-not-allowed uppercase" disabled>START SERIES</button>
             </div>
         </section>
 
@@ -139,13 +148,15 @@
             </div>
         </section>
 
-        <!-- Franchise Mode Screen -->
-        <section id="franchise-mode-screen" class="screen">
-            <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-4xl mx-auto">
-                <h2 class="text-5xl font-bold text-center mb-6 text-teal-400">Franchise Mode</h2>
-                <p class="text-center text-xl text-gray-300">This exciting new game mode is coming soon! Stay tuned for updates.</p>
-                 <div class="text-center mt-8">
-                    <button id="franchise-to-home-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">HOME</button>
+        <!-- Series Recap Screen -->
+        <section id="series-recap-screen" class="screen">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-5xl font-bold text-center mb-6 text-teal-400">SERIES RECAP</h2>
+                <div id="series-winner-section" class="mb-6 bg-gray-800 p-6 rounded-lg shadow-xl text-center"></div>
+                <div id="series-games-list" class="space-y-4"></div>
+                <div class="text-center mt-8 flex justify-center gap-4">
+                    <button id="rematch-series-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">REMATCH SERIES</button>
+                    <button id="series-to-home-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">HOME</button>
                 </div>
             </div>
         </section>
@@ -225,7 +236,7 @@
             { id: 116, name: "Ernie Lombardi", positions: ["C"], era: "Hall of Famer", eraTag: '30s', speed: 1, defense: 5, stats: { avg: .306, hr: 190, rbi: 990, bb: 534, so: 263, ab: 5863 }, statmuseId: 'ernie-lombardi', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/id116.png" },
             { id: 117, name: "Biz Mackey", positions: ["C"], era: "Hall of Famer", eraTag: '30s', speed: 5, defense: 8, stats: { avg: .322, hr: 80, rbi: 500, bb: 200, so: 150, ab: 2500 }, statmuseId: 'biz-mackey', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/id117.png" },
             { id: 244, name: "Javy Lopez", positions: ["C"], era: "Legend", eraTag: '90s', speed: 3, defense: 7, stats: { avg: .287, hr: 260, rbi: 864, bb: 418, so: 893, ab: 5046 }, statmuseId: 'javy-lopez', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/id244.png" },
-
+ 
             // FIRST BASEMEN (25)
             { id: 11, name: "Lou Gehrig", positions: ["1B"], era: "Hall of Famer", eraTag: '30s', speed: 5, defense: 6, stats: { avg: .340, hr: 493, rbi: 1995, bb: 1508, so: 790, ab: 8001 }, statmuseId: 'lou-gehrig', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/id11.png" },
             { id: 12, name: "Albert Pujols", positions: ["1B"], era: "Legend", eraTag: 'modern', speed: 3, defense: 5, stats: { avg: .296, hr: 703, rbi: 2218, bb: 1373, so: 1404, ab: 11421 }, statmuseId: 'albert-pujols', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/id12.png" },
@@ -461,8 +472,10 @@
                 1: { name: "Team 1", roster: {}, battingOrder: [] },
                 2: { name: "Team 2", roster: {}, battingOrder: [] },
             },
-            selectedStadium: null,
+            homeStadiums: { 1: null, 2: null },
             gameSim: null,
+            seriesResults: null,
+            isSeries: false,
         };
 
         // --- UI ELEMENTS ---
@@ -678,24 +691,24 @@
         }
 
         function initializeStadiums() {
-            const list = document.getElementById('stadium-list');
-            list.innerHTML = stadiums.map(s => `
-                <div class="stadium-card bg-gray-700 p-4 rounded-lg shadow-lg cursor-pointer border-2 border-gray-700 hover:border-indigo-500 transition" data-stadium-name="${s.name}">
-                    <h3 class="text-2xl font-bold text-center mb-4 col-span-2">${s.name}</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <img src="${s.thumbnail || 'https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png'}" alt="${s.name}" class="w-full h-40 object-cover rounded-md">
-                        </div>
-                        <div class="text-sm">
-                            <div class="mt-4 pt-2 border-t border-gray-600">
-                                <p>HR Factor: ${s.factors.hr}</p>
-                                <p>Triple Factor: ${s.factors.triple}</p>
-                                <p>Double Factor: ${s.factors.double}</p>
-                            </div>
-                        </div>
+            const list1 = document.getElementById('stadium-list-1');
+            const list2 = document.getElementById('stadium-list-2');
+            
+            document.getElementById('stadium-team-1-name').textContent = `${gameState.teams[1].name}'s Home Field`;
+            document.getElementById('stadium-team-2-name').textContent = `${gameState.teams[2].name}'s Home Field`;
+
+            const stadiumHTML = (teamId) => stadiums.map(s => `
+                <div class="stadium-card bg-gray-700 p-4 rounded-lg shadow-lg cursor-pointer border-2 border-gray-700 hover:border-indigo-500 transition" data-stadium-name="${s.name}" data-team-id="${teamId}">
+                    <h3 class="text-xl font-bold text-center mb-2">${s.name}</h3>
+                     <img src="${s.thumbnail || 'https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png'}" alt="${s.name}" class="w-full h-24 object-cover rounded-md mb-2">
+                    <div class="text-xs text-center">
+                        <p>HR: ${s.factors.hr}, 3B: ${s.factors.triple}, 2B: ${s.factors.double}</p>
                     </div>
                 </div>
             `).join('');
+
+            list1.innerHTML = stadiumHTML(1);
+            list2.innerHTML = stadiumHTML(2);
         }
         
         // --- BROADCAST COMMENTARY DATA ---
@@ -1090,7 +1103,9 @@
                     this.updateMvpScore(this.teams[winningTeamKey].currentPitcher.id, 3); // Save bonus
                 }
                 
-                document.getElementById('to-recap-btn').classList.remove('hidden');
+                if (!gameState.isSeries) {
+                    document.getElementById('to-recap-btn').classList.remove('hidden');
+                }
             }
             
             generateGameSummary() {
@@ -1338,24 +1353,27 @@
                 1: { name: name1, roster: {}, battingOrder: [] },
                 2: { name: name2, roster: {}, battingOrder: [] },
             };
-            gameState.selectedStadium = null;
+            gameState.homeStadiums = { 1: null, 2: null };
             gameState.gameSim = null;
+            gameState.seriesResults = null;
             initializeTeamBuilder(1);
             initializeTeamBuilder(2);
             document.querySelector('#team-1-builder .team-name-input').value = name1;
             document.querySelector('#team-2-builder .team-name-input').value = name2;
-            document.getElementById('to-game-btn').disabled = true;
+            document.getElementById('start-series-btn').disabled = true;
             document.querySelectorAll('.stadium-card').forEach(c => c.classList.remove('selected'));
         }
 
         function startNewGame() {
+            gameState.isSeries = false;
             // Hide post-game elements
             document.getElementById('game-inning-box-score').classList.add('hidden');
             document.getElementById('game-summary').classList.add('hidden');
             document.getElementById('to-recap-btn').classList.add('hidden');
 
             // Start simulation
-            gameState.gameSim = new GameSimulation(gameState.teams[1], gameState.teams[2], gameState.selectedStadium);
+            const stadium = gameState.homeStadiums[1] || gameState.homeStadiums[2] || stadiums[0]; // Fallback
+            gameState.gameSim = new GameSimulation(gameState.teams[1], gameState.teams[2], stadium);
             gameState.gameSim.runFullGame();
             updateScoreboard();
             updatePlayByPlay();
@@ -1368,6 +1386,74 @@
             const summaryContainer = document.getElementById('game-summary');
             summaryContainer.innerHTML = `<h4 class="text-2xl font-bold text-teal-300 mb-2">GAME SUMMARY</h4><p>${gameState.gameSim.generateGameSummary()}</p>`;
             summaryContainer.classList.remove('hidden');
+        }
+
+        function simulateSeries() {
+            let team1Wins = 0;
+            let team2Wins = 0;
+            const games = [];
+            const homeSchedule = [1, 1, 2, 2, 1, 2, 1]; // 2-3-2 format
+
+            for (let i = 0; i < 7; i++) {
+                if (team1Wins === 4 || team2Wins === 4) break;
+
+                const homeTeamId = homeSchedule[i];
+                const awayTeamId = homeTeamId === 1 ? 2 : 1;
+                
+                const homeTeamData = gameState.teams[homeTeamId];
+                const awayTeamData = gameState.teams[awayTeamId];
+                const stadium = gameState.homeStadiums[homeTeamId];
+
+                const sim = new GameSimulation(awayTeamData, homeTeamData, stadium);
+                sim.runFullGame();
+
+                if (sim.score.home > sim.score.away) {
+                    if (homeTeamId === 1) team1Wins++; else team2Wins++;
+                } else {
+                    if (awayTeamId === 1) team1Wins++; else team2Wins++;
+                }
+                
+                games.push({
+                    game: i + 1,
+                    score: {
+                        [gameState.teams[1].name]: homeTeamId === 1 ? sim.score.home : sim.score.away,
+                        [gameState.teams[2].name]: homeTeamId === 2 ? sim.score.home : sim.score.away,
+                    },
+                    stadium: stadium.name,
+                });
+            }
+
+            gameState.seriesResults = {
+                winner: team1Wins > team2Wins ? gameState.teams[1].name : gameState.teams[2].name,
+                wins: { [gameState.teams[1].name]: team1Wins, [gameState.teams[2].name]: team2Wins },
+                games: games
+            };
+        }
+
+        function displaySeriesResults() {
+            const { winner, wins, games } = gameState.seriesResults;
+            const team1Name = gameState.teams[1].name;
+            const team2Name = gameState.teams[2].name;
+
+            document.getElementById('series-winner-section').innerHTML = `
+                <h3 class="text-3xl font-bold text-teal-300">SERIES WINNER</h3>
+                <p class="text-4xl font-black uppercase text-white mt-2">${winner}</p>
+                <p class="text-2xl font-bold text-gray-300 mt-1">${wins[team1Name]} - ${wins[team2Name]}</p>
+            `;
+
+            const gamesList = document.getElementById('series-games-list');
+            gamesList.innerHTML = games.map(game => `
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md">
+                    <h4 class="text-xl font-bold text-center mb-2">Game ${game.game} <span class="text-sm text-gray-400">@ ${game.stadium}</span></h4>
+                    <div class="flex justify-around items-center font-mono text-lg">
+                        <span>${team1Name}</span>
+                        <span class="font-bold text-2xl ${game.score[team1Name] > game.score[team2Name] ? 'text-teal-400' : ''}">${game.score[team1Name]}</span>
+                        <span>-</span>
+                        <span class="font-bold text-2xl ${game.score[team2Name] > game.score[team1Name] ? 'text-teal-400' : ''}">${game.score[team2Name]}</span>
+                        <span>${team2Name}</span>
+                    </div>
+                </div>
+            `).join('');
         }
         
         function randomizeTeam(teamId) {
@@ -1490,26 +1576,46 @@
 
         // --- EVENT LISTENERS ---
         document.addEventListener('click', (e) => {
-            if (e.target.id === 'start-game-btn') {
+            if (e.target.id === 'start-game-btn' || e.target.id === 'series-btn') {
+                gameState.isSeries = e.target.id === 'series-btn';
                 resetGame();
                 navigateTo('team-1-builder-screen');
             }
             if (e.target.id === 'to-team-2-builder-btn') navigateTo('team-2-builder-screen');
-            if (e.target.id === 'to-stadium-select-btn') navigateTo('stadium-selector-screen');
-            if (e.target.id === 'to-game-btn') {
-                navigateTo('game-simulation-screen');
-                startNewGame();
+            if (e.target.id === 'to-stadium-select-btn') {
+                initializeStadiums();
+                navigateTo('stadium-selector-screen');
+            }
+            if (e.target.id === 'start-series-btn') {
+                if (gameState.isSeries) {
+                    simulateSeries();
+                    displaySeriesResults();
+                    navigateTo('series-recap-screen');
+                } else {
+                    // This path is for single game, but now stadium screen leads to series.
+                    // Let's make the stadium screen's button always start a series for now.
+                    // Or we can have one button for single game, one for series.
+                    // For now, let's assume if you go to stadium select, it's for a series.
+                    simulateSeries();
+                    displaySeriesResults();
+                    navigateTo('series-recap-screen');
+                }
             }
             if (e.target.id === 'to-recap-btn') {
                 generateRecap();
                 navigateTo('recap-screen');
             }
-             if (e.target.id === 'to-home-btn' || e.target.id === 'ranking-to-home-btn' || e.target.id === 'franchise-to-home-btn') {
+             if (e.target.id === 'to-home-btn' || e.target.id === 'series-to-home-btn') {
                 navigateTo('home-screen');
             }
             if (e.target.id === 'rematch-btn') {
                 navigateTo('game-simulation-screen');
                 startNewGame();
+            }
+            if (e.target.id === 'rematch-series-btn') {
+                simulateSeries();
+                displaySeriesResults();
+                navigateTo('series-recap-screen');
             }
             if (e.target.id === 'randomize-team-1-btn') {
                 randomizeTeam(1);
@@ -1528,9 +1634,6 @@
                 document.getElementById('pin-input').value = '';
                 document.getElementById('pin-error').textContent = '';
                 document.getElementById('pin-input').focus();
-            }
-            if (e.target.id === 'franchise-mode-btn') {
-                navigateTo('franchise-mode-screen');
             }
             if(e.target.id === 'pin-close-btn') {
                 document.getElementById('pin-modal').classList.add('hidden');
@@ -1560,11 +1663,17 @@
             }
 
             if (e.target.closest('.stadium-card')) {
-                document.querySelectorAll('.stadium-card').forEach(c => c.classList.remove('selected'));
                 const card = e.target.closest('.stadium-card');
+                const teamId = card.dataset.teamId;
+                
+                document.querySelectorAll(`.stadium-card[data-team-id="${teamId}"]`).forEach(c => c.classList.remove('selected'));
                 card.classList.add('selected');
-                gameState.selectedStadium = stadiums.find(s => s.name === card.dataset.stadiumName);
-                document.getElementById('to-game-btn').disabled = false;
+                
+                gameState.homeStadiums[teamId] = stadiums.find(s => s.name === card.dataset.stadiumName);
+                
+                if (gameState.homeStadiums[1] && gameState.homeStadiums[2]) {
+                    document.getElementById('start-series-btn').disabled = false;
+                }
             }
 
             if (e.target.id === 'modal-close-btn') {
@@ -1629,7 +1738,7 @@
         // --- INITIALIZATION ---
         initializeTeamBuilder(1);
         initializeTeamBuilder(2);
-        initializeStadiums();
+        // Stadiums are initialized when navigating to the screen now
     </script>
 </body>
 </html>
