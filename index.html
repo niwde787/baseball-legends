@@ -150,10 +150,18 @@
 
         <!-- Series Recap Screen -->
         <section id="series-recap-screen" class="screen">
-            <div class="max-w-4xl mx-auto">
+            <div class="max-w-5xl mx-auto">
                 <h2 class="text-5xl font-bold text-center mb-6 text-teal-400">SERIES RECAP</h2>
                 <div id="series-winner-section" class="mb-6 bg-gray-800 p-6 rounded-lg shadow-xl text-center"></div>
-                <div id="series-games-list" class="space-y-4"></div>
+                <div id="series-games-list" class="space-y-4 mb-8"></div>
+                <div id="series-stats-section" class="bg-gray-800 p-6 rounded-lg shadow-xl">
+                    <h3 class="text-3xl font-bold text-center mb-6 text-teal-300">SERIES LEADERS</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div id="series-mvp-section"></div>
+                        <div id="top-hitters-section"></div>
+                        <div id="top-pitchers-section"></div>
+                    </div>
+                </div>
                 <div class="text-center mt-8 flex justify-center gap-4">
                     <button id="rematch-series-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">REMATCH SERIES</button>
                     <button id="series-to-home-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">HOME</button>
@@ -1393,6 +1401,14 @@
             let team2Wins = 0;
             const games = [];
             const homeSchedule = [1, 1, 2, 2, 1, 2, 1]; // 2-3-2 format
+            const seriesStats = {};
+
+            players.forEach(p => {
+                seriesStats[p.id] = {
+                    ab: 0, r: 0, h: 0, rbi: 0, bb: 0, so: 0, '2b': 0, '3b': 0, hr: 0,
+                    ip: 0, h_a: 0, r_a: 0, er_a: 0, bb_a: 0, so_p: 0, wins: 0, saves: 0, mvpScore: 0,
+                };
+            });
 
             for (let i = 0; i < 7; i++) {
                 if (team1Wins === 4 || team2Wins === 4) break;
@@ -1406,6 +1422,12 @@
 
                 const sim = new GameSimulation(awayTeamData, homeTeamData, stadium);
                 sim.runFullGame();
+
+                Object.keys(sim.stats.players).forEach(playerId => {
+                    Object.keys(seriesStats[playerId]).forEach(stat => {
+                        seriesStats[playerId][stat] += sim.stats.players[playerId][stat];
+                    });
+                });
 
                 if (sim.score.home > sim.score.away) {
                     if (homeTeamId === 1) team1Wins++; else team2Wins++;
@@ -1426,12 +1448,13 @@
             gameState.seriesResults = {
                 winner: team1Wins > team2Wins ? gameState.teams[1].name : gameState.teams[2].name,
                 wins: { [gameState.teams[1].name]: team1Wins, [gameState.teams[2].name]: team2Wins },
-                games: games
+                games: games,
+                stats: seriesStats
             };
         }
 
-        function displaySeriesResults() {
-            const { winner, wins, games } = gameState.seriesResults;
+        function displaySeriesRecap() {
+            const { winner, wins, games, stats } = gameState.seriesResults;
             const team1Name = gameState.teams[1].name;
             const team2Name = gameState.teams[2].name;
 
@@ -1454,6 +1477,53 @@
                     </div>
                 </div>
             `).join('');
+
+            // Series MVP and Top Performers
+            const allPlayers = [...Object.values(gameState.teams[1].roster), ...Object.values(gameState.teams[2].roster)];
+            const seriesMvp = allPlayers.reduce((mvp, p) => {
+                return stats[p.id].mvpScore > stats[mvp.id].mvpScore ? p : mvp;
+            });
+            const mvpStats = stats[seriesMvp.id];
+            let mvpStatLine = '';
+            if (mvpStats.ip > 0) {
+                const era = mvpStats.ip > 0 ? (mvpStats.er_a * 9 / mvpStats.ip).toFixed(2) : '0.00';
+                mvpStatLine = `${mvpStats.wins} W, ${era} ERA, ${mvpStats.so_p} K`;
+            } else {
+                const avg = mvpStats.ab > 0 ? (mvpStats.h / mvpStats.ab).toFixed(3).substring(1) : '.000';
+                mvpStatLine = `${avg} AVG, ${mvpStats.hr} HR, ${mvpStats.rbi} RBI`;
+            }
+            document.getElementById('series-mvp-section').innerHTML = `
+                <h4 class="text-2xl font-bold text-center mb-4 text-teal-300">Series MVP</h4>
+                <div class="text-center">
+                    <img src="${seriesMvp.portrait}" class="w-24 h-24 rounded-full mx-auto my-2 border-4 border-teal-400 bg-gray-700 object-cover" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png';">
+                    <p class="text-xl font-bold">${seriesMvp.name}</p>
+                    <p class="text-teal-400 font-semibold">${mvpStatLine}</p>
+                </div>
+            `;
+
+            const hitters = allPlayers.filter(p => p.stats.ab && stats[p.id].ab > 0).sort((a,b) => (stats[b.id].h / stats[b.id].ab) - (stats[a.id].h / stats[a.id].ab)).slice(0,3);
+            document.getElementById('top-hitters-section').innerHTML = `
+                <h4 class="text-2xl font-bold text-center mb-4 text-teal-300">Top Hitters</h4>
+                <ul class="space-y-4">
+                    ${hitters.map(p => {
+                        const s = stats[p.id];
+                        const avg = s.ab > 0 ? (s.h / s.ab).toFixed(3).substring(1) : '.000';
+                        return `<li class="flex items-center"><img src="${p.portrait}" class="w-10 h-10 rounded-full mr-3"><div class="text-sm"><strong>${p.name}</strong><br>${avg} AVG, ${s.hr} HR, ${s.rbi} RBI</div></li>`;
+                    }).join('')}
+                </ul>
+            `;
+
+            const pitchers = allPlayers.filter(p => p.stats.era && stats[p.id].ip > 0).sort((a,b) => (stats[a.id].er_a / stats[a.id].ip) - (stats[b.id].er_a / stats[b.id].ip)).slice(0,3);
+             document.getElementById('top-pitchers-section').innerHTML = `
+                <h4 class="text-2xl font-bold text-center mb-4 text-teal-300">Top Pitchers</h4>
+                <ul class="space-y-4">
+                    ${pitchers.map(p => {
+                        const s = stats[p.id];
+                        const era = s.ip > 0 ? (s.er_a * 9 / s.ip).toFixed(2) : '0.00';
+                        return `<li class="flex items-center"><img src="${p.portrait}" class="w-10 h-10 rounded-full mr-3"><div class="text-sm"><strong>${p.name}</strong><br>${s.wins} W, ${era} ERA, ${s.so_p} K</div></li>`;
+                    }).join('')}
+                </ul>
+            `;
         }
         
         function randomizeTeam(teamId) {
@@ -1587,19 +1657,9 @@
                 navigateTo('stadium-selector-screen');
             }
             if (e.target.id === 'start-series-btn') {
-                if (gameState.isSeries) {
-                    simulateSeries();
-                    displaySeriesResults();
-                    navigateTo('series-recap-screen');
-                } else {
-                    // This path is for single game, but now stadium screen leads to series.
-                    // Let's make the stadium screen's button always start a series for now.
-                    // Or we can have one button for single game, one for series.
-                    // For now, let's assume if you go to stadium select, it's for a series.
-                    simulateSeries();
-                    displaySeriesResults();
-                    navigateTo('series-recap-screen');
-                }
+                simulateSeries();
+                displaySeriesRecap();
+                navigateTo('series-recap-screen');
             }
             if (e.target.id === 'to-recap-btn') {
                 generateRecap();
@@ -1614,8 +1674,7 @@
             }
             if (e.target.id === 'rematch-series-btn') {
                 simulateSeries();
-                displaySeriesResults();
-                navigateTo('series-recap-screen');
+                displaySeriesRecap();
             }
             if (e.target.id === 'randomize-team-1-btn') {
                 randomizeTeam(1);
