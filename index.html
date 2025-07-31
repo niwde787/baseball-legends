@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baseball Legends 3.3</title>
+    <title>Baseball Legends 3.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -71,11 +71,8 @@
         <!-- Home Screen -->
         <section id="home-screen" class="screen active py-12">
             <div class="bg-gray-800 p-8 rounded-lg shadow-xl max-w-4xl mx-auto flex flex-col items-center justify-center space-y-10">
-                <!-- SVG Logo -->
                 <img src="https://i.imgur.com/HJwkfv9.png" alt="Baseball Legends Logo" class="w-full max-w-md mx-auto">
                 <h1 class="text-4xl font-bold text-teal-300 text-center">Simulate your dream baseball matchups.</h1>
-                
-                <!-- Main Menu -->
                 <div class="flex flex-col items-center justify-center gap-4">
                     <button id="start-game-btn" class="bg-indigo-600 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">SINGLE GAME</button>
                     <button id="series-btn" class="bg-indigo-600 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 w-64 uppercase">SERIES</button>
@@ -146,26 +143,35 @@
             <div class="max-w-4xl mx-auto">
                 <div id="series-scoreboard" class="bg-gray-800 p-4 rounded-lg shadow-xl text-center mb-6"></div>
                 <div id="series-game-summaries" class="space-y-4"></div>
-                <div id="series-final-recap" class="bg-gray-800 p-4 rounded-lg shadow-xl mt-6 hidden"></div>
+                 <div id="series-controls" class="text-center mt-8 flex-col sm:flex-row justify-center gap-4 hidden">
+                    <button id="series-rematch-btn" class="bg-indigo-600 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">REMATCH SERIES</button>
+                    <button id="view-series-recap-btn" class="bg-teal-600 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">VIEW RECAP</button>
+                    <button class="to-home-btn bg-gray-600 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">HOME</button>
+                </div>
             </div>
         </section>
 
-        <!-- Recap Screen -->
-        <section id="recap-screen" class="screen">
+        <!-- Post Game Recap Screen -->
+        <section id="post-game-screen" class="screen">
             <div class="max-w-4xl mx-auto">
-                <h2 class="text-5xl font-bold text-center mb-6 text-teal-400">GAME RECAP</h2>
-                <div id="mvp-section" class="mb-6 bg-gray-800 p-4 rounded-lg shadow-xl"></div>
-                <div id="inning-box-score" class="bg-gray-800 p-4 rounded-lg shadow-xl overflow-x-auto mb-6"></div>
-                <div id="box-score" class="bg-gray-800 p-4 rounded-lg shadow-xl overflow-x-auto"></div>
+                <h2 id="post-game-title" class="text-5xl font-bold text-center mb-6 text-teal-400"></h2>
+                
+                <div id="summary-mvp-section" class="mb-6 bg-gray-800 p-4 rounded-lg shadow-xl"></div>
+
+                <div id="box-score-details" class="space-y-6">
+                     <div id="inning-box-score" class="bg-gray-800 p-4 rounded-lg shadow-xl overflow-x-auto"></div>
+                     <div id="box-score" class="bg-gray-800 p-4 rounded-lg shadow-xl overflow-x-auto"></div>
+                </div>
+
                 <div class="text-center mt-8 flex justify-center gap-4">
-                    <button id="rematch-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">REMATCH</button>
-                    <button id="to-home-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">HOME</button>
+                    <button id="rematch-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase hidden">REMATCH</button>
+                    <button class="to-home-btn bg-gray-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">HOME</button>
                 </div>
             </div>
         </section>
         
         <footer class="text-center text-gray-500 text-sm mt-12">
-            © 2025 Baseball Legends V3.3. A Dingers Department Company All Rights Reserved | <a href="http://www.dingersdepartment.com" target="_blank" class="hover:text-teal-400">www.dingersdepartment.com</a>
+            © 2025 Baseball Legends V3.5. A Dingers Department Company All Rights Reserved | <a href="http://www.dingersdepartment.com" target="_blank" class="hover:text-teal-400">www.dingersdepartment.com</a>
         </footer>
 
     </div>
@@ -191,7 +197,6 @@
     <script type="module">
         // =================================================================================
         // --- CORE DATA ---
-        // This section holds the static data for players and stadiums.
         // =================================================================================
         const players = [
             // CATCHERS (25)
@@ -412,7 +417,6 @@
         ];
 
         const stadiums = [
-            // Active MLB Stadiums
             { name: "Angel Stadium", factors: { hr: 1.1, triple: 0.8, double: 1.0, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/AngelStadium.jpg" },
             { name: "Busch Stadium", factors: { hr: 0.9, triple: 1.0, double: 1.1, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/BuschStadium.jpg" },
             { name: "Chase Field", factors: { hr: 1.0, triple: 1.3, double: 1.2, single: 1.0 }, thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/ChaseField.jpg" },
@@ -859,7 +863,7 @@
                 };
                 this.stadium = stadium;
                 this.log = [];
-                this.events = []; // For storing structured event data for the summary
+                this.events = [];
                 this.score = { away: 0, home: 0 };
                 this.lineScore = { away: [], home: [] };
                 this.inning = 1;
@@ -912,14 +916,12 @@
                 const scoreDifference = Math.abs(this.score.away - this.score.home);
                 const runnersOnBase = this.bases.filter(r => r !== null).length;
                 let leverage = 1.0;
-
                 if (this.inning >= 7) leverage *= 1.5;
                 if (this.inning >= 9) leverage *= 1.2;
                 if (scoreDifference <= 1) leverage *= 2.0;
                 else if (scoreDifference <= 3) leverage *= 1.5;
                 if (runnersOnBase > 0) leverage *= 1.2;
                 if (runnersOnBase >= 2) leverage *= 1.5;
-
                 return leverage;
             }
 
@@ -938,17 +940,14 @@
                 const team = this.teams[teamKey];
                 const pitcher = team.currentPitcher;
                 const scoreDiff = this.score[teamKey] - this.score[this.topOfInning ? 'away' : 'home'];
-
                 const isTired = pitcher.pitchCount >= pitcher.stamina;
                 const isSaveSituation = this.inning >= 8 && !this.topOfInning && scoreDiff > 0 && scoreDiff <= 3;
-
                 let nextPitcherRole = null;
                 if (isSaveSituation && team.bullpen.includes('cl') && pitcher.role !== 'CL') {
                     nextPitcherRole = 'cl';
                 } else if (isTired && team.bullpen.length > 0) {
                     nextPitcherRole = team.bullpen[0];
                 }
-
                 if (nextPitcherRole) {
                     const newPitcher = team.pitchers[nextPitcherRole];
                     team.currentPitcher = newPitcher;
@@ -960,52 +959,42 @@
 
             simulatePlay() {
                 if (this.isGameOver) return;
-                
                 this.checkPitchingChange();
-
                 const currentTeamKey = this.topOfInning ? 'away' : 'home';
                 const opposingTeamKey = this.topOfInning ? 'home' : 'away';
                 const batter = this.teams[currentTeamKey].battingOrder[this.currentBatterIndex[currentTeamKey]];
                 const pitcher = this.teams[opposingTeamKey].currentPitcher;
                 const leagueAvg = this.leagueAveragesByEra[batter.eraTag] || this.leagueAveragesByEra['modern'];
                 const leverage = this.getLeverage();
-
                 this.addLog(`--- ${this.topOfInning ? 'Top' : 'Bottom'} of the ${this.inning}, ${this.outs} out(s) ---`);
                 this.addLog(`${batter.name} steps up to the plate, facing ${pitcher.name}.`);
-                
                 const pitches = Math.floor(Math.random() * 4) + 3;
                 pitcher.pitchCount += pitches;
                 this.stat(pitcher.id, 'pitchCount', pitches);
                 this.stat(batter.id, 'ab');
-
                 const batterBBRate = (batter.stats.bb) / (batter.stats.ab + batter.stats.bb);
                 const batterSORate = (batter.stats.so) / (batter.stats.ab + batter.stats.bb);
                 const pitcherBBRate = (pitcher.stats.bb_p || pitcher.stats.bb) / ((pitcher.stats.ip * 3) || 1);
                 const pitcherSORate = (pitcher.stats.so_p || pitcher.stats.so) / ((pitcher.stats.ip * 3) || 1);
-
                 const finalBBRate = (batterBBRate / leagueAvg.bbRate) * (pitcherBBRate / leagueAvg.bbRate) * leagueAvg.bbRate;
                 const finalSORate = (batterSORate / leagueAvg.soRate) * (pitcherSORate / leagueAvg.soRate) * leagueAvg.soRate;
-
                 const roll = Math.random();
-
-                if (roll < finalBBRate) { // WALK
+                if (roll < finalBBRate) {
                     this.addLog(getCommentary('walk', { batter: batter.name, pitcher: pitcher.name }));
                     this.stat(batter.id, 'bb'); this.stat(pitcher.id, 'bb_a');
                     this.updateMvpScore(batter.id, 0.3 * leverage);
                     this.updateMvpScore(pitcher.id, -0.3 * leverage);
                     this.advanceRunners(batter, 1, true, leverage);
-                } else if (roll < finalBBRate + finalSORate) { // STRIKEOUT
+                } else if (roll < finalBBRate + finalSORate) {
                     this.addLog(getCommentary('strikeout', { batter: batter.name, pitcher: pitcher.name }));
                     this.stat(batter.id, 'so'); this.stat(pitcher.id, 'so_p');
                     this.updateMvpScore(batter.id, -0.35 * leverage);
                     this.updateMvpScore(pitcher.id, 0.35 * leverage);
                     this.addOuts(1);
-                } else { // BALL IN PLAY
+                } else {
                     this.handleBallInPlay(batter, pitcher, leagueAvg, leverage);
                 }
-
                 this.currentBatterIndex[currentTeamKey] = (this.currentBatterIndex[currentTeamKey] + 1) % 9;
-
                 if (this.outs >= 3) {
                     this.endOfInningHalf();
                 }
@@ -1013,9 +1002,8 @@
 
             handleBallInPlay(batter, pitcher, leagueAvg, leverage) {
                 const batterHRRate = batter.stats.hr / (batter.stats.ab + batter.stats.bb);
-                const pitcherHRRate = ((pitcher.stats.ha_p || pitcher.stats.ha) / ((pitcher.stats.ip * 3) || 1)) * 0.12; // Estimate HR/BIP
+                const pitcherHRRate = ((pitcher.stats.ha_p || pitcher.stats.ha) / ((pitcher.stats.ip * 3) || 1)) * 0.12;
                 const finalHRRate = (batterHRRate / leagueAvg.hrRate) * (pitcherHRRate / leagueAvg.hrRate) * leagueAvg.hrRate * this.stadium.factors.hr;
-
                 if (Math.random() < finalHRRate) {
                     this.addLog(getCommentary('homerun', { batter: batter.name }));
                     this.stat(batter.id, 'h'); this.stat(batter.id, 'hr'); this.stat(pitcher.id, 'h_a');
@@ -1028,12 +1016,10 @@
                     this.addEvent({ inning: this.inning, batter: batter.name, result: 'HR', rbi: rbi });
                     return;
                 }
-
-                const batterBABIP = (batter.stats.avg - (batter.stats.hr / batter.stats.ab)) * 1.1; // Estimate
+                const batterBABIP = (batter.stats.avg - (batter.stats.hr / batter.stats.ab)) * 1.1;
                 const finalBABIP = (batterBABIP / leagueAvg.babip) * leagueAvg.babip;
-                
-                if (Math.random() < finalBABIP) { // HIT
-                    const batterISO = ((batter.stats.hr * 4) + ((batter.stats.rbi - batter.stats.hr) * 1.5)) / batter.stats.ab; // Simple ISO
+                if (Math.random() < finalBABIP) {
+                    const batterISO = ((batter.stats.hr * 4) + ((batter.stats.rbi - batter.stats.hr) * 1.5)) / batter.stats.ab;
                     const hitRoll = Math.random();
                     if (hitRoll < 0.7 - (batterISO * 0.5)) { 
                         this.addLog(getCommentary('single', { batter: batter.name }));
@@ -1049,9 +1035,9 @@
                         this.advanceRunners(batter, 3, false, leverage); 
                     }
                     this.stat(batter.id, 'h'); this.stat(pitcher.id, 'h_a');
-                } else { // OUT
+                } else {
                     const defenseRoll = Math.random();
-                    if (defenseRoll < 0.02) { // Error
+                    if (defenseRoll < 0.02) {
                         this.addLog(getCommentary('error', { batter: batter.name }));
                         this.advanceRunners(batter, 1, false, leverage);
                     } else {
@@ -1084,9 +1070,7 @@
                     { runner: this.bases[0], start: 0 },
                     { runner: batter, start: -1 }
                 ].filter(r => r.runner);
-
                 runners.sort((a, b) => b.start - a.start);
-
                 for (const { runner, start } of runners) {
                     let end = start + bases;
                     if (isWalk) {
@@ -1094,11 +1078,10 @@
                         if (start === -1 || isForced) end = start + 1;
                         else end = start;
                     }
-                    
                     if (end >= 3) {
                         runsScored++;
                         this.stat(runner.id, 'r');
-                        this.updateMvpScore(runner.id, 0.2 * leverage); // Bonus for scoring
+                        this.updateMvpScore(runner.id, 0.2 * leverage);
                     } else {
                         if (!newBases[end]) newBases[end] = runner;
                         else { 
@@ -1110,14 +1093,12 @@
                         }
                     }
                 }
-                
                 this.bases = newBases;
-
                 if (runsScored > 0) {
                     const teamKey = this.topOfInning ? 'away' : 'home';
                     this.score[teamKey] += runsScored;
                     this.stat(batter.id, 'rbi', runsScored);
-                    this.updateMvpScore(batter.id, (runsScored * 0.5) * leverage); // Bonus for RBIs
+                    this.updateMvpScore(batter.id, (runsScored * 0.5) * leverage);
                     const pitcher = this.teams[this.topOfInning ? 'home' : 'away'].currentPitcher;
                     this.stat(pitcher.id, 'r_a', runsScored);
                     this.stat(pitcher.id, 'er_a', runsScored);
@@ -1130,12 +1111,10 @@
                 const teamKey = this.topOfInning ? 'away' : 'home';
                 const runsThisInning = this.score[teamKey] - (this.lineScore[teamKey].reduce((a, b) => a + b, 0) || 0);
                 this.lineScore[teamKey].push(runsThisInning);
-
                 this.outs = 0;
                 this.bases = [null, null, null];
                 this.addLog(`------ End of ${this.topOfInning ? 'Top' : 'Bottom'} ${this.inning} ------`);
                 this.addLog(`Score: ${this.teams.away.name} ${this.score.away} - ${this.teams.home.name} ${this.score.home}`);
-
                 if (this.inning >= 9) {
                     if (!this.topOfInning && this.score.home > this.score.away) {
                         return this.finalizeGame();
@@ -1144,14 +1123,12 @@
                         return this.finalizeGame();
                     }
                 }
-                
                 if (this.topOfInning) {
                     this.topOfInning = false;
                 } else {
                     this.topOfInning = true;
                     this.inning++;
                 }
-
                 if (this.inning > 9 && this.score.away === this.score.home) {
                     this.addLog("Extra Innings: Ghost runner on 2nd.");
                     const runnerTeamKey = this.topOfInning ? 'away' : 'home';
@@ -1166,19 +1143,15 @@
                 this.addLog("GAME OVER!");
                 const winningTeamKey = this.score.away > this.score.home ? 'away' : 'home';
                 const losingTeamKey = winningTeamKey === 'away' ? 'home' : 'away';
-
                 const winningPitcher = this.teams[winningTeamKey].currentPitcher;
                 const losingPitcher = this.teams[losingTeamKey].currentPitcher;
-
                 this.stat(winningPitcher.id, 'wins');
-                this.updateMvpScore(winningPitcher.id, 5); // Win bonus
-                this.updateMvpScore(losingPitcher.id, -5); // Loss penalty
-                
+                this.updateMvpScore(winningPitcher.id, 5);
+                this.updateMvpScore(losingPitcher.id, -5);
                 if (this.teams[winningTeamKey].currentPitcher.role === 'CL' && (this.score[winningTeamKey] - this.score[losingTeamKey]) <=3) {
                     this.stat(this.teams[winningTeamKey].currentPitcher.id, 'saves');
-                    this.updateMvpScore(this.teams[winningTeamKey].currentPitcher.id, 3); // Save bonus
+                    this.updateMvpScore(this.teams[winningTeamKey].currentPitcher.id, 3);
                 }
-                
                 if (gameState.series.isSeries === false) {
                     document.getElementById('to-recap-btn').classList.remove('hidden');
                 }
@@ -1199,7 +1172,6 @@
                 const pStats = sim.stats.players[playerId];
                 const player = players.find(p => p.id == playerId);
                 if (!player || (pStats.ab === 0 && pStats.ip === 0)) return;
-
                 if (pStats.mvpScore > maxMvpScore) {
                     maxMvpScore = pStats.mvpScore;
                     mvp = player;
@@ -1210,58 +1182,17 @@
 
         // =================================================================================
         // --- AI & COMMENTARY ---
-        // Functions for generating dynamic text content, including play-by-play and summaries.
         // =================================================================================
         const commentary = {
-            strikeout: [
-                "{batter} is caught looking, a beautiful pitch from {pitcher}!",
-                "Swung on and missed! {pitcher} gets the strikeout!",
-                "{pitcher} blows a fastball by {batter} for the K!",
-                "Down on strikes! {batter} couldn't catch up to that one.",
-                "A nasty slider from {pitcher} buckles the knees of {batter}. Strike three!",
-            ],
-            walk: [
-                "{pitcher} loses {batter} on a full count. That's a walk.",
-                "Ball four, and {batter} will take his base.",
-                "{batter} shows great patience at the plate and draws the walk.",
-                "The home plate umpire rings him up... just kidding, it's ball four!",
-            ],
-            single: [
-                "{batter} ropes a single into left field!",
-                "A sharp grounder finds its way through the infield for a base hit.",
-                "{batter} bloops one into shallow center for a single.",
-                "That's a base knock for {batter}!",
-            ],
-            double: [
-                "{batter} smokes one into the gap! That'll be a stand-up double.",
-                "A line drive down the right-field line, {batter} cruises into second.",
-                "He hits it high and deep to center... it's off the wall! A double for {batter}.",
-            ],
-            triple: [
-                "{batter} drives one into deep right-center! He's digging for three... and he's in there! A triple!",
-                "That ball is rattling around in the corner! {batter} is flying around the bases for a triple!",
-            ],
-            homerun: [
-                "That ball is hit deep to left field... way back... GONE! A home run for {batter}!",
-                "High fly ball to right... forget about it! {batter} circles the bases!",
-                "There it goes! A no-doubter for {batter}!",
-                "He got all of that one! A towering shot from {batter}!",
-            ],
-            out: [
-                "{batter} hits a routine grounder to second, easy play for the out.",
-                "Pops it up into foul territory... and the catcher makes the play.",
-                "A sharp liner, but right at the shortstop for the out.",
-                "{batter} flies out to the warning track in center field.",
-                "Ground ball to third, the throw across the diamond... in time!",
-            ],
-            double_play: [
-                "Ground ball to short... they turn two! A 6-4-3 double play to end the threat!",
-                "A tailor-made double play ball, and they execute it perfectly!",
-            ],
-            error: [
-                "A routine grounder, but it's bobbled! An ERROR allows {batter} to reach safely!",
-                "The throw is wide! {batter} is safe on the error!",
-            ],
+            strikeout: ["{batter} is caught looking, a beautiful pitch from {pitcher}!","Swung on and missed! {pitcher} gets the strikeout!","{pitcher} blows a fastball by {batter} for the K!","Down on strikes! {batter} couldn't catch up to that one.","A nasty slider from {pitcher} buckles the knees of {batter}. Strike three!",],
+            walk: ["{pitcher} loses {batter} on a full count. That's a walk.","Ball four, and {batter} will take his base.","{batter} shows great patience at the plate and draws the walk.","The home plate umpire rings him up... just kidding, it's ball four!",],
+            single: ["{batter} ropes a single into left field!","A sharp grounder finds its way through the infield for a base hit.","{batter} bloops one into shallow center for a single.","That's a base knock for {batter}!",],
+            double: ["{batter} smokes one into the gap! That'll be a stand-up double.","A line drive down the right-field line, {batter} cruises into second.","He hits it high and deep to center... it's off the wall! A double for {batter}.",],
+            triple: ["{batter} drives one into deep right-center! He's digging for three... and he's in there! A triple!","That ball is rattling around in the corner! {batter} is flying around the bases for a triple!",],
+            homerun: ["That ball is hit deep to left field... way back... GONE! A home run for {batter}!","High fly ball to right... forget about it! {batter} circles the bases!","There it goes! A no-doubter for {batter}!","He got all of that one! A towering shot from {batter}!",],
+            out: ["{batter} hits a routine grounder to second, easy play for the out.","Pops it up into foul territory... and the catcher makes the play.","A sharp liner, but right at the shortstop for the out.","{batter} flies out to the warning track in center field.","Ground ball to third, the throw across the diamond... in time!",],
+            double_play: ["Ground ball to short... they turn two! A 6-4-3 double play to end the threat!","A tailor-made double play ball, and they execute it perfectly!",],
+            error: ["A routine grounder, but it's bobbled! An ERROR allows {batter} to reach safely!","The throw is wide! {batter} is safe on the error!",],
         };
 
         function getCommentary(event, context) {
@@ -1279,7 +1210,6 @@
             const winningTeam = sim.score.away > sim.score.home ? sim.teams.away : sim.teams.home;
             const losingTeam = sim.score.away > sim.score.home ? sim.teams.home : sim.teams.away;
             const finalScore = `${winningTeam.name} ${Math.max(sim.score.away, sim.score.home)}, ${losingTeam.name} ${Math.min(sim.score.away, sim.score.home)}`;
-
             let mvpLine = '';
             if (mvpStats.ip > 0) {
                 const ipString = `${Math.floor(mvpStats.ip)}.${Math.round((mvpStats.ip % 1) * 3)}`;
@@ -1287,7 +1217,6 @@
             } else {
                 mvpLine = `The game's MVP, ${mvp.name}, had a stellar performance, going ${mvpStats.h}-for-${mvpStats.ab} with ${mvpStats.hr} home run(s) and ${mvpStats.rbi} RBI.`;
             }
-
             const bigPlays = sim.events.filter(e => e.rbi >= 2).sort((a, b) => b.rbi - a.rbi);
             let highlights = 'There were no major turning points.';
             if (bigPlays.length > 0) {
@@ -1296,7 +1225,6 @@
                 ).join(', and ');
                 highlights = `Key moments included ${highlights}.`;
             }
-
             const prompt = `You are a baseball sportswriter. Write a brief, exciting summary of a baseball game in under 100 words.
             - Game Result: ${finalScore}.
             - Winning Team: ${winningTeam.name}.
@@ -1304,32 +1232,26 @@
             - Game MVP: ${mvpLine}.
             - Highlights: ${highlights}.
             Focus on creating a narrative of the game.`;
-
             try {
                 let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
                 const payload = { contents: chatHistory };
                 const apiKey = ""; 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                if (!response.ok) {
-                    throw new Error(`API call failed with status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`API call failed with status: ${response.status}`);
                 const result = await response.json();
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
                     return result.candidates[0].content.parts[0].text;
                 } else {
                     throw new Error("Invalid response structure from API.");
                 }
             } catch (error) {
                 console.error("AI summary generation failed:", error);
-                return generateFallbackSummary(sim); // Fallback to template
+                return generateFallbackSummary(sim);
             }
         }
 
@@ -1340,7 +1262,6 @@
             const winnerName = series.team1Wins > series.team2Wins ? team1Name : team2Name;
             const loserName = series.team1Wins > series.team2Wins ? team2Name : team1Name;
             const seriesScore = `${Math.max(series.team1Wins, series.team2Wins)}-${Math.min(series.team1Wins, series.team2Wins)}`;
-
             const mvp = seriesMvp.player;
             const mvpStats = seriesMvp.stats;
             let mvpLine = '';
@@ -1351,20 +1272,17 @@
                 const avg = (mvpStats.total_ab > 0 ? (mvpStats.total_h / mvpStats.total_ab) : 0).toFixed(3);
                 mvpLine = `${mvp.name} was a force, hitting ${avg} with ${mvpStats.total_hr} home runs and ${mvpStats.total_rbi} RBIs.`;
             }
-            
             const prompt = `You are a baseball sportswriter. Write a brief, exciting summary of a best-of-7 baseball series in under 120 words.
             - Series Winner: ${winnerName}.
             - Series Loser: ${loserName}.
             - Final Score: ${winnerName} won ${seriesScore}.
             - Series MVP: ${mvpLine}.
             Summarize the overall tone of the series (e.g., a dominant sweep, a close back-and-forth battle, an upset).`;
-
              try {
                 let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
                 const payload = { contents: chatHistory };
                 const apiKey = ""; 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1383,45 +1301,18 @@
             const winningTeam = sim.score.away > sim.score.home ? sim.teams.away.name : sim.teams.home.name;
             const losingTeam = sim.score.away > sim.score.home ? sim.teams.home.name : sim.teams.away.name;
             const finalScore = `${sim.teams.away.name} ${sim.score.away} - ${sim.teams.home.name} ${sim.score.home}`;
-            const scoreDiff = Math.abs(sim.score.away - sim.score.home);
-            const mvp = getMvp(sim);
-
-            const summaryOpeners = [
-                `It was a hard-fought contest at ${sim.stadium.name}, but the ${winningTeam} emerged victorious over the ${losingTeam} with a final score of ${finalScore}.`,
-                `In a stunning display of skill, the ${winningTeam} defeated the ${losingTeam} today, finishing with a score of ${finalScore}.`,
-                `What a game! The ${winningTeam} pulled ahead to clinch the win against the ${losingTeam}, final score ${finalScore}.`,
-                `The crowd is on its feet as the ${winningTeam} celebrate their victory over the ${losingTeam}.`,
-                `That's all she wrote from ${sim.stadium.name}, where the ${winningTeam} took down the ${losingTeam} in a fantastic ballgame.`,
-                scoreDiff > 5 ? `The ${winningTeam} dominated today's game, cruising to a ${finalScore} win over the ${losingTeam}.` : `It was a nail-biter at ${sim.stadium.name}, with the ${winningTeam} just edging out the ${losingTeam} by a score of ${finalScore}.`,
-                `A stellar performance from the ${winningTeam} secures them the W against the ${losingTeam}.`,
-                `The ${winningTeam} showcased their talent today, securing a decisive win against the ${losingTeam}.`,
-                `Fans of the ${winningTeam} are celebrating tonight after a well-deserved victory.`,
-                `It was a pitcher's duel for the ages, with ${winningTeam} ultimately coming out on top.`,
-                `An offensive explosion led the ${winningTeam} to victory today.`,
-                `In a back-and-forth affair, the ${winningTeam} had the last laugh.`,
-                `The ${losingTeam} fought hard, but the ${winningTeam} proved to be too much to handle.`,
-                `A memorable game at ${sim.stadium.name} ends with a win for the ${winningTeam}.`,
-                `From start to finish, the ${winningTeam} controlled the game, earning a convincing win.`,
-                `The final out is recorded, and the ${winningTeam} pour out of the dugout to celebrate their win!`,
-                `A clutch performance in the late innings sealed the deal for the ${winningTeam}.`,
-                `It was a day to remember for ${mvp.name}, who led the ${winningTeam} to victory.`,
-                `The story of this game was the performance of ${winningTeam}'s pitching staff.`,
-                `Despite a late rally from the ${losingTeam}, the ${winningTeam} held on for the victory.`
-            ];
+            const summaryOpeners = [`It was a hard-fought contest at ${sim.stadium.name}, but the ${winningTeam} emerged victorious over the ${losingTeam} with a final score of ${finalScore}.`,`In a stunning display of skill, the ${winningTeam} defeated the ${losingTeam} today, finishing with a score of ${finalScore}.`,`What a game! The ${winningTeam} pulled ahead to clinch the win against the ${losingTeam}, final score ${finalScore}.`,];
             return summaryOpeners[Math.floor(Math.random() * summaryOpeners.length)];
         }
 
         // =================================================================================
-        // --- GAME FLOW & INITIALIZATION ---
-        // Functions that control the overall game flow, from screen to screen.
+        // --- GAME FLOW & RECAPS ---
         // =================================================================================
         
         function updateScoreboard() {
             const sim = gameState.gameSim;
             if (!sim) return;
-            
             const inningDisplay = sim.isGameOver ? "Final" : `${sim.topOfInning ? '▲' : '▼'} ${sim.inning}`;
-            
             document.getElementById('scoreboard').innerHTML = `
                 <div class="flex justify-between items-center text-xl md:text-2xl font-mono bg-gray-900 p-2 rounded">
                     <div>${sim.teams.away.name}: <span class="font-bold text-teal-400">${sim.score.away}</span></div>
@@ -1439,17 +1330,22 @@
             logContainer.scrollTop = logContainer.scrollHeight;
         }
 
-        function generateRecap() {
+        function generateSingleGameRecap() {
             const sim = gameState.gameSim;
-            
+            const postGameTitle = document.getElementById('post-game-title');
+            const summaryMvpSection = document.getElementById('summary-mvp-section');
+            const boxScoreDetails = document.getElementById('box-score-details');
+            const rematchBtn = document.getElementById('rematch-btn');
+
+            postGameTitle.textContent = 'GAME RECAP';
+            boxScoreDetails.classList.remove('hidden');
+            rematchBtn.classList.remove('hidden');
+
             const mvp = getMvp(sim);
             const mvpStats = sim.stats.players[mvp.id];
             let mvpStatLine = '';
-
             if (mvpStats.ip > 0) {
-                const fullInnings = Math.floor(mvpStats.ip);
-                const partialInnings = Math.round((mvpStats.ip % 1) * 3);
-                const ipString = `${fullInnings}.${partialInnings}`;
+                const ipString = `${Math.floor(mvpStats.ip)}.${Math.round((mvpStats.ip % 1) * 3)}`;
                 mvpStatLine = `${ipString} IP, ${mvpStats.so_p} K, ${mvpStats.er_a} ER`;
                 if (mvpStats.wins > 0) mvpStatLine += ', W';
                 if (mvpStats.saves > 0) mvpStatLine += ', SV';
@@ -1457,7 +1353,7 @@
                 mvpStatLine = `${mvpStats.h}-for-${mvpStats.ab}, ${mvpStats.hr} HR, ${mvpStats.rbi} RBI`;
             }
             
-            document.getElementById('mvp-section').innerHTML = `
+            summaryMvpSection.innerHTML = `
                 <h3 class="text-3xl font-bold text-center">Game MVP</h3>
                 <div class="flex justify-center mt-4">
                     <div class="text-center">
@@ -1469,14 +1365,50 @@
             `;
             
             document.getElementById('inning-box-score').innerHTML = generateInningBoxScore(sim);
-            
-            const boxScoreHtml = `
+            document.getElementById('box-score').innerHTML = `
                 <div class="space-y-6">
                     ${generateTeamBoxScore(sim, 'away')}
                     ${generateTeamBoxScore(sim, 'home')}
                 </div>
             `;
-            document.getElementById('box-score').innerHTML = boxScoreHtml;
+        }
+
+        async function displaySeriesRecap() {
+            navigateTo('post-game-screen');
+            const postGameTitle = document.getElementById('post-game-title');
+            const summaryMvpSection = document.getElementById('summary-mvp-section');
+            const boxScoreDetails = document.getElementById('box-score-details');
+            const rematchBtn = document.getElementById('rematch-btn');
+
+            postGameTitle.textContent = 'SERIES RECAP';
+            summaryMvpSection.innerHTML = `<div class="loader"></div><p class="text-center">Generating Series Recap...</p>`;
+            boxScoreDetails.classList.add('hidden');
+            rematchBtn.classList.add('hidden');
+
+            const seriesMvp = calculateSeriesMvp();
+            const seriesSummaryText = await generateAiSeriesSummary(seriesMvp);
+            
+            const mvpStats = seriesMvp.stats;
+            let mvpStatLine = '';
+            if(mvpStats.total_ip > 0) {
+                 const ipString = `${Math.floor(mvpStats.total_ip)}.${Math.round((mvpStats.total_ip % 1) * 3)}`;
+                 mvpStatLine = `${mvpStats.total_wins} W, ${ipString} IP, ${mvpStats.total_so_p} K, ${mvpStats.total_er_a} ER`;
+            } else {
+                const avg = (mvpStats.total_ab > 0 ? (mvpStats.total_h / mvpStats.total_ab) : 0).toFixed(3);
+                mvpStatLine = `${avg} AVG, ${mvpStats.total_hr} HR, ${mvpStats.total_rbi} RBI`;
+            }
+
+            summaryMvpSection.innerHTML = `
+                <p class="mb-6 text-lg text-center">${seriesSummaryText}</p>
+                <h3 class="text-2xl font-bold text-center mt-6">Series MVP</h3>
+                 <div class="flex justify-center mt-4">
+                    <div class="text-center">
+                        <img src="${seriesMvp.player.portrait}" class="w-24 h-24 rounded-full mx-auto my-2 border-4 border-teal-400 bg-gray-700 object-cover" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png';">
+                        <p class="text-2xl font-bold">${seriesMvp.player.name}</p>
+                        <p class="text-teal-400 font-semibold">${mvpStatLine}</p>
+                    </div>
+                </div>
+            `;
         }
 
         function generateInningBoxScore(sim) {
@@ -1486,91 +1418,40 @@
                 header += `<th class="p-2 text-center">${i}</th>`;
             }
             header += '<th class="p-2 text-center font-bold">R</th><th class="p-2 text-center font-bold">H</th><th class="p-2 text-center font-bold">E</th>';
-            
             const totalHits = (teamKey) => Object.values(sim.stats.players).filter(pStat => sim.teams[teamKey].battingOrder.some(p => p.id === parseInt(Object.keys(sim.stats.players).find(key => sim.stats.players[key] === pStat)))).reduce((acc, p) => acc + p.h, 0);
-
             let awayRow = `<tr><td class="p-2 font-semibold">${sim.teams.away.name}</td>`;
             for(let i = 0; i < innings; i++) { awayRow += `<td class="p-2 text-center">${sim.lineScore.away[i] ?? ''}</td>`; }
             awayRow += `<td class="p-2 text-center font-bold">${sim.score.away}</td><td class="p-2 text-center font-bold">${totalHits('away')}</td><td class="p-2 text-center font-bold">0</td></tr>`;
-
             let homeRow = `<tr><td class="p-2 font-semibold">${sim.teams.home.name}</td>`;
             for(let i = 0; i < innings; i++) { homeRow += `<td class="p-2 text-center">${sim.lineScore.home[i] ?? ''}</td>`; }
             homeRow += `<td class="p-2 text-center font-bold">${sim.score.home}</td><td class="p-2 text-center font-bold">${totalHits('home')}</td><td class="p-2 text-center font-bold">0</td></tr>`;
-
-            return `
-                <table class="w-full text-left text-sm">
-                    <thead><tr class="border-b-2 border-gray-600">${header}</tr></thead>
-                    <tbody>${awayRow}${homeRow}</tbody>
-                </table>
-            `;
+            return `<table class="w-full text-left text-sm"><thead><tr class="border-b-2 border-gray-600">${header}</tr></thead><tbody>${awayRow}${homeRow}</tbody></table>`;
         }
 
         function generateTeamBoxScore(sim, teamKey) {
             const team = sim.teams[teamKey];
-            let battingHtml = `
-                <h4 class="text-2xl font-bold text-teal-300 mb-2">${team.name} Batting</h4>
-                <table class="w-full text-left text-sm">
-                    <thead class="border-b-2 border-gray-600">
-                        <tr>
-                            <th class="p-2">Player</th>
-                            <th class="p-2 text-center">AB</th><th class="p-2 text-center">R</th><th class="p-2 text-center">H</th>
-                            <th class="p-2 text-center">2B</th><th class="p-2 text-center">3B</th><th class="p-2 text-center">HR</th>
-                            <th class="p-2 text-center">RBI</th><th class="p-2 text-center">BB</th><th class="p-2 text-center">SO</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+            let battingHtml = `<h4 class="text-2xl font-bold text-teal-300 mb-2">${team.name} Batting</h4><table class="w-full text-left text-sm"><thead class="border-b-2 border-gray-600"><tr><th class="p-2">Player</th><th class="p-2 text-center">AB</th><th class="p-2 text-center">R</th><th class="p-2 text-center">H</th><th class="p-2 text-center">2B</th><th class="p-2 text-center">3B</th><th class="p-2 text-center">HR</th><th class="p-2 text-center">RBI</th><th class="p-2 text-center">BB</th><th class="p-2 text-center">SO</th></tr></thead><tbody>`;
             team.battingOrder.forEach(p => {
                 const s = sim.stats.players[p.id];
-                battingHtml += `
-                    <tr class="border-b border-gray-700">
-                        <td class="p-2 font-semibold">${p.name}</td>
-                        <td class="p-2 text-center">${s.ab}</td><td class="p-2 text-center">${s.r}</td><td class="p-2 text-center">${s.h}</td>
-                        <td class="p-2 text-center">${s['2b']}</td><td class="p-2 text-center">${s['3b']}</td><td class="p-2 text-center">${s.hr}</td>
-                        <td class="p-2 text-center">${s.rbi}</td><td class="p-2 text-center">${s.bb}</td><td class="p-2 text-center">${s.so}</td>
-                    </tr>
-                `;
+                battingHtml += `<tr class="border-b border-gray-700"><td class="p-2 font-semibold">${p.name}</td><td class="p-2 text-center">${s.ab}</td><td class="p-2 text-center">${s.r}</td><td class="p-2 text-center">${s.h}</td><td class="p-2 text-center">${s['2b']}</td><td class="p-2 text-center">${s['3b']}</td><td class="p-2 text-center">${s.hr}</td><td class="p-2 text-center">${s.rbi}</td><td class="p-2 text-center">${s.bb}</td><td class="p-2 text-center">${s.so}</td></tr>`;
             });
             battingHtml += `</tbody></table>`;
-
-            let pitchingHtml = `
-                <h4 class="text-2xl font-bold text-teal-300 mt-6 mb-2">${team.name} Pitching</h4>
-                <table class="w-full text-left text-sm">
-                    <thead class="border-b-2 border-gray-600">
-                        <tr>
-                            <th class="p-2">Player</th>
-                            <th class="p-2 text-center">IP</th><th class="p-2 text-center">H</th><th class="p-2 text-center">R</th>
-                            <th class="p-2 text-center">ER</th><th class="p-2 text-center">BB</th><th class="p-2 text-center">SO</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+            let pitchingHtml = `<h4 class="text-2xl font-bold text-teal-300 mt-6 mb-2">${team.name} Pitching</h4><table class="w-full text-left text-sm"><thead class="border-b-2 border-gray-600"><tr><th class="p-2">Player</th><th class="p-2 text-center">IP</th><th class="p-2 text-center">H</th><th class="p-2 text-center">R</th><th class="p-2 text-center">ER</th><th class="p-2 text-center">BB</th><th class="p-2 text-center">SO</th></tr></thead><tbody>`;
             Object.values(team.pitchers).forEach(p => {
                 const s = sim.stats.players[p.id];
                 if (s.ip > 0) {
-                    const fullInnings = Math.floor(s.ip);
-                    const partialInnings = Math.round((s.ip % 1) * 3);
-                    const ipString = `${fullInnings}.${partialInnings}`;
-                    pitchingHtml += `
-                        <tr class="border-b border-gray-700">
-                            <td class="p-2 font-semibold">${p.name}</td>
-                            <td class="p-2 text-center">${ipString}</td><td class="p-2 text-center">${s.h_a}</td><td class="p-2 text-center">${s.r_a}</td>
-                            <td class="p-2 text-center">${s.er_a}</td><td class="p-2 text-center">${s.bb_a}</td><td class="p-2 text-center">${s.so_p}</td>
-                        </tr>
-                    `;
+                    const ipString = `${Math.floor(s.ip)}.${Math.round((s.ip % 1) * 3)}`;
+                    pitchingHtml += `<tr class="border-b border-gray-700"><td class="p-2 font-semibold">${p.name}</td><td class="p-2 text-center">${ipString}</td><td class="p-2 text-center">${s.h_a}</td><td class="p-2 text-center">${s.r_a}</td><td class="p-2 text-center">${s.er_a}</td><td class="p-2 text-center">${s.bb_a}</td><td class="p-2 text-center">${s.so_p}</td></tr>`;
                 }
             });
             pitchingHtml += `</tbody></table>`;
-            
             const hitBreakdownHtml = `<div class="mt-4">${generateHitBreakdown(sim, teamKey)}</div>`;
-
             return battingHtml + pitchingHtml + hitBreakdownHtml;
         }
 
         function generateHitBreakdown(sim, teamKey) {
             let breakdownHtml = `<h4 class="text-xl font-bold text-teal-300 mb-2">Hit Breakdown</h4>`;
             const hits = { '2B': [], '3B': [], HR: [], RBI: [] };
-            
             sim.teams[teamKey].battingOrder.forEach(p => {
                 const s = sim.stats.players[p.id];
                 if (s['2b'] > 0) hits['2B'].push(`${p.name} (${s['2b']})`);
@@ -1578,16 +1459,11 @@
                 if (s.hr > 0) hits.HR.push(`${p.name} (${s.hr})`);
                 if (s.rbi > 0) hits.RBI.push(`${p.name} (${s.rbi})`);
             });
-
             if (hits['2B'].length > 0) breakdownHtml += `<p class="text-sm"><span class="font-semibold">2B:</span> ${hits['2B'].join(', ')}</p>`;
             if (hits['3B'].length > 0) breakdownHtml += `<p class="text-sm"><span class="font-semibold">3B:</span> ${hits['3B'].join(', ')}</p>`;
             if (hits.HR.length > 0) breakdownHtml += `<p class="text-sm"><span class="font-semibold">HR:</span> ${hits.HR.join(', ')}</p>`;
             if (hits.RBI.length > 0) breakdownHtml += `<p class="text-sm"><span class="font-semibold">RBI:</span> ${hits.RBI.join(', ')}</p>`;
-            
-            if (Object.values(hits).every(arr => arr.length === 0)) {
-                return ''; // Return nothing if there's no data to show
-            }
-
+            if (Object.values(hits).every(arr => arr.length === 0)) return '';
             return breakdownHtml;
         }
         
@@ -1598,19 +1474,9 @@
             while (name1 === name2) {
                 name2 = teamNames[Math.floor(Math.random() * teamNames.length)];
             }
-
-            gameState.teams = {
-                1: { name: name1, roster: {}, battingOrder: [] },
-                2: { name: name2, roster: {}, battingOrder: [] },
-            };
+            gameState.teams = { 1: { name: name1, roster: {}, battingOrder: [] }, 2: { name: name2, roster: {}, battingOrder: [] }, };
             gameState.stadiums = { 1: null, 2: null };
-            gameState.series = {
-                isSeries: isSeries,
-                totalGames: 7,
-                team1Wins: 0,
-                team2Wins: 0,
-                gameSims: [],
-            };
+            gameState.series = { isSeries: isSeries, totalGames: 7, team1Wins: 0, team2Wins: 0, gameSims: [], };
             gameState.gameSim = null;
             initializeTeamBuilder(1);
             initializeTeamBuilder(2);
@@ -1626,19 +1492,14 @@
             summaryContainer.innerHTML = `<div class="loader"></div><p class="text-center">Simulating game...</p>`;
             summaryContainer.classList.remove('hidden');
             document.getElementById('to-recap-btn').classList.add('hidden');
-
-            // Delay to allow UI to update with loader
             await new Promise(resolve => setTimeout(resolve, 100));
-
             gameState.gameSim = new GameSimulation(gameState.teams[1], gameState.teams[2], gameState.stadiums[1]);
             gameState.gameSim.runFullGame();
             updateScoreboard();
             updatePlayByPlay();
-            
             const boxScoreContainer = document.getElementById('game-inning-box-score');
             boxScoreContainer.innerHTML = generateInningBoxScore(gameState.gameSim);
             boxScoreContainer.classList.remove('hidden');
-
             summaryContainer.innerHTML = `<div class="loader"></div><p class="text-center">Generating AI Summary...</p>`;
             const summaryText = await generateAiSummary(gameState.gameSim);
             summaryContainer.innerHTML = `<h4 class="text-2xl font-bold text-teal-300 mb-2">GAME SUMMARY</h4><p>${summaryText}</p>`;
@@ -1647,87 +1508,37 @@
         async function runFullSeries() {
             navigateTo('series-screen');
             const summariesContainer = document.getElementById('series-game-summaries');
-            const finalRecapContainer = document.getElementById('series-final-recap');
             summariesContainer.innerHTML = '';
-            finalRecapContainer.classList.add('hidden');
+            document.getElementById('series-controls').classList.add('hidden'); // Hide controls at start
 
             const winsNeeded = Math.ceil(gameState.series.totalGames / 2);
 
             for (let i = 1; i <= gameState.series.totalGames; i++) {
-                if (gameState.series.team1Wins >= winsNeeded || gameState.series.team2Wins >= winsNeeded) {
-                    break;
-                }
-
+                if (gameState.series.team1Wins >= winsNeeded || gameState.series.team2Wins >= winsNeeded) break;
                 const homeTeamId = ([1, 2, 6, 7].includes(i)) ? 1 : 2;
                 const awayTeamId = (homeTeamId === 1) ? 2 : 1;
-                
                 const homeTeamData = gameState.teams[homeTeamId];
                 const awayTeamData = gameState.teams[awayTeamId];
                 const stadium = gameState.stadiums[homeTeamId];
-
                 const gameSummaryContainer = document.createElement('div');
                 gameSummaryContainer.className = 'bg-gray-800 p-4 rounded-lg shadow-xl';
                 gameSummaryContainer.innerHTML = `<h3 class="text-2xl font-bold text-teal-300 mb-2">Game ${i}</h3><div class="loader"></div><p class="text-center">Simulating Game ${i}...</p>`;
                 summariesContainer.appendChild(gameSummaryContainer);
-
-                // Delay to allow UI to update
                 await new Promise(resolve => setTimeout(resolve, 100));
-
                 const sim = new GameSimulation(awayTeamData, homeTeamData, stadium);
                 sim.runFullGame();
                 gameState.series.gameSims.push(sim);
-
                 if (sim.score.away > sim.score.home) {
                     if (awayTeamId === 1) gameState.series.team1Wins++; else gameState.series.team2Wins++;
                 } else {
                     if (homeTeamId === 1) gameState.series.team1Wins++; else gameState.series.team2Wins++;
                 }
-
                 updateSeriesScoreboard();
                 const summaryText = await generateAiSummary(sim);
-                gameSummaryContainer.innerHTML = `
-                    <h3 class="text-2xl font-bold text-teal-300 mb-2">Game ${i} Result</h3>
-                    <div class="mb-4">${generateInningBoxScore(sim)}</div>
-                    <p>${summaryText}</p>
-                `;
+                gameSummaryContainer.innerHTML = `<h3 class="text-2xl font-bold text-teal-300 mb-2">Game ${i} Result</h3><div class="mb-4">${generateInningBoxScore(sim)}</div><p>${summaryText}</p>`;
             }
             
-            displaySeriesRecap();
-        }
-
-        async function displaySeriesRecap() {
-            const finalRecapContainer = document.getElementById('series-final-recap');
-            finalRecapContainer.innerHTML = `<div class="loader"></div><p class="text-center">Generating Series Recap...</p>`;
-            finalRecapContainer.classList.remove('hidden');
-
-            const seriesMvp = calculateSeriesMvp();
-            const seriesSummaryText = await generateAiSeriesSummary(seriesMvp);
-            
-            const mvpStats = seriesMvp.stats;
-            let mvpStatLine = '';
-            if(mvpStats.total_ip > 0) {
-                 const ipString = `${Math.floor(mvpStats.total_ip)}.${Math.round((mvpStats.total_ip % 1) * 3)}`;
-                 mvpStatLine = `${mvpStats.total_wins} W, ${ipString} IP, ${mvpStats.total_so_p} K, ${mvpStats.total_er_a} ER`;
-            } else {
-                const avg = (mvpStats.total_h / mvpStats.total_ab).toFixed(3);
-                mvpStatLine = `${avg} AVG, ${mvpStats.total_hr} HR, ${mvpStats.total_rbi} RBI`;
-            }
-
-            finalRecapContainer.innerHTML = `
-                <h2 class="text-3xl font-bold text-center text-teal-300 mb-4">Series Recap</h2>
-                <p class="mb-6">${seriesSummaryText}</p>
-                <h3 class="text-2xl font-bold text-center">Series MVP</h3>
-                 <div class="flex justify-center mt-4">
-                    <div class="text-center">
-                        <img src="${seriesMvp.player.portrait}" class="w-24 h-24 rounded-full mx-auto my-2 border-4 border-teal-400 bg-gray-700 object-cover" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png';">
-                        <p class="text-2xl font-bold">${seriesMvp.player.name}</p>
-                        <p class="text-teal-400 font-semibold">${mvpStatLine}</p>
-                    </div>
-                </div>
-                <div class="text-center mt-8">
-                    <button id="to-home-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">HOME</button>
-                </div>
-            `;
+            document.getElementById('series-controls').classList.remove('hidden');
         }
         
         function updateSeriesScoreboard() {
@@ -1737,29 +1548,19 @@
             const winnerName = series.team1Wins > series.team2Wins ? team1Name : team2Name;
             const winsNeeded = Math.ceil(series.totalGames / 2);
             const isSeriesOver = series.team1Wins >= winsNeeded || series.team2Wins >= winsNeeded;
-
             let title = `Best of ${series.totalGames} Series`;
             if (isSeriesOver) {
                 title = `${winnerName} win the series ${series.team1Wins}-${series.team2Wins}!`;
             }
-
-            document.getElementById('series-scoreboard').innerHTML = `
-                <h2 class="text-4xl font-bold text-teal-400 mb-2">${title}</h2>
-                <p class="text-3xl font-bold">${team1Name}: <span class="text-white">${series.team1Wins}</span> - ${team2Name}: <span class="text-white">${series.team2Wins}</span></p>
-            `;
+            document.getElementById('series-scoreboard').innerHTML = `<h2 class="text-4xl font-bold text-teal-400 mb-2">${title}</h2><p class="text-3xl font-bold">${team1Name}: <span class="text-white">${series.team1Wins}</span> - ${team2Name}: <span class="text-white">${series.team2Wins}</span></p>`;
         }
 
         function calculateSeriesMvp() {
             const aggregatedStats = {};
-
             gameState.series.gameSims.forEach(sim => {
                 for (const playerId in sim.stats.players) {
                     if (!aggregatedStats[playerId]) {
-                        aggregatedStats[playerId] = {
-                            player: players.find(p => p.id == playerId),
-                            total_mvpScore: 0, total_ab: 0, total_h: 0, total_hr: 0, total_rbi: 0,
-                            total_ip: 0, total_er_a: 0, total_so_p: 0, total_wins: 0
-                        };
+                        aggregatedStats[playerId] = { player: players.find(p => p.id == playerId), total_mvpScore: 0, total_ab: 0, total_h: 0, total_hr: 0, total_rbi: 0, total_ip: 0, total_er_a: 0, total_so_p: 0, total_wins: 0 };
                     }
                     const gameStats = sim.stats.players[playerId];
                     const totalStats = aggregatedStats[playerId];
@@ -1774,7 +1575,6 @@
                     totalStats.total_wins += gameStats.wins;
                 }
             });
-
             let seriesMvp = null;
             let maxMvpScore = -Infinity;
             for (const playerId in aggregatedStats) {
@@ -1788,26 +1588,18 @@
 
         // =================================================================================
         // --- EVENT LISTENERS & INITIALIZATION ---
-        // Sets up all the event listeners for user interaction.
         // =================================================================================
         document.addEventListener('click', (e) => {
-            if (e.target.id === 'start-game-btn') {
-                resetGame(false);
-                navigateTo('team-1-builder-screen');
-            }
-            if (e.target.id === 'series-btn') {
-                resetGame(true);
-                navigateTo('team-1-builder-screen');
-            }
-            if (e.target.id === 'to-team-2-builder-btn') {
+            const target = e.target;
+            if (target.id === 'start-game-btn') { resetGame(false); navigateTo('team-1-builder-screen'); }
+            if (target.id === 'series-btn') { resetGame(true); navigateTo('team-1-builder-screen'); }
+            if (target.id === 'to-team-2-builder-btn') {
                 if(gameState.series.isSeries) {
                     document.getElementById('stadium-select-title').textContent = `SELECT ${gameState.teams[1].name.toUpperCase()}'S HOME STADIUM`;
                     navigateTo('stadium-selector-screen');
-                } else {
-                    navigateTo('team-2-builder-screen');
-                }
+                } else { navigateTo('team-2-builder-screen'); }
             }
-            if (e.target.id === 'to-stadium-select-btn') {
+            if (target.id === 'to-stadium-select-btn') {
                  if(gameState.series.isSeries) {
                     document.getElementById('stadium-select-title').textContent = `SELECT ${gameState.teams[2].name.toUpperCase()}'S HOME STADIUM`;
                     navigateTo('stadium-selector-screen');
@@ -1816,58 +1608,48 @@
                     navigateTo('stadium-selector-screen');
                 }
             }
-            if (e.target.id === 'confirm-stadium-btn') {
+            if (target.id === 'confirm-stadium-btn') {
                 if (gameState.series.isSeries) {
                     if (!gameState.stadiums[1]) {
                         gameState.stadiums[1] = gameState.selectedStadium;
                         document.querySelectorAll('.stadium-card').forEach(c => c.classList.remove('selected'));
-                        e.target.disabled = true;
+                        target.disabled = true;
                         navigateTo('team-2-builder-screen');
                     } else {
                         gameState.stadiums[2] = gameState.selectedStadium;
                         runFullSeries();
                     }
                 } else {
-                    gameState.stadiums[1] = gameState.selectedStadium; // Use stadium 1 for single game
+                    gameState.stadiums[1] = gameState.selectedStadium;
                     navigateTo('game-simulation-screen');
                     startNewGame();
                 }
             }
-            if (e.target.id === 'to-recap-btn') {
-                generateRecap();
-                navigateTo('recap-screen');
+            if (target.id === 'to-recap-btn') { generateSingleGameRecap(); navigateTo('post-game-screen'); }
+            if (target.classList.contains('to-home-btn') || target.closest('.to-home-btn')) { navigateTo('home-screen'); }
+            if (target.id === 'rematch-btn') { navigateTo('game-simulation-screen'); startNewGame(); }
+            if (target.id === 'series-rematch-btn') {
+                gameState.series.team1Wins = 0;
+                gameState.series.team2Wins = 0;
+                gameState.series.gameSims = [];
+                runFullSeries();
             }
-             if (e.target.id === 'to-home-btn' || e.target.closest('#to-home-btn')) {
-                navigateTo('home-screen');
+            if (target.id === 'view-series-recap-btn') {
+                displaySeriesRecap();
             }
-            if (e.target.id === 'rematch-btn') {
-                 navigateTo('game-simulation-screen');
-                 startNewGame();
-            }
-            if (e.target.id === 'randomize-team-1-btn') randomizeTeam(1);
-            if (e.target.id === 'randomize-team-2-btn') randomizeTeam(2);
-            if (e.target.classList.contains('add-player-btn')) {
-                const slot = e.target.closest('.player-slot');
-                openPlayerModal(slot.dataset.teamId, slot.dataset.position);
-            }
-            if (e.target.classList.contains('remove-player-btn')) {
-                const slot = e.target.closest('.player-slot');
-                removePlayer(slot.dataset.teamId, slot.dataset.position);
-            }
-            if (e.target.closest('.player-card')) {
-                const card = e.target.closest('.player-card');
-                selectPlayer(parseInt(card.dataset.playerId));
-            }
-            if (e.target.closest('.stadium-card')) {
+            if (target.id === 'randomize-team-1-btn') randomizeTeam(1);
+            if (target.id === 'randomize-team-2-btn') randomizeTeam(2);
+            if (target.classList.contains('add-player-btn')) { const slot = target.closest('.player-slot'); openPlayerModal(slot.dataset.teamId, slot.dataset.position); }
+            if (target.classList.contains('remove-player-btn')) { const slot = target.closest('.player-slot'); removePlayer(slot.dataset.teamId, slot.dataset.position); }
+            if (target.closest('.player-card')) { const card = target.closest('.player-card'); selectPlayer(parseInt(card.dataset.playerId)); }
+            if (target.closest('.stadium-card')) {
                 document.querySelectorAll('.stadium-card').forEach(c => c.classList.remove('selected'));
-                const card = e.target.closest('.stadium-card');
+                const card = target.closest('.stadium-card');
                 card.classList.add('selected');
                 gameState.selectedStadium = stadiums.find(s => s.name === card.dataset.stadiumName);
                 document.getElementById('confirm-stadium-btn').disabled = false;
             }
-            if (e.target.id === 'modal-close-btn') {
-                modal.classList.add('hidden');
-            }
+            if (target.id === 'modal-close-btn') { modal.classList.add('hidden'); }
         });
 
         document.getElementById('player-search').addEventListener('input', populateModalList);
@@ -1924,7 +1706,6 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        // --- App Initialization ---
         initializeTeamBuilder(1);
         initializeTeamBuilder(2);
         initializeStadiums();
