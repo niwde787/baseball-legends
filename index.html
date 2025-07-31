@@ -153,8 +153,7 @@
             <div class="max-w-5xl mx-auto">
                 <h2 class="text-5xl font-bold text-center mb-6 text-teal-400">SERIES RECAP</h2>
                 <div id="series-winner-section" class="mb-6 bg-gray-800 p-6 rounded-lg shadow-xl text-center"></div>
-                <div id="series-games-list" class="space-y-4 mb-8"></div>
-                <div id="series-stats-section" class="bg-gray-800 p-6 rounded-lg shadow-xl">
+                <div id="series-stats-section" class="bg-gray-800 p-6 rounded-lg shadow-xl mb-8">
                     <h3 class="text-3xl font-bold text-center mb-6 text-teal-300">SERIES LEADERS</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div id="series-mvp-section"></div>
@@ -162,6 +161,7 @@
                         <div id="top-pitchers-section"></div>
                     </div>
                 </div>
+                <div id="series-games-list" class="space-y-4 mb-8"></div>
                 <div class="text-center mt-8 flex justify-center gap-4">
                     <button id="rematch-series-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">REMATCH SERIES</button>
                     <button id="series-to-home-btn" class="bg-indigo-600 text-white font-bold text-2xl py-3 px-12 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase">HOME</button>
@@ -170,7 +170,7 @@
         </section>
         
         <footer class="text-center text-gray-500 text-sm mt-12">
-            © 2025 Baseball Legends V3.0. A Dingers Department Company All Rights Reserved | <a href="http://www.dingersdepartment.com" target="_blank" class="hover:text-teal-400">www.dingersdepartment.com</a>
+            © 2024 Baseball Legends V3.0. A Dingers Department Company All Rights Reserved | <a href="http://www.dingersdepartment.com" target="_blank" class="hover:text-teal-400">www.dingersdepartment.com</a>
         </footer>
 
     </div>
@@ -1097,16 +1097,15 @@
                 this.isGameOver = true;
                 this.addLog("GAME OVER!");
                 const winningTeamKey = this.score.away > this.score.home ? 'away' : 'home';
-                const losingTeamKey = winningTeamKey === 'away' ? 'home' : 'away';
-
-                const winningPitcher = this.teams[winningTeamKey].currentPitcher;
-                const losingPitcher = this.teams[losingTeamKey].currentPitcher;
-
-                this.stat(winningPitcher.id, 'wins');
-                this.updateMvpScore(winningPitcher.id, 5); // Win bonus
-                this.updateMvpScore(losingPitcher.id, -5); // Loss penalty
                 
-                if (this.teams[winningTeamKey].currentPitcher.role === 'CL' && (this.score[winningTeamKey] - this.score[losingTeamKey]) <=3) {
+                this.winningPitcher = this.teams[winningTeamKey].currentPitcher;
+                this.losingPitcher = this.teams[winningTeamKey === 'away' ? 'home' : 'away'].currentPitcher;
+
+                this.stat(this.winningPitcher.id, 'wins');
+                this.updateMvpScore(this.winningPitcher.id, 5); // Win bonus
+                this.updateMvpScore(this.losingPitcher.id, -5); // Loss penalty
+                
+                if (this.teams[winningTeamKey].currentPitcher.role === 'CL' && (this.score[winningTeamKey] - this.score[winningTeamKey === 'away' ? 'home' : 'away']) <=3) {
                     this.stat(this.teams[winningTeamKey].currentPitcher.id, 'saves');
                     this.updateMvpScore(this.teams[winningTeamKey].currentPitcher.id, 3); // Save bonus
                 }
@@ -1242,18 +1241,20 @@
             document.getElementById('box-score').innerHTML = boxScoreHtml;
         }
 
-        function generateInningBoxScore(sim) {
-            const innings = Math.max(sim.lineScore.away.length, 9);
+        function generateInningBoxScore(gameData) {
+            const innings = Math.max(gameData.lineScore.away.length, 9);
             let header = '<th class="p-2"></th>';
             for (let i = 1; i <= innings; i++) {
                 header += `<th class="p-2 text-center">${i}</th>`;
             }
             header += '<th class="p-2 text-center font-bold">R</th><th class="p-2 text-center font-bold">H</th><th class="p-2 text-center font-bold">E</th>';
             
-            const totalHits = (teamKey) => Array.from(sim.teams[teamKey].battingOrder).reduce((acc, p) => acc + sim.stats.players[p.id].h, 0);
+            // Determine away and home scores regardless of format
+            const awayScore = gameData.score.away !== undefined ? gameData.score.away : gameData.score[gameData.teams.away.name];
+            const homeScore = gameData.score.home !== undefined ? gameData.score.home : gameData.score[gameData.teams.home.name];
 
-            const awayRow = `<tr><td class="p-2 font-semibold">${sim.teams.away.name}</td>${sim.lineScore.away.map(r => `<td class="p-2 text-center">${r}</td>`).join('')}${'<td></td>'.repeat(innings - sim.lineScore.away.length)}<td class="p-2 text-center font-bold">${sim.score.away}</td><td class="p-2 text-center font-bold">${totalHits('away')}</td><td class="p-2 text-center font-bold">0</td></tr>`;
-            const homeRow = `<tr><td class="p-2 font-semibold">${sim.teams.home.name}</td>${sim.lineScore.home.map(r => `<td class="p-2 text-center">${r}</td>`).join('')}${'<td></td>'.repeat(innings - sim.lineScore.home.length)}<td class="p-2 text-center font-bold">${sim.score.home}</td><td class="p-2 text-center font-bold">${totalHits('home')}</td><td class="p-2 text-center font-bold">0</td></tr>`;
+            const awayRow = `<tr><td class="p-2 font-semibold">${gameData.teams.away.name}</td>${gameData.lineScore.away.map(r => `<td class="p-2 text-center">${r}</td>`).join('')}${'<td></td>'.repeat(innings - gameData.lineScore.away.length)}<td class="p-2 text-center font-bold">${awayScore}</td><td class="p-2 text-center font-bold">${gameData.totalHits.away}</td><td class="p-2 text-center font-bold">0</td></tr>`;
+            const homeRow = `<tr><td class="p-2 font-semibold">${gameData.teams.home.name}</td>${gameData.lineScore.home.map(r => `<td class="p-2 text-center">${r}</td>`).join('')}${'<td></td>'.repeat(innings - gameData.lineScore.home.length)}<td class="p-2 text-center font-bold">${homeScore}</td><td class="p-2 text-center font-bold">${gameData.totalHits.home}</td><td class="p-2 text-center font-bold">0</td></tr>`;
 
             return `
                 <table class="w-full text-left text-sm">
@@ -1428,7 +1429,9 @@
                         seriesStats[playerId][stat] += sim.stats.players[playerId][stat];
                     });
                 });
-
+                
+                const gameMvp = getMvp(sim);
+                
                 if (sim.score.home > sim.score.away) {
                     if (homeTeamId === 1) team1Wins++; else team2Wins++;
                 } else {
@@ -1442,6 +1445,15 @@
                         [gameState.teams[2].name]: homeTeamId === 2 ? sim.score.home : sim.score.away,
                     },
                     stadium: stadium.name,
+                    lineScore: sim.lineScore,
+                    totalHits: {
+                        away: Array.from(sim.teams.away.battingOrder).reduce((acc, p) => acc + sim.stats.players[p.id].h, 0),
+                        home: Array.from(sim.teams.home.battingOrder).reduce((acc, p) => acc + sim.stats.players[p.id].h, 0)
+                    },
+                    teams: sim.teams,
+                    mvp: gameMvp,
+                    mvpStats: sim.stats.players[gameMvp.id],
+                    winningPitcher: sim.winningPitcher
                 });
             }
 
@@ -1465,18 +1477,29 @@
             `;
 
             const gamesList = document.getElementById('series-games-list');
-            gamesList.innerHTML = games.map(game => `
+            gamesList.innerHTML = games.map(game => {
+                const mvpStatLine = game.mvpStats.ab > 0 
+                    ? `${game.mvpStats.h}-for-${game.mvpStats.ab}, ${game.mvpStats.hr} HR, ${game.mvpStats.rbi} RBI`
+                    : `${(Math.floor(game.mvpStats.ip) + (game.mvpStats.ip % 1 / 0.333)).toFixed(1)} IP, ${game.mvpStats.so_p} K, ${game.mvpStats.er_a} ER`;
+
+                return `
                 <div class="bg-gray-700 p-4 rounded-lg shadow-md">
                     <h4 class="text-xl font-bold text-center mb-2">Game ${game.game} <span class="text-sm text-gray-400">@ ${game.stadium}</span></h4>
-                    <div class="flex justify-around items-center font-mono text-lg">
-                        <span>${team1Name}</span>
-                        <span class="font-bold text-2xl ${game.score[team1Name] > game.score[team2Name] ? 'text-teal-400' : ''}">${game.score[team1Name]}</span>
-                        <span>-</span>
-                        <span class="font-bold text-2xl ${game.score[team2Name] > game.score[team1Name] ? 'text-teal-400' : ''}">${game.score[team2Name]}</span>
-                        <span>${team2Name}</span>
+                    <div class="overflow-x-auto mb-4">
+                        ${generateInningBoxScore(game)}
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center text-sm">
+                        <div>
+                            <p class="font-bold text-teal-300">Player of the Game</p>
+                            <p>${game.mvp.name}: ${mvpStatLine}</p>
+                        </div>
+                        <div>
+                            <p class="font-bold text-teal-300">Winning Pitcher</p>
+                            <p>${game.winningPitcher.name}</p>
+                        </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
 
             // Series MVP and Top Performers
             const allPlayers = [...Object.values(gameState.teams[1].roster), ...Object.values(gameState.teams[2].roster)];
