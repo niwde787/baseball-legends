@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baseball Legends 3.1</title>
+    <title>Baseball Legends 3.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -89,7 +89,6 @@
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-4xl font-bold text-teal-400">BUILD TEAM 1</h2>
                     <div class="flex gap-2">
-                        <button id="ai-lineup-btn-1" class="bg-teal-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase text-sm">AI LINEUP</button>
                         <button id="randomize-team-1-btn" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase text-sm">RANDOMIZE TEAM</button>
                     </div>
                 </div>
@@ -106,7 +105,6 @@
                  <div class="flex justify-between items-center mb-6">
                     <h2 class="text-4xl font-bold text-teal-400">BUILD TEAM 2</h2>
                      <div class="flex gap-2">
-                        <button id="ai-lineup-btn-2" class="bg-teal-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase text-sm">AI LINEUP</button>
                         <button id="randomize-team-2-btn" class="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-transform hover:scale-105 uppercase text-sm">RANDOMIZE TEAM</button>
                     </div>
                 </div>
@@ -167,7 +165,7 @@
         </section>
         
         <footer class="text-center text-gray-500 text-sm mt-12">
-            © 2025 Baseball Legends V3.1. A Dingers Department Company All Rights Reserved | <a href="http://www.dingersdepartment.com" target="_blank" class="hover:text-teal-400">www.dingersdepartment.com</a>
+            © 2025 Baseball Legends V3.3. A Dingers Department Company All Rights Reserved | <a href="http://www.dingersdepartment.com" target="_blank" class="hover:text-teal-400">www.dingersdepartment.com</a>
         </footer>
 
     </div>
@@ -191,10 +189,10 @@
     
 
     <script type="module">
-        // This single script contains all the game's logic, data, and UI management.
-        // It's structured to be readable and follows the flow from the design document.
-
-        // --- DATA ---
+        // =================================================================================
+        // --- CORE DATA ---
+        // This section holds the static data for players and stadiums.
+        // =================================================================================
         const players = [
             // CATCHERS (25)
             { id: 1, name: "Johnny Bench", positions: ["C"], era: "Hall of Famer", eraTag: '70s', speed: 4, defense: 9, stats: { avg: .267, hr: 389, rbi: 1376, bb: 891, so: 1278, ab: 7658 }, statmuseId: 'johnny-bench', portrait: "https://raw.githubusercontent.com/niwde787/baseball-legends/players/id1.png" },
@@ -450,7 +448,10 @@
             { name: "Field of Dreams", factors: { hr: 1.1, triple: 1.2, double: 1.1, single: 1.1 },thumbnail: "https://raw.githubusercontent.com/niwde787/baseball-legends/stadiums/FieldDreams.jpg" },
         ];
 
-        // --- GAME STATE ---
+        // =================================================================================
+        // --- APPLICATION STATE ---
+        // Manages the overall state of the application, including teams, game progress, etc.
+        // =================================================================================
         let gameState = {
             currentScreen: 'home-screen',
             teams: {
@@ -471,12 +472,14 @@
             gameSim: null,
         };
 
-        // --- UI ELEMENTS ---
+        // =================================================================================
+        // --- UI RENDERING & MANAGEMENT ---
+        // Functions dedicated to manipulating the DOM and handling UI updates.
+        // =================================================================================
         const screens = document.querySelectorAll('.screen');
         const modal = document.getElementById('player-modal');
         let modalContext = {}; // { teamId, position }
 
-        // --- UI LOGIC ---
         function navigateTo(screenId) {
             screens.forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
@@ -602,7 +605,32 @@
                 `;
             }).join('');
         }
+        
+        function initializeStadiums() {
+            const list = document.getElementById('stadium-list');
+            list.innerHTML = stadiums.map(s => `
+                <div class="stadium-card bg-gray-700 p-4 rounded-lg shadow-lg cursor-pointer border-2 border-gray-700 hover:border-indigo-500 transition" data-stadium-name="${s.name}">
+                    <h3 class="text-2xl font-bold text-center mb-4 col-span-2">${s.name}</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <img src="${s.thumbnail || 'https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png'}" alt="${s.name}" class="w-full h-40 object-cover rounded-md">
+                        </div>
+                        <div class="text-sm">
+                            <div class="mt-4 pt-2 border-t border-gray-600">
+                                <p>HR Factor: ${s.factors.hr}</p>
+                                <p>Triple Factor: ${s.factors.triple}</p>
+                                <p>Double Factor: ${s.factors.double}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
 
+        // =================================================================================
+        // --- TEAM & LINEUP LOGIC ---
+        // Functions for managing team rosters, player selection, and batting orders.
+        // =================================================================================
         function selectPlayer(playerId) {
             const player = players.find(p => p.id === playerId);
             const { teamId, position } = modalContext;
@@ -681,91 +709,148 @@
             }
         }
 
-        function initializeStadiums() {
-            const list = document.getElementById('stadium-list');
-            list.innerHTML = stadiums.map(s => `
-                <div class="stadium-card bg-gray-700 p-4 rounded-lg shadow-lg cursor-pointer border-2 border-gray-700 hover:border-indigo-500 transition" data-stadium-name="${s.name}">
-                    <h3 class="text-2xl font-bold text-center mb-4 col-span-2">${s.name}</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <img src="${s.thumbnail || 'https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png'}" alt="${s.name}" class="w-full h-40 object-cover rounded-md">
-                        </div>
-                        <div class="text-sm">
-                            <div class="mt-4 pt-2 border-t border-gray-600">
-                                <p>HR Factor: ${s.factors.hr}</p>
-                                <p>Triple Factor: ${s.factors.triple}</p>
-                                <p>Double Factor: ${s.factors.double}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+        function randomizeTeam(teamId) {
+            // Clear existing roster and batting order for the team
+            const allPositions = ["C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "DH", "SP", "MR1", "MR2", "CL"];
+            allPositions.forEach(pos => {
+                if (gameState.teams[teamId].roster[pos]) {
+                    removePlayer(teamId, pos);
+                }
+            });
+            gameState.teams[teamId].roster = {};
+            gameState.teams[teamId].battingOrder = [];
+            const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
+            battingOrderContainer.innerHTML = '';
+
+            const otherTeamId = teamId == 1 ? 2 : 1;
+            const usedPlayerIds = new Set(Object.values(gameState.teams[otherTeamId].roster).map(p => p.id));
+
+            const positionMap = {
+                "C": ["C"], "1B": ["1B"], "2B": ["2B"], "3B": ["3B"], "SS": ["SS"],
+                "LF": ["OF"], "CF": ["OF"], "RF": ["OF"], "DH": ["C", "1B", "2B", "3B", "SS", "OF", "DH"],
+                "SP": ["P"], "MR1": ["P"], "MR2": ["P"], "CL": ["P"]
+            };
+
+            allPositions.forEach(pos => {
+                const eligiblePositions = positionMap[pos];
+                let availablePlayers = players.filter(p => 
+                    !usedPlayerIds.has(p.id) && p.positions.some(pp => eligiblePositions.includes(pp))
+                );
+                
+                if (availablePlayers.length > 0) {
+                    const randomPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+                    usedPlayerIds.add(randomPlayer.id);
+                    // This adds the player to the roster, but not the batting order UI yet
+                    gameState.teams[teamId].roster[pos] = randomPlayer;
+                    const slot = document.getElementById(`pos-${teamId}-${pos}`);
+                    slot.innerHTML = `
+                        <img src="${randomPlayer.portrait}" alt="${randomPlayer.name}" class="w-12 h-12 rounded-full mb-1" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/niwde787/baseball-legends/players/placeholder.png';">
+                        <p class="font-bold text-sm truncate">${randomPlayer.name}</p>
+                        <button class="remove-player-btn text-red-500 text-xs hover:text-red-400">REMOVE</button>
+                    `;
+                }
+            });
+            
+            // Generate the strategic batting order
+            generateBattingOrder(teamId);
         }
         
-        // --- BROADCAST COMMENTARY DATA ---
-        const commentary = {
-            strikeout: [
-                "{batter} is caught looking, a beautiful pitch from {pitcher}!",
-                "Swung on and missed! {pitcher} gets the strikeout!",
-                "{pitcher} blows a fastball by {batter} for the K!",
-                "Down on strikes! {batter} couldn't catch up to that one.",
-                "A nasty slider from {pitcher} buckles the knees of {batter}. Strike three!",
-            ],
-            walk: [
-                "{pitcher} loses {batter} on a full count. That's a walk.",
-                "Ball four, and {batter} will take his base.",
-                "{batter} shows great patience at the plate and draws the walk.",
-                "The home plate umpire rings him up... just kidding, it's ball four!",
-            ],
-            single: [
-                "{batter} ropes a single into left field!",
-                "A sharp grounder finds its way through the infield for a base hit.",
-                "{batter} bloops one into shallow center for a single.",
-                "That's a base knock for {batter}!",
-            ],
-            double: [
-                "{batter} smokes one into the gap! That'll be a stand-up double.",
-                "A line drive down the right-field line, {batter} cruises into second.",
-                "He hits it high and deep to center... it's off the wall! A double for {batter}.",
-            ],
-            triple: [
-                "{batter} drives one into deep right-center! He's digging for three... and he's in there! A triple!",
-                "That ball is rattling around in the corner! {batter} is flying around the bases for a triple!",
-            ],
-            homerun: [
-                "That ball is hit deep to left field... way back... GONE! A home run for {batter}!",
-                "High fly ball to right... forget about it! {batter} circles the bases!",
-                "There it goes! A no-doubter for {batter}!",
-                "He got all of that one! A towering shot from {batter}!",
-            ],
-            out: [
-                "{batter} hits a routine grounder to second, easy play for the out.",
-                "Pops it up into foul territory... and the catcher makes the play.",
-                "A sharp liner, but right at the shortstop for the out.",
-                "{batter} flies out to the warning track in center field.",
-                "Ground ball to third, the throw across the diamond... in time!",
-            ],
-            double_play: [
-                "Ground ball to short... they turn two! A 6-4-3 double play to end the threat!",
-                "A tailor-made double play ball, and they execute it perfectly!",
-            ],
-            error: [
-                "A routine grounder, but it's bobbled! An ERROR allows {batter} to reach safely!",
-                "The throw is wide! {batter} is safe on the error!",
-            ],
-        };
+        function generateBattingOrder(teamId) {
+            const roster = gameState.teams[teamId].roster;
+            const positionPlayers = Object.keys(roster)
+                .filter(pos => !["SP", "MR1", "MR2", "CL"].includes(pos))
+                .map(pos => roster[pos]);
 
-        function getCommentary(event, context) {
-            const options = commentary[event];
-            let text = options[Math.floor(Math.random() * options.length)];
-            for (const key in context) {
-                text = text.replace(`{${key}}`, context[key]);
+            if (positionPlayers.length < 9) {
+                console.error("Cannot generate lineup without 9 position players.");
+                return;
             }
-            return text;
+
+            // Calculate advanced stats for each player to score them for lineup spots
+            const scorePlayer = (player) => {
+                const stats = player.stats;
+                const plateAppearances = stats.ab + stats.bb;
+                if (plateAppearances === 0) return { player, ...{ leadoff: 0, contact: 0, bestHitter: 0, cleanup: 0, rbiMan: 0, overall: 0, avg: 0 } };
+                
+                const hits = stats.avg * stats.ab;
+                const obp = (hits + stats.bb) / plateAppearances;
+                // Simplified slugging as we don't have 2B/3B data explicitly
+                const singles = hits - stats.hr;
+                const slg = (singles + (stats.hr * 4)) / stats.ab; // A very basic SLG
+                const ops = obp + slg;
+                const contactRate = 1 - (stats.so / plateAppearances);
+
+                return {
+                    player,
+                    leadoff: obp * 1.5 + player.speed * 0.1,
+                    contact: contactRate * 2 + player.speed * 0.05,
+                    bestHitter: ops * 2 + stats.avg,
+                    cleanup: slg * 1.5 + (stats.rbi / plateAppearances) * 5,
+                    rbiMan: (stats.rbi / plateAppearances) * 5 + slg,
+                    overall: ops,
+                    avg: stats.avg,
+                };
+            };
+
+            const scoredPlayers = positionPlayers.map(scorePlayer);
+            let lineup = new Array(9).fill(null);
+            let remainingPlayers = [...scoredPlayers];
+
+            // Helper to assign the best player for a role to a lineup spot
+            const assignPlayer = (spot, sortBy) => {
+                if (remainingPlayers.length === 0) return;
+                remainingPlayers.sort((a, b) => b[sortBy] - a[sortBy]);
+                const bestFit = remainingPlayers.shift();
+                lineup[spot] = bestFit.player;
+            };
+
+            // #1: Leadoff hitter (high OBP, speed)
+            assignPlayer(0, 'leadoff');
+            // #3: Best all-around hitter (best OPS)
+            assignPlayer(2, 'bestHitter');
+            // #4: Cleanup hitter (power, RBI)
+            assignPlayer(3, 'cleanup');
+            // #2: Contact hitter
+            assignPlayer(1, 'contact');
+            // #5 & #6: RBI men
+            assignPlayer(4, 'rbiMan');
+            assignPlayer(5, 'rbiMan');
+            
+            // #9: Worst batting average
+            remainingPlayers.sort((a, b) => a.avg - b.avg); // Sort ascending by avg
+            const worstHitter = remainingPlayers.shift();
+            lineup[8] = worstHitter.player;
+
+            // #7 & #8: Fill remaining spots with the best overall remaining players
+            remainingPlayers.sort((a, b) => b.overall - a.overall);
+            if (remainingPlayers.length > 0) lineup[6] = remainingPlayers.shift().player;
+            if (remainingPlayers.length > 0) lineup[7] = remainingPlayers.shift().player;
+            
+            // Fill any potential gaps (should not happen with 9 players)
+            for (let i = 0; i < 9; i++) {
+                if (lineup[i] === null && remainingPlayers.length > 0) {
+                    lineup[i] = remainingPlayers.shift().player;
+                }
+            }
+
+            // Clear the old UI and render the new lineup
+            const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
+            battingOrderContainer.innerHTML = ''; 
+            gameState.teams[teamId].battingOrder = [];
+            
+            lineup.forEach(player => {
+                if (player) {
+                    addPlayerToBattingOrder(teamId, player);
+                }
+            });
+
+            updateBattingOrder(teamId);
         }
 
-
-        // ---  ADVANCED SIMULATION LOGIC ---
+        // =================================================================================
+        // --- SIMULATION ENGINE ---
+        // The core logic for simulating a baseball game.
+        // =================================================================================
         class GameSimulation {
             constructor(team1, team2, stadium) {
                 this.teams = {
@@ -1123,6 +1208,214 @@
             return mvp;
         }
 
+        // =================================================================================
+        // --- AI & COMMENTARY ---
+        // Functions for generating dynamic text content, including play-by-play and summaries.
+        // =================================================================================
+        const commentary = {
+            strikeout: [
+                "{batter} is caught looking, a beautiful pitch from {pitcher}!",
+                "Swung on and missed! {pitcher} gets the strikeout!",
+                "{pitcher} blows a fastball by {batter} for the K!",
+                "Down on strikes! {batter} couldn't catch up to that one.",
+                "A nasty slider from {pitcher} buckles the knees of {batter}. Strike three!",
+            ],
+            walk: [
+                "{pitcher} loses {batter} on a full count. That's a walk.",
+                "Ball four, and {batter} will take his base.",
+                "{batter} shows great patience at the plate and draws the walk.",
+                "The home plate umpire rings him up... just kidding, it's ball four!",
+            ],
+            single: [
+                "{batter} ropes a single into left field!",
+                "A sharp grounder finds its way through the infield for a base hit.",
+                "{batter} bloops one into shallow center for a single.",
+                "That's a base knock for {batter}!",
+            ],
+            double: [
+                "{batter} smokes one into the gap! That'll be a stand-up double.",
+                "A line drive down the right-field line, {batter} cruises into second.",
+                "He hits it high and deep to center... it's off the wall! A double for {batter}.",
+            ],
+            triple: [
+                "{batter} drives one into deep right-center! He's digging for three... and he's in there! A triple!",
+                "That ball is rattling around in the corner! {batter} is flying around the bases for a triple!",
+            ],
+            homerun: [
+                "That ball is hit deep to left field... way back... GONE! A home run for {batter}!",
+                "High fly ball to right... forget about it! {batter} circles the bases!",
+                "There it goes! A no-doubter for {batter}!",
+                "He got all of that one! A towering shot from {batter}!",
+            ],
+            out: [
+                "{batter} hits a routine grounder to second, easy play for the out.",
+                "Pops it up into foul territory... and the catcher makes the play.",
+                "A sharp liner, but right at the shortstop for the out.",
+                "{batter} flies out to the warning track in center field.",
+                "Ground ball to third, the throw across the diamond... in time!",
+            ],
+            double_play: [
+                "Ground ball to short... they turn two! A 6-4-3 double play to end the threat!",
+                "A tailor-made double play ball, and they execute it perfectly!",
+            ],
+            error: [
+                "A routine grounder, but it's bobbled! An ERROR allows {batter} to reach safely!",
+                "The throw is wide! {batter} is safe on the error!",
+            ],
+        };
+
+        function getCommentary(event, context) {
+            const options = commentary[event];
+            let text = options[Math.floor(Math.random() * options.length)];
+            for (const key in context) {
+                text = text.replace(`{${key}}`, context[key]);
+            }
+            return text;
+        }
+
+        async function generateAiSummary(sim) {
+            const mvp = getMvp(sim);
+            const mvpStats = sim.stats.players[mvp.id];
+            const winningTeam = sim.score.away > sim.score.home ? sim.teams.away : sim.teams.home;
+            const losingTeam = sim.score.away > sim.score.home ? sim.teams.home : sim.teams.away;
+            const finalScore = `${winningTeam.name} ${Math.max(sim.score.away, sim.score.home)}, ${losingTeam.name} ${Math.min(sim.score.away, sim.score.home)}`;
+
+            let mvpLine = '';
+            if (mvpStats.ip > 0) {
+                const ipString = `${Math.floor(mvpStats.ip)}.${Math.round((mvpStats.ip % 1) * 3)}`;
+                mvpLine = `${mvp.name} was the star on the mound, pitching ${ipString} innings with ${mvpStats.so_p} strikeouts and allowing only ${mvpStats.er_a} earned runs.`;
+            } else {
+                mvpLine = `The game's MVP, ${mvp.name}, had a stellar performance, going ${mvpStats.h}-for-${mvpStats.ab} with ${mvpStats.hr} home run(s) and ${mvpStats.rbi} RBI.`;
+            }
+
+            const bigPlays = sim.events.filter(e => e.rbi >= 2).sort((a, b) => b.rbi - a.rbi);
+            let highlights = 'There were no major turning points.';
+            if (bigPlays.length > 0) {
+                highlights = bigPlays.slice(0, 2).map(play => 
+                    `a ${play.rbi}-run ${play.result === 'HR' ? 'homer' : 'hit'} by ${play.batter} in the ${play.inning}th inning`
+                ).join(', and ');
+                highlights = `Key moments included ${highlights}.`;
+            }
+
+            const prompt = `You are a baseball sportswriter. Write a brief, exciting summary of a baseball game in under 100 words.
+            - Game Result: ${finalScore}.
+            - Winning Team: ${winningTeam.name}.
+            - Losing Team: ${losingTeam.name}.
+            - Game MVP: ${mvpLine}.
+            - Highlights: ${highlights}.
+            Focus on creating a narrative of the game.`;
+
+            try {
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Invalid response structure from API.");
+                }
+            } catch (error) {
+                console.error("AI summary generation failed:", error);
+                return generateFallbackSummary(sim); // Fallback to template
+            }
+        }
+
+        async function generateAiSeriesSummary(seriesMvp) {
+            const series = gameState.series;
+            const team1Name = gameState.teams[1].name;
+            const team2Name = gameState.teams[2].name;
+            const winnerName = series.team1Wins > series.team2Wins ? team1Name : team2Name;
+            const loserName = series.team1Wins > series.team2Wins ? team2Name : team1Name;
+            const seriesScore = `${Math.max(series.team1Wins, series.team2Wins)}-${Math.min(series.team1Wins, series.team2Wins)}`;
+
+            const mvp = seriesMvp.player;
+            const mvpStats = seriesMvp.stats;
+            let mvpLine = '';
+            if (mvpStats.total_ip > 0) {
+                const ipString = `${Math.floor(mvpStats.total_ip)}.${Math.round((mvpStats.total_ip % 1) * 3)}`;
+                mvpLine = `${mvp.name} was dominant, earning ${mvpStats.total_wins} wins over ${ipString} innings with ${mvpStats.total_so_p} strikeouts.`;
+            } else {
+                const avg = (mvpStats.total_ab > 0 ? (mvpStats.total_h / mvpStats.total_ab) : 0).toFixed(3);
+                mvpLine = `${mvp.name} was a force, hitting ${avg} with ${mvpStats.total_hr} home runs and ${mvpStats.total_rbi} RBIs.`;
+            }
+            
+            const prompt = `You are a baseball sportswriter. Write a brief, exciting summary of a best-of-7 baseball series in under 120 words.
+            - Series Winner: ${winnerName}.
+            - Series Loser: ${loserName}.
+            - Final Score: ${winnerName} won ${seriesScore}.
+            - Series MVP: ${mvpLine}.
+            Summarize the overall tone of the series (e.g., a dominant sweep, a close back-and-forth battle, an upset).`;
+
+             try {
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                 if (!response.ok) throw new Error(`API call failed: ${response.status}`);
+                const result = await response.json();
+                return result.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.error("AI series summary failed:", error);
+                return `The ${winnerName} have won the series against the ${loserName} with a final record of ${seriesScore}! ${mvpLine}`;
+            }
+        }
+        
+        function generateFallbackSummary(sim) {
+            const winningTeam = sim.score.away > sim.score.home ? sim.teams.away.name : sim.teams.home.name;
+            const losingTeam = sim.score.away > sim.score.home ? sim.teams.home.name : sim.teams.away.name;
+            const finalScore = `${sim.teams.away.name} ${sim.score.away} - ${sim.teams.home.name} ${sim.score.home}`;
+            const scoreDiff = Math.abs(sim.score.away - sim.score.home);
+            const mvp = getMvp(sim);
+
+            const summaryOpeners = [
+                `It was a hard-fought contest at ${sim.stadium.name}, but the ${winningTeam} emerged victorious over the ${losingTeam} with a final score of ${finalScore}.`,
+                `In a stunning display of skill, the ${winningTeam} defeated the ${losingTeam} today, finishing with a score of ${finalScore}.`,
+                `What a game! The ${winningTeam} pulled ahead to clinch the win against the ${losingTeam}, final score ${finalScore}.`,
+                `The crowd is on its feet as the ${winningTeam} celebrate their victory over the ${losingTeam}.`,
+                `That's all she wrote from ${sim.stadium.name}, where the ${winningTeam} took down the ${losingTeam} in a fantastic ballgame.`,
+                scoreDiff > 5 ? `The ${winningTeam} dominated today's game, cruising to a ${finalScore} win over the ${losingTeam}.` : `It was a nail-biter at ${sim.stadium.name}, with the ${winningTeam} just edging out the ${losingTeam} by a score of ${finalScore}.`,
+                `A stellar performance from the ${winningTeam} secures them the W against the ${losingTeam}.`,
+                `The ${winningTeam} showcased their talent today, securing a decisive win against the ${losingTeam}.`,
+                `Fans of the ${winningTeam} are celebrating tonight after a well-deserved victory.`,
+                `It was a pitcher's duel for the ages, with ${winningTeam} ultimately coming out on top.`,
+                `An offensive explosion led the ${winningTeam} to victory today.`,
+                `In a back-and-forth affair, the ${winningTeam} had the last laugh.`,
+                `The ${losingTeam} fought hard, but the ${winningTeam} proved to be too much to handle.`,
+                `A memorable game at ${sim.stadium.name} ends with a win for the ${winningTeam}.`,
+                `From start to finish, the ${winningTeam} controlled the game, earning a convincing win.`,
+                `The final out is recorded, and the ${winningTeam} pour out of the dugout to celebrate their win!`,
+                `A clutch performance in the late innings sealed the deal for the ${winningTeam}.`,
+                `It was a day to remember for ${mvp.name}, who led the ${winningTeam} to victory.`,
+                `The story of this game was the performance of ${winningTeam}'s pitching staff.`,
+                `Despite a late rally from the ${losingTeam}, the ${winningTeam} held on for the victory.`
+            ];
+            return summaryOpeners[Math.floor(Math.random() * summaryOpeners.length)];
+        }
+
+        // =================================================================================
+        // --- GAME FLOW & INITIALIZATION ---
+        // Functions that control the overall game flow, from screen to screen.
+        // =================================================================================
+        
         function updateScoreboard() {
             const sim = gameState.gameSim;
             if (!sim) return;
@@ -1493,112 +1786,10 @@
             return seriesMvp;
         }
 
-        function randomizeTeam(teamId) {
-            // Clear existing roster and batting order for the team
-            const allPositions = ["C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "DH", "SP", "MR1", "MR2", "CL"];
-            allPositions.forEach(pos => {
-                if (gameState.teams[teamId].roster[pos]) {
-                    removePlayer(teamId, pos);
-                }
-            });
-            gameState.teams[teamId].roster = {};
-            gameState.teams[teamId].battingOrder = [];
-            const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
-            battingOrderContainer.innerHTML = '';
-
-            const otherTeamId = teamId == 1 ? 2 : 1;
-            const usedPlayerIds = new Set(Object.values(gameState.teams[otherTeamId].roster).map(p => p.id));
-
-            const positionMap = {
-                "C": ["C"], "1B": ["1B"], "2B": ["2B"], "3B": ["3B"], "SS": ["SS"],
-                "LF": ["OF"], "CF": ["OF"], "RF": ["OF"], "DH": ["C", "1B", "2B", "3B", "SS", "OF", "DH"],
-                "SP": ["P"], "MR1": ["P"], "MR2": ["P"], "CL": ["P"]
-            };
-
-            allPositions.forEach(pos => {
-                const eligiblePositions = positionMap[pos];
-                let availablePlayers = players.filter(p => 
-                    !usedPlayerIds.has(p.id) && p.positions.some(pp => eligiblePositions.includes(pp))
-                );
-                
-                if (availablePlayers.length > 0) {
-                    const randomPlayer = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
-                    usedPlayerIds.add(randomPlayer.id);
-                    addPlayerToSlot(teamId, pos, randomPlayer);
-                }
-            });
-            
-            generateAiLineup(teamId);
-        }
-        
-        function generateAiLineup(teamId) {
-            const roster = gameState.teams[teamId].roster;
-            const positionPlayers = Object.keys(roster)
-                .filter(pos => !["SP", "MR1", "MR2", "CL"].includes(pos))
-                .map(pos => roster[pos]);
-
-            if (positionPlayers.length < 9) {
-                console.log("Need 9 position players to generate a lineup.");
-                return;
-            }
-
-            const scorePlayer = (player) => {
-                const stats = player.stats;
-                const obp = (stats.ab > 0) ? (stats.h + stats.bb) / (stats.ab + stats.bb) : 0;
-                const slg = (stats.ab > 0) ? (((stats.h - (stats['2b'] + stats['3b'] + stats.hr)) + (stats['2b'] * 2) + (stats['3b'] * 3) + (stats.hr * 4)) / stats.ab) : 0;
-                const ops = obp + slg;
-                const contact = (stats.ab > 0) ? 1 - (stats.so / stats.ab) : 0;
-
-                return {
-                    player,
-                    leadoff: obp * 1.5 + player.speed * 0.1,
-                    twoHole: contact * 1.5 + ops * 0.5,
-                    threeHole: ops * 2,
-                    cleanup: slg * 1.5 + stats.hr * 0.1,
-                    power: slg * 1.2 + stats.hr * 0.15,
-                    overall: ops
-                };
-            };
-
-            const scoredPlayers = positionPlayers.map(scorePlayer);
-            let lineup = new Array(9).fill(null);
-            let remainingPlayers = [...scoredPlayers];
-
-            const placePlayer = (spot, sortBy) => {
-                if (remainingPlayers.length === 0) return;
-                remainingPlayers.sort((a, b) => b[sortBy] - a[sortBy]);
-                const bestPlayer = remainingPlayers.shift();
-                lineup[spot] = bestPlayer.player;
-            };
-
-            placePlayer(0, 'leadoff');
-            placePlayer(2, 'threeHole');
-            placePlayer(3, 'cleanup');
-            placePlayer(1, 'twoHole');
-            placePlayer(4, 'power');
-
-            remainingPlayers.sort((a, b) => b.overall - a.overall);
-            for (let i = 0; i < lineup.length; i++) {
-                if (lineup[i] === null && remainingPlayers.length > 0) {
-                    lineup[i] = remainingPlayers.shift().player;
-                }
-            }
-
-            const battingOrderContainer = document.getElementById(`batting-order-${teamId}`);
-            battingOrderContainer.innerHTML = ''; 
-
-            gameState.teams[teamId].battingOrder = [];
-            const newOrderIds = lineup.map(p => p.id);
-
-            newOrderIds.forEach(playerId => {
-                const player = players.find(p => p.id === playerId);
-                addPlayerToBattingOrder(teamId, player);
-            });
-
-            updateBattingOrder(teamId);
-        }
-
-        // --- EVENT LISTENERS ---
+        // =================================================================================
+        // --- EVENT LISTENERS & INITIALIZATION ---
+        // Sets up all the event listeners for user interaction.
+        // =================================================================================
         document.addEventListener('click', (e) => {
             if (e.target.id === 'start-game-btn') {
                 resetGame(false);
@@ -1655,8 +1846,6 @@
             }
             if (e.target.id === 'randomize-team-1-btn') randomizeTeam(1);
             if (e.target.id === 'randomize-team-2-btn') randomizeTeam(2);
-            if (e.target.id === 'ai-lineup-btn-1') generateAiLineup(1);
-            if (e.target.id === 'ai-lineup-btn-2') generateAiLineup(2);
             if (e.target.classList.contains('add-player-btn')) {
                 const slot = e.target.closest('.player-slot');
                 openPlayerModal(slot.dataset.teamId, slot.dataset.position);
@@ -1735,147 +1924,7 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        // --- AI SUMMARY INTEGRATION ---
-        async function generateAiSummary(sim) {
-            const mvp = getMvp(sim);
-            const mvpStats = sim.stats.players[mvp.id];
-            const winningTeam = sim.score.away > sim.score.home ? sim.teams.away : sim.teams.home;
-            const losingTeam = sim.score.away > sim.score.home ? sim.teams.home : sim.teams.away;
-            const finalScore = `${winningTeam.name} ${Math.max(sim.score.away, sim.score.home)}, ${losingTeam.name} ${Math.min(sim.score.away, sim.score.home)}`;
-
-            let mvpLine = '';
-            if (mvpStats.ip > 0) {
-                const ipString = `${Math.floor(mvpStats.ip)}.${Math.round((mvpStats.ip % 1) * 3)}`;
-                mvpLine = `${mvp.name} was the star on the mound, pitching ${ipString} innings with ${mvpStats.so_p} strikeouts and allowing only ${mvpStats.er_a} earned runs.`;
-            } else {
-                mvpLine = `The game's MVP, ${mvp.name}, had a stellar performance, going ${mvpStats.h}-for-${mvpStats.ab} with ${mvpStats.hr} home run(s) and ${mvpStats.rbi} RBI.`;
-            }
-
-            const bigPlays = sim.events.filter(e => e.rbi >= 2).sort((a, b) => b.rbi - a.rbi);
-            let highlights = 'There were no major turning points.';
-            if (bigPlays.length > 0) {
-                highlights = bigPlays.slice(0, 2).map(play => 
-                    `a ${play.rbi}-run ${play.result === 'HR' ? 'homer' : 'hit'} by ${play.batter} in the ${play.inning}th inning`
-                ).join(', and ');
-                highlights = `Key moments included ${highlights}.`;
-            }
-
-            const prompt = `You are a baseball sportswriter. Write a brief, exciting summary of a baseball game in under 100 words.
-            - Game Result: ${finalScore}.
-            - Winning Team: ${winningTeam.name}.
-            - Losing Team: ${losingTeam.name}.
-            - Game MVP: ${mvpLine}.
-            - Highlights: ${highlights}.
-            Focus on creating a narrative of the game.`;
-
-            try {
-                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                const payload = { contents: chatHistory };
-                const apiKey = ""; 
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) {
-                    throw new Error(`API call failed with status: ${response.status}`);
-                }
-                const result = await response.json();
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    return result.candidates[0].content.parts[0].text;
-                } else {
-                    throw new Error("Invalid response structure from API.");
-                }
-            } catch (error) {
-                console.error("AI summary generation failed:", error);
-                return generateFallbackSummary(sim); // Fallback to template
-            }
-        }
-
-        async function generateAiSeriesSummary(seriesMvp) {
-            const series = gameState.series;
-            const team1Name = gameState.teams[1].name;
-            const team2Name = gameState.teams[2].name;
-            const winnerName = series.team1Wins > series.team2Wins ? team1Name : team2Name;
-            const loserName = series.team1Wins > series.team2Wins ? team2Name : team1Name;
-            const seriesScore = `${Math.max(series.team1Wins, series.team2Wins)}-${Math.min(series.team1Wins, series.team2Wins)}`;
-
-            const mvp = seriesMvp.player;
-            const mvpStats = seriesMvp.stats;
-            let mvpLine = '';
-            if (mvpStats.total_ip > 0) {
-                const ipString = `${Math.floor(mvpStats.total_ip)}.${Math.round((mvpStats.total_ip % 1) * 3)}`;
-                mvpLine = `${mvp.name} was dominant, earning ${mvpStats.total_wins} wins over ${ipString} innings with ${mvpStats.total_so_p} strikeouts.`;
-            } else {
-                const avg = (mvpStats.total_ab > 0 ? (mvpStats.total_h / mvpStats.total_ab) : 0).toFixed(3);
-                mvpLine = `${mvp.name} was a force, hitting ${avg} with ${mvpStats.total_hr} home runs and ${mvpStats.total_rbi} RBIs.`;
-            }
-            
-            const prompt = `You are a baseball sportswriter. Write a brief, exciting summary of a best-of-7 baseball series in under 120 words.
-            - Series Winner: ${winnerName}.
-            - Series Loser: ${loserName}.
-            - Final Score: ${winnerName} won ${seriesScore}.
-            - Series MVP: ${mvpLine}.
-            Summarize the overall tone of the series (e.g., a dominant sweep, a close back-and-forth battle, an upset).`;
-
-             try {
-                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-                const payload = { contents: chatHistory };
-                const apiKey = ""; 
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                 if (!response.ok) throw new Error(`API call failed: ${response.status}`);
-                const result = await response.json();
-                return result.candidates[0].content.parts[0].text;
-            } catch (error) {
-                console.error("AI series summary failed:", error);
-                return `The ${winnerName} have won the series against the ${loserName} with a final record of ${seriesScore}! ${mvpLine}`;
-            }
-        }
-        
-        function generateFallbackSummary(sim) {
-            const winningTeam = sim.score.away > sim.score.home ? sim.teams.away.name : sim.teams.home.name;
-            const losingTeam = sim.score.away > sim.score.home ? sim.teams.home.name : sim.teams.away.name;
-            const finalScore = `${sim.teams.away.name} ${sim.score.away} - ${sim.teams.home.name} ${sim.score.home}`;
-            const scoreDiff = Math.abs(sim.score.away - sim.score.home);
-            const mvp = getMvp(sim);
-
-            const summaryOpeners = [
-                `It was a hard-fought contest at ${sim.stadium.name}, but the ${winningTeam} emerged victorious over the ${losingTeam} with a final score of ${finalScore}.`,
-                `In a stunning display of skill, the ${winningTeam} defeated the ${losingTeam} today, finishing with a score of ${finalScore}.`,
-                `What a game! The ${winningTeam} pulled ahead to clinch the win against the ${losingTeam}, final score ${finalScore}.`,
-                `The crowd is on its feet as the ${winningTeam} celebrate their victory over the ${losingTeam}.`,
-                `That's all she wrote from ${sim.stadium.name}, where the ${winningTeam} took down the ${losingTeam} in a fantastic ballgame.`,
-                scoreDiff > 5 ? `The ${winningTeam} dominated today's game, cruising to a ${finalScore} win over the ${losingTeam}.` : `It was a nail-biter at ${sim.stadium.name}, with the ${winningTeam} just edging out the ${losingTeam} by a score of ${finalScore}.`,
-                `A stellar performance from the ${winningTeam} secures them the W against the ${losingTeam}.`,
-                `The ${winningTeam} showcased their talent today, securing a decisive win against the ${losingTeam}.`,
-                `Fans of the ${winningTeam} are celebrating tonight after a well-deserved victory.`,
-                `It was a pitcher's duel for the ages, with ${winningTeam} ultimately coming out on top.`,
-                `An offensive explosion led the ${winningTeam} to victory today.`,
-                `In a back-and-forth affair, the ${winningTeam} had the last laugh.`,
-                `The ${losingTeam} fought hard, but the ${winningTeam} proved to be too much to handle.`,
-                `A memorable game at ${sim.stadium.name} ends with a win for the ${winningTeam}.`,
-                `From start to finish, the ${winningTeam} controlled the game, earning a convincing win.`,
-                `The final out is recorded, and the ${winningTeam} pour out of the dugout to celebrate their win!`,
-                `A clutch performance in the late innings sealed the deal for the ${winningTeam}.`,
-                `It was a day to remember for ${mvp.name}, who led the ${winningTeam} to victory.`,
-                `The story of this game was the performance of ${winningTeam}'s pitching staff.`,
-                `Despite a late rally from the ${losingTeam}, the ${winningTeam} held on for the victory.`
-            ];
-            return summaryOpeners[Math.floor(Math.random() * summaryOpeners.length)];
-        }
-
-
-        // --- INITIALIZATION ---
+        // --- App Initialization ---
         initializeTeamBuilder(1);
         initializeTeamBuilder(2);
         initializeStadiums();
