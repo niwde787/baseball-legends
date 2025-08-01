@@ -1538,7 +1538,7 @@
             document.getElementById('series-scoreboard').innerHTML = `<h2 class="text-4xl font-bold text-teal-400 mb-2">${title}</h2><p class="text-3xl font-bold">${team1Name}: <span class="text-white">${series.team1Wins}</span> - ${team2Name}: <span class="text-white">${series.team2Wins}</span></p>`;
         }
 
-        function calculateSeriesMvp() {
+        function aggregateSeriesStats() {
             const aggregatedStats = {};
             gameState.series.gameSims.forEach(sim => {
                 for (const playerId in sim.stats.players) {
@@ -1546,22 +1546,149 @@
                         aggregatedStats[playerId] = {
                             player: players.find(p => p.id == playerId),
                             total_mvpScore: 0, total_ab: 0, total_h: 0, total_hr: 0, total_rbi: 0,
-                            total_ip: 0, total_er_a: 0, total_so_p: 0, total_wins: 0
+                            total_ip: 0, total_er_a: 0, total_so_p: 0, total_wins: 0, total_2b: 0, total_3b: 0,
+                            total_bb: 0, total_so: 0, total_r: 0
                         };
                     }
                     const gameStats = sim.stats.players[playerId];
                     const totalStats = aggregatedStats[playerId];
-                    totalStats.total_mvpScore += gameStats.mvpScore;
-                    totalStats.total_ab += gameStats.ab;
-                    totalStats.total_h += gameStats.h;
-                    totalStats.total_hr += gameStats.hr;
-                    totalStats.total_rbi += gameStats.rbi;
-                    totalStats.total_ip += gameStats.ip;
-                    totalStats.total_er_a += gameStats.er_a;
-                    totalStats.total_so_p += gameStats.so_p;
-                    totalStats.total_wins += gameStats.wins;
+                    totalStats.total_mvpScore += gameStats.mvpScore || 0;
+                    totalStats.total_ab += gameStats.ab || 0;
+                    totalStats.total_h += gameStats.h || 0;
+                    totalStats.total_hr += gameStats.hr || 0;
+                    totalStats.total_rbi += gameStats.rbi || 0;
+                    totalStats.total_ip += gameStats.ip || 0;
+                    totalStats.total_er_a += gameStats.er_a || 0;
+                    totalStats.total_so_p += gameStats.so_p || 0;
+                    totalStats.total_wins += gameStats.wins || 0;
+                    totalStats.total_2b += gameStats['2b'] || 0;
+                    totalStats.total_3b += gameStats['3b'] || 0;
+                    totalStats.total_bb += gameStats.bb || 0;
+                    totalStats.total_so += gameStats.so || 0;
+                    totalStats.total_r += gameStats.r || 0;
                 }
             });
+            return aggregatedStats;
+        }
+
+        function generateLeaderboards(aggregatedStats) {
+            const players = Object.values(aggregatedStats);
+            
+            // Filter players with meaningful stats
+            const batters = players.filter(p => p.total_ab > 0);
+            const pitchers = players.filter(p => p.total_ip > 0);
+            
+            // Sort leaderboards
+            const battingAvgLeaders = batters
+                .map(p => ({ ...p, avg: p.total_h / p.total_ab }))
+                .sort((a, b) => b.avg - a.avg)
+                .slice(0, 5);
+                
+            const homeRunLeaders = batters
+                .sort((a, b) => b.total_hr - a.total_hr)
+                .slice(0, 5);
+                
+            const rbiLeaders = batters
+                .sort((a, b) => b.total_rbi - a.total_rbi)
+                .slice(0, 5);
+                
+            const eraLeaders = pitchers
+                .map(p => ({ ...p, era: p.total_ip > 0 ? (p.total_er_a * 9) / p.total_ip : 999.99 }))
+                .sort((a, b) => a.era - b.era)
+                .slice(0, 5);
+                
+            const strikeoutLeaders = pitchers
+                .sort((a, b) => b.total_so_p - a.total_so_p)
+                .slice(0, 5);
+            
+            // Generate HTML
+            let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">';
+            
+            // Batting Average
+            html += '<div class="bg-gray-800 rounded-lg shadow p-4">';
+            html += '<h4 class="font-bold text-lg mb-3 text-teal-400">Batting Average Leaders</h4>';
+            battingAvgLeaders.forEach((player, i) => {
+                html += `<div class="flex justify-between items-center py-1 ${i === 0 ? 'font-bold text-teal-300' : 'text-gray-300'}">`;
+                html += `<span>${i + 1}. ${player.player.name}</span>`;
+                html += `<span>${player.avg.toFixed(3)}</span>`;
+                html += '</div>';
+            });
+            html += '</div>';
+            
+            // Home Runs
+            html += '<div class="bg-gray-800 rounded-lg shadow p-4">';
+            html += '<h4 class="font-bold text-lg mb-3 text-teal-400">Home Run Leaders</h4>';
+            homeRunLeaders.forEach((player, i) => {
+                html += `<div class="flex justify-between items-center py-1 ${i === 0 ? 'font-bold text-teal-300' : 'text-gray-300'}">`;
+                html += `<span>${i + 1}. ${player.player.name}</span>`;
+                html += `<span>${player.total_hr}</span>`;
+                html += '</div>';
+            });
+            html += '</div>';
+            
+            // RBIs
+            html += '<div class="bg-gray-800 rounded-lg shadow p-4">';
+            html += '<h4 class="font-bold text-lg mb-3 text-teal-400">RBI Leaders</h4>';
+            rbiLeaders.forEach((player, i) => {
+                html += `<div class="flex justify-between items-center py-1 ${i === 0 ? 'font-bold text-teal-300' : 'text-gray-300'}">`;
+                html += `<span>${i + 1}. ${player.player.name}</span>`;
+                html += `<span>${player.total_rbi}</span>`;
+                html += '</div>';
+            });
+            html += '</div>';
+            
+            // ERA
+            html += '<div class="bg-gray-800 rounded-lg shadow p-4">';
+            html += '<h4 class="font-bold text-lg mb-3 text-teal-400">ERA Leaders</h4>';
+            eraLeaders.forEach((player, i) => {
+                html += `<div class="flex justify-between items-center py-1 ${i === 0 ? 'font-bold text-teal-300' : 'text-gray-300'}">`;
+                html += `<span>${i + 1}. ${player.player.name}</span>`;
+                html += `<span>${player.era.toFixed(2)}</span>`;
+                html += '</div>';
+            });
+            html += '</div>';
+            
+            // Strikeouts
+            html += '<div class="bg-gray-800 rounded-lg shadow p-4">';
+            html += '<h4 class="font-bold text-lg mb-3 text-teal-400">Strikeout Leaders</h4>';
+            strikeoutLeaders.forEach((player, i) => {
+                html += `<div class="flex justify-between items-center py-1 ${i === 0 ? 'font-bold text-teal-300' : 'text-gray-300'}">`;
+                html += `<span>${i + 1}. ${player.player.name}</span>`;
+                html += `<span>${player.total_so_p}</span>`;
+                html += '</div>';
+            });
+            html += '</div>';
+            
+            html += '</div>';
+            return html;
+        }
+
+        function calculateSeriesMvp(aggregatedStats = null) {
+            if (!aggregatedStats) {
+                aggregatedStats = {};
+                gameState.series.gameSims.forEach(sim => {
+                    for (const playerId in sim.stats.players) {
+                        if (!aggregatedStats[playerId]) {
+                            aggregatedStats[playerId] = {
+                                player: players.find(p => p.id == playerId),
+                                total_mvpScore: 0, total_ab: 0, total_h: 0, total_hr: 0, total_rbi: 0,
+                                total_ip: 0, total_er_a: 0, total_so_p: 0, total_wins: 0
+                            };
+                        }
+                        const gameStats = sim.stats.players[playerId];
+                        const totalStats = aggregatedStats[playerId];
+                        totalStats.total_mvpScore += gameStats.mvpScore;
+                        totalStats.total_ab += gameStats.ab;
+                        totalStats.total_h += gameStats.h;
+                        totalStats.total_hr += gameStats.hr;
+                        totalStats.total_rbi += gameStats.rbi;
+                        totalStats.total_ip += gameStats.ip;
+                        totalStats.total_er_a += gameStats.er_a;
+                        totalStats.total_so_p += gameStats.so_p;
+                        totalStats.total_wins += gameStats.wins;
+                    }
+                });
+            }
             let seriesMvp = null;
             let maxMvpScore = -Infinity;
             for (const playerId in aggregatedStats) {
