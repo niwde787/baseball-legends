@@ -696,7 +696,7 @@
 
                 if(Math.random() * 100 < scoreChance) {
                     const points = shotType === 'three_point' ? 3 : 2;
-                    this.score[`q${this.currentQuarter}`][offense.name === 'Team 1' ? 't1' : 't2'] += points;
+                    this.score[`q${this.currentQuarter}`][offense.name === this.team1.name ? 't1' : 't2'] += points;
                     shooter.stats.pts += points;
                     if(assister) assister.stats.ast++;
                 } else {
@@ -814,4 +814,3 @@
     </script>
 </body>
 </html>
-
